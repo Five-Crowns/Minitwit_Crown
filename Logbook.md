@@ -16,6 +16,21 @@ Date: (year), (day of the week) (month) (day), (time) (timezone)
 ---
 
 Author: gafa, <gafa@itu.dk> <br>
+Date: 2025, Fri Feb 07, 14:13:27 UTC+1
+
+Added the refactored, more general, test-suite made by Helge.
+
+The tests try to access `localhost:5000` by default,
+so I also modified `minitwit.py` to run on said url.
+Another thing to note is, for the tests to work,
+you need to be running the webserver, and also,
+the tests make changes to the database,
+which need to be reverted if you want
+the tests to run successfully a 2nd time.
+
+---
+
+Author: gafa, <gafa@itu.dk> <br>
 Date: 2025, Fri Feb 07, 10:46:32 UTC+1
 
 Corrected control.sh Shebang.
