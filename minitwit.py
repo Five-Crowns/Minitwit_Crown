@@ -20,6 +20,8 @@ from flask import Flask, request, session, url_for, redirect, \
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # configuration
+HOST = 'localhost'
+PORT = '5000'
 DATABASE = 'minitwit.db'
 PER_PAGE = 30
 DEBUG = True
@@ -247,4 +249,4 @@ app.debug = DEBUG
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0")
+    app.run(host=HOST, port=PORT)
