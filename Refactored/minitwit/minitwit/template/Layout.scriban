@@ -1,0 +1,30 @@
+<!doctype html>
+<title>{% block title %}Welcome{% endblock %} | MiniTwit</title>
+<link rel="stylesheet" type="text/css" href="{{ 'static/style.css' | raw }}">
+<div class="page">
+  <h1>MiniTwit</h1>
+  <div class="navigation">
+  {% if g.user %}
+    <a href="{{ 'timeline' | raw }}">my timeline</a> |
+    <a href="{{ 'public_timeline' | raw }}">public timeline</a> |
+    <a href="{{ 'logout' | raw }}">sign out [{{ g.user.username }}]</a>
+  {% else %}
+    <a href="{{ 'public_timeline' | raw }}">public timeline</a> |
+    <a href="{{ 'register' | raw }}">sign up</a> |
+    <a href="{{ 'login' | raw }}">sign in</a>
+  {% endif %}
+  </div>
+  {% if flashes.size > 0 %}
+    <ul class="flashes">
+    {% for message in flashes %}
+      <li>{{ message }}
+    {% endfor %}
+    </ul>
+  {% endif %}
+  <div class="body">
+    {% block body %}{% endblock %}
+  </div>
+  <div class="footer">
+    MiniTwit &mdash; A Scriban-based ASP.NET Application
+  </div>
+</div>
