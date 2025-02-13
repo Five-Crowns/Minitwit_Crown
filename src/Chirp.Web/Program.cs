@@ -50,51 +50,9 @@ namespace Chirp.Web
                     options.SignIn.RequireConfirmedAccount = true)
                 .AddSignInManager<SignInManager<ApplicationUser>>()
                 .AddEntityFrameworkStores<CheepDBContext>();
-
-            // Retrieve ClientId and ClientSecret from configuration
-            string? clientId = builder.Configuration["AUTHENTICATION_GITHUB_CLIENTID"];
-            string? clientSecret = builder.Configuration["AUTHENTICATION_GITHUB_CLIENTSECRET"];
-
-            if (string.IsNullOrEmpty(clientId) && string.IsNullOrEmpty(clientSecret))
-            {
-                throw new ApplicationException("Failed to retrieve both the Github Client ID and Secret. Make sure that the values are set on the machine.");
-            }
-            if (string.IsNullOrEmpty(clientId))
-            {
-                throw new ApplicationException("Failed to retrieve the Github Client ID. Make sure that the github value is set on the machine.");
-            }
-            if (string.IsNullOrEmpty(clientSecret))
-            {
-                throw new ApplicationException("Failed to retrieve the Github Secret. Make sure that the github value is set on the machine.");
-            }
             
-            // Add GitHub Services
-         /*   builder.Services.AddAuthentication()
-                .AddGitHub(options =>
-                {
-                    options.ClientId = clientId;
-                    options.ClientSecret = clientSecret;
-                    options.CallbackPath = new PathString("/signin-github");
-                    options.Scope.Add("user:email");
-                    options.ClaimActions.MapJsonKey("urn:github:avatar_url", "avatar_url");
-
-
-                    options.Events.OnCreatingTicket = context =>
-                    {
-                        // Retrieve user details from claims
-                        var userName = context.Identity?.FindFirst(c => c.Type == ClaimTypes.Name)?.Value;
-                        var email = context.Identity?.FindFirst(c => c.Type == ClaimTypes.Email)?.Value;
-
-                        // You can use these values as needed in your application
-                        Console.WriteLine($"GitHub Username: {userName}");
-                        Console.WriteLine($"GitHub Email: {email}");
-
-                        return Task.CompletedTask;
-                    };
-                }); 
-            */
-            // builder.Services.AddSession();
             
+            // Add the authorization policy
             builder.Services.AddDistributedMemoryCache();
 
             builder.Services.AddSession(options =>
@@ -166,6 +124,24 @@ namespace Chirp.Web
             // Map Razor Pages
             app.MapRazorPages();
             
+            app.MapGet("/logout", context =>
+            {
+                context.Response.Redirect("/Identity/Account/Logout");
+                return Task.CompletedTask;
+            });
+            
+            app.MapGet("/login", context =>
+            {
+                context.Response.Redirect("/Identity/Account/Login");
+                return Task.CompletedTask;
+            });
+            
+            app.MapGet("/register", context =>
+            {
+                context.Response.Redirect("/Identity/Account/Register");
+                return Task.CompletedTask;
+            });
+            
             app.MapGet("/cheeps", async (CheepService cheepService) =>
             {
                 var cheeps = await cheepService.RetrieveAllCheeps();
@@ -177,6 +153,44 @@ namespace Chirp.Web
                 var followedAuthors = await authorService.GetFollowedAuthors(userName);
                 return Results.Ok(followedAuthors);
             });
+            
+            app.MapPost("/{userName}/follow", async (HttpContext context, string userName, AuthorService authorService) =>
+            {
+                if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
+                {
+                    var currentUser = context.User.Identity.Name;
+                    if (currentUser != null)
+                    {
+                        await authorService.FollowAuthor(currentUser, userName);
+                        return Results.Redirect($"/Public");
+                    }
+                }
+                return Results.Unauthorized();
+            });
+
+            app.MapPost("/{userName}/unfollow", async (HttpContext context, string userName, AuthorService authorService) =>
+            {
+                if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
+                {
+                    var currentUser = context.User.Identity.Name;
+                    if (currentUser != null)
+                    {
+                        await authorService.UnfollowAuthor(currentUser, userName);
+                        return Results.Redirect($"/Public");
+                    }
+                    
+                }
+                return Results.Unauthorized();
+            });
+            
+            // app.MapGet("/", context =>
+            // {
+            //     if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
+            //     {
+            //         context.Response.Redirect($"/{context.User.Identity.Name}");
+            //     }
+            //     return Task.CompletedTask;
+            // });
             
             // Run the application
             app.Run();
