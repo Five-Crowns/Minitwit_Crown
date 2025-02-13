@@ -124,6 +124,20 @@ namespace Chirp.Web
             // Map Razor Pages
             app.MapRazorPages();
             
+            // Original endpoints
+            app.MapGet("/{userName}/follows", async (string userName, AuthorService authorService) =>
+            {
+                var followedAuthors = await authorService.GetFollowedAuthors(userName);
+                return Results.Ok(followedAuthors);
+            });
+                        
+            app.MapGet("/cheeps", async (CheepService cheepService) =>
+            {
+                var cheeps = await cheepService.RetrieveAllCheeps();
+                return Results.Ok(cheeps);
+            });
+            
+            // Endpoints added for tests
             app.MapGet("/logout", context =>
             {
                 context.Response.Redirect("/Identity/Account/Logout");
@@ -140,18 +154,6 @@ namespace Chirp.Web
             {
                 context.Response.Redirect("/Identity/Account/Register");
                 return Task.CompletedTask;
-            });
-            
-            app.MapGet("/cheeps", async (CheepService cheepService) =>
-            {
-                var cheeps = await cheepService.RetrieveAllCheeps();
-                return Results.Ok(cheeps);
-            });
-            
-            app.MapGet("/{userName}/follows", async (string userName, AuthorService authorService) =>
-            {
-                var followedAuthors = await authorService.GetFollowedAuthors(userName);
-                return Results.Ok(followedAuthors);
             });
             
             app.MapPost("/{userName}/follow", async (HttpContext context, string userName, AuthorService authorService) =>
@@ -202,15 +204,6 @@ namespace Chirp.Web
                 var resultMessage = await cheepService.CreateCheepDTO(authorName, text);
                 return Results.Ok(resultMessage);
             });
-
-            // app.MapGet("/", context =>
-            // {
-            //     if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
-            //     {
-            //         context.Response.Redirect($"/{context.User.Identity.Name}");
-            //     }
-            //     return Task.CompletedTask;
-            // });
             
             // Run the application
             app.Run();
