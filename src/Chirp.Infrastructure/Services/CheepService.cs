@@ -1,3 +1,4 @@
+using System.Globalization;
 using Chirp.Core.DTOs;
 using Chirp.Core.Interfaces;
 using Chirp.Infrastructure.Repositories;
@@ -213,5 +214,27 @@ public class CheepService : ICheepService
     public async Task<List<Core.DTOs.CommentDTO>> RetrieveAllCommentsFromAnAuthor(string authorName)
     {
         return await _cheepRepository.RetriveAllCommentsFromAnAuthor(authorName);
+    }
+    
+    /// <summary>
+    /// Creates a cheepDTO using specified author and text
+    /// </summary>
+    /// <param name="authorName">The name of the author.</param>
+    /// /// <param name="text">The content of the message.</param>
+    public async Task<string> CreateCheepDTO(string authorName, string text)
+    {
+        var cheepDTO = new CheepDTO
+        {
+            Author = new AuthorDTO
+            {
+                Name = authorName,
+                Email = authorName // Assuming email is the same as the username
+            },
+            Text = text,
+            FormattedTimeStamp = DateTime.UtcNow.ToString(CultureInfo.CurrentCulture) // Or however you want to format this
+        };
+
+        await CreateCheep(cheepDTO);
+        return "Your message was recorded";
     }
 }

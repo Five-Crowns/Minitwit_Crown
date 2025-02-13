@@ -183,6 +183,26 @@ namespace Chirp.Web
                 return Results.Unauthorized();
             });
             
+            app.MapPost("/add_message", async (HttpContext context, CheepService cheepService) =>
+            {
+                var form = await context.Request.ReadFormAsync();
+                var text = form["text"].ToString();
+
+                if (string.IsNullOrEmpty(text))
+                {
+                    return Results.BadRequest("Message text cannot be empty");
+                }
+
+                var authorName = context.User.Identity?.Name;
+                if (authorName == null)
+                {
+                    return Results.Unauthorized();
+                }
+
+                var resultMessage = await cheepService.CreateCheepDTO(authorName, text);
+                return Results.Ok(resultMessage);
+            });
+
             // app.MapGet("/", context =>
             // {
             //     if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
