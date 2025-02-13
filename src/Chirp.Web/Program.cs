@@ -69,7 +69,7 @@ namespace Chirp.Web
             }
             
             // Add GitHub Services
-            builder.Services.AddAuthentication()
+         /*   builder.Services.AddAuthentication()
                 .AddGitHub(options =>
                 {
                     options.ClientId = clientId;
@@ -92,8 +92,17 @@ namespace Chirp.Web
                         return Task.CompletedTask;
                     };
                 }); 
+            */
+            // builder.Services.AddSession();
             
-            builder.Services.AddSession();
+            builder.Services.AddDistributedMemoryCache();
+
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromSeconds(10);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
             
             // Register your repositories and services
             builder.Services.AddScoped<CheepRepository>();
