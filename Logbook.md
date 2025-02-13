@@ -15,6 +15,20 @@ Date: (year), (day of the week) (month) (day), (time) (timezone)
 
 ---
 
+Author: mnla, mnla@itu.dk <br>
+Date: 2025, Thu Feb 13, 17:30:00 UTC+1
+
+Created docker file using `docker init` and following the steps.
+
+---
+
+Author: nals, nals@itu.dk <br>
+Date: 2025, Thu Feb 13, 16:30:00 UTC+1
+
+Refactored project using the old BDSA Chirp project, and removed authentication and login using GitHub. Such that we now use HTTP Session cookies to handle if a user is logged into your system.
+
+---
+
 Author: gafa, <gafa@itu.dk> <br>
 Date: 2025, Fri Feb 07, 14:13:27 UTC+1
 
