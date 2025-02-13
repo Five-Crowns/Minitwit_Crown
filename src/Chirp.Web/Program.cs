@@ -144,19 +144,51 @@ namespace Chirp.Web
                 return Task.CompletedTask;
             });
             
-            app.MapGet("/login", context =>
+            app.MapPost("/register", async (HttpContext context, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager) =>
             {
-                context.Response.Redirect("/Identity/Account/Login");
-                return Task.CompletedTask;
+                var form = await context.Request.ReadFormAsync();
+                var username = form["username"].ToString();
+                var password = form["password"].ToString();
+                var email = form["email"].ToString();
+
+                var user = new ApplicationUser { UserName = username, Email = email };
+                var result = await userManager.CreateAsync(user, password);
+
+                if (result.Succeeded)
+                {
+                    await signInManager.SignInAsync(user, isPersistent: false);
+                    return Results.Redirect("/"); // Redirect after successful registration
+                }
+                else
+                {
+                    // Handle registration errors
+                    foreach (var error in result.Errors)
+                    {
+                        Console.WriteLine(error.Description);
+                    }
+                    return Results.BadRequest("Registration failed.");
+                }
+            });
+
+            app.MapPost("/login", async (HttpContext context, SignInManager<ApplicationUser> signInManager) =>
+            {
+                var form = await context.Request.ReadFormAsync();
+                var username = form["username"].ToString();
+                var password = form["password"].ToString();
+
+                var result = await signInManager.PasswordSignInAsync(username, password, isPersistent: false, lockoutOnFailure: false);
+
+                if (result.Succeeded)
+                {
+                    return Results.Redirect("/"); // Redirect after successful login
+                }
+                else
+                {
+                    return Results.BadRequest("Login failed.");
+                }
             });
             
-            app.MapGet("/register", context =>
-            {
-                context.Response.Redirect("/Identity/Account/Register");
-                return Task.CompletedTask;
-            });
-            
-            app.MapPost("/{userName}/follow", async (HttpContext context, string userName, AuthorService authorService) =>
+            app.MapGet("/{userName}/follow", async (HttpContext context, string userName, AuthorService authorService) =>
             {
                 if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
                 {
@@ -170,7 +202,7 @@ namespace Chirp.Web
                 return Results.Unauthorized();
             });
 
-            app.MapPost("/{userName}/unfollow", async (HttpContext context, string userName, AuthorService authorService) =>
+            app.MapGet("/{userName}/unfollow", async (HttpContext context, string userName, AuthorService authorService) =>
             {
                 if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
                 {
@@ -201,8 +233,8 @@ namespace Chirp.Web
                     return Results.Unauthorized();
                 }
 
-                var resultMessage = await cheepService.CreateCheepDTO(authorName, text);
-                return Results.Ok(resultMessage);
+                await cheepService.CreateCheepDTO(authorName, text);
+                return Results.Ok("Your message was recorded");
             });
             
             // Run the application
