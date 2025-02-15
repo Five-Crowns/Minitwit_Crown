@@ -12,7 +12,16 @@ Date: (year), (day of the week) (month) (day), (time) (timezone)
 (header/one-line summary)
 
 (changes)
+---
 
+Author: nals, <nals@itu.dk> <br>
+Date: 2025, Fri Feb 07, 14:13:27 UTC+1
+
+Refactored to ruby with help from GitHub copilot. Installed Sinatra, Sqlite3, Bcrypt using: 
+- `gem install sinatra` 
+- `gem install sqlite3`
+- `gem install bcrypt`
+- `gem install rackup puma`
 ---
 
 Author: gafa, <gafa@itu.dk> <br>
