@@ -15,7 +15,7 @@ Date: (year), (day of the week) (month) (day), (time) (timezone)
 ---
 
 Author: nals, <nals@itu.dk> <br>
-Date: 2025, Fri Feb 07, 14:13:27 UTC+1
+Date: 2025, Fri Feb 16, 22:59:27 UTC+1
 
 Refactored to ruby with help from GitHub copilot. Installed Sinatra, Sqlite3, Bcrypt using: 
 - `gem install sinatra` 
