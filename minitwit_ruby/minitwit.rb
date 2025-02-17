@@ -25,7 +25,7 @@ SECRET_KEY = SecureRandom.hex(64)  # Generate a 64-byte secret key
 # Database connection
 def connect_db
   db = SQLite3::Database.new(DATABASE)
-  db.results_as_hash = true
+  db.results_as_hash = true #Allows accessing record fields by their name
   db
 end
 
