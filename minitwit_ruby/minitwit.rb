@@ -24,7 +24,9 @@ SECRET_KEY = SecureRandom.hex(64)  # Generate a 64-byte secret key
 
 # Database connection
 def connect_db
-  SQLite3::Database.new(DATABASE)
+  db = SQLite3::Database.new(DATABASE)
+  db.results_as_hash = true
+  db
 end
 
 # Initialize the database
@@ -88,7 +90,7 @@ get '/' do
         user.user_id = ? OR
         user.user_id IN (SELECT whom_id FROM follower WHERE who_id = ?))
       ORDER BY message.pub_date DESC LIMIT ? OFFSET ?''',
-      session[:user_id], session[:user_id], PER_PAGE, offset)
+      [session[:user_id], session[:user_id], PER_PAGE, offset])
     erb :timeline
   end
 end
@@ -109,12 +111,12 @@ end
 
 post '/login' do
   user = query_db('SELECT * FROM user WHERE username = ?', params['username']).first
-  if user.nil? || !(BCrypt::Password.new(user[3]) == params['password']) #user[3] is the pw_hash field
+  if user.nil? || !(BCrypt::Password.new(user["pw_hash"]) == params['password'])
     @error = 'Invalid username or password'
     @username = params['username']
     erb :login, layout: :layout
   else
-    session[:user_id] = user[0]
+    session[:user_id] = user["user_id"]
     redirect to('/')
   end
 end
@@ -197,7 +199,7 @@ post '/add_message' do
   halt 401 unless session[:user_id]
   if params['text'] && !params['text'].empty?
     @db.execute('INSERT INTO message (author_id, text, pub_date, flagged) VALUES (?, ?, ?, 0)',
-                session[:user_id], params['text'], Time.now.to_i)
+                [session[:user_id], params['text'], Time.now.to_i])
     redirect to('/')
   end
 end
