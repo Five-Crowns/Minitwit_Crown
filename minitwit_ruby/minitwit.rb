@@ -84,22 +84,22 @@ get '/' do
     redirect to('/public')
   else
     offset = params['offset'] ? params['offset'].to_i : 0
-    @messages = query_db('''
+    @messages = query_db("
       SELECT message.*, user.* FROM message, user
       WHERE message.flagged = 0 AND message.author_id = user.user_id AND (
         user.user_id = ? OR
         user.user_id IN (SELECT whom_id FROM follower WHERE who_id = ?))
-      ORDER BY message.pub_date DESC LIMIT ? OFFSET ?''',
+      ORDER BY message.pub_date DESC LIMIT ? OFFSET ?",
       [session[:user_id], session[:user_id], PER_PAGE, offset])
     erb :timeline
   end
 end
 
 get '/public' do
-  @messages = query_db('''
+  @messages = query_db("
     SELECT message.*, user.* FROM message, user
     WHERE message.flagged = 0 AND message.author_id = user.user_id
-    ORDER BY message.pub_date DESC LIMIT ?''', PER_PAGE)
+    ORDER BY message.pub_date DESC LIMIT ?", PER_PAGE)
   erb :timeline
 end
 
