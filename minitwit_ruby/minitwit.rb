@@ -165,14 +165,14 @@ get '/:username' do
   followed = false
   if @user
     followed = !query_db('SELECT 1 FROM follower WHERE follower.who_id = ? AND follower.whom_id = ?',
-                          session[:user_id], profile_user['user_id']).empty?
+                          [session[:user_id], profile_user['user_id']]).empty?
   end
 
   @messages = query_db('''
     SELECT message.*, user.* FROM message, user WHERE
     user.user_id = message.author_id AND user.user_id = ?
     ORDER BY message.pub_date DESC LIMIT ?''',
-    profile_user['user_id'], PER_PAGE)
+    [profile_user['user_id'], PER_PAGE])
 
   erb :timeline, locals: { followed: followed, profile_user: profile_user }
 end
