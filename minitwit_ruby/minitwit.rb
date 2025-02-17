@@ -144,7 +144,7 @@ post '/register' do
   else
     pw_hash = BCrypt::Password.create(params['password'])
     query_db('INSERT INTO user (username, email, pw_hash) VALUES (?, ?, ?)',
-              params['username'], params['email'], pw_hash)
+              [params['username'], params['email'], pw_hash])
     redirect to('/login')
   end
   
