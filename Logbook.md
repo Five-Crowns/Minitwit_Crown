@@ -12,10 +12,20 @@ Date: (year), (day of the week) (month) (day), (time) (timezone)
 (header/one-line summary)
 
 (changes)
+
 ---
 
 Author: nals, <nals@itu.dk> <br>
-Date: 2025, Fri Feb 16, 22:59:27 UTC+1
+Date: 2025, Mon Feb 17, 14:57:27 UTC+1
+
+Fixed 404 response when trying to query /login /register
+
+The issue stemmed from the `get '/:username'` which intercepted the request before login and register. In other words it meant that it treated the request to "/login" as a request to see the user "login", thus the fix was simply to move the route mappings above the dynamic routes.
+
+---
+
+Author: nals, <nals@itu.dk> <br>
+Date: 2025, Sun Feb 16, 22:59:27 UTC+1
 
 Refactored to ruby with help from GitHub copilot. Installed Sinatra, Sqlite3, Bcrypt using: 
 - `gem install sinatra` 

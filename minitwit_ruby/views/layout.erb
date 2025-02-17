@@ -5,12 +5,12 @@
   <h1>MiniTwit</h1>
   <div class="navigation">
     <% if @user %>
-      <a href="<%= url('/') %>">my timeline</a> |
-      <a href="<%= url('/public') %>">public timeline</a> |
+      <a href="<%= url('/') %>">my timeline | </a>
+      <a href="<%= url('/public') %>">public timeline | </a>
       <a href="<%= url('/logout') %>">sign out [<%= @user['username'] %>]</a>
     <% else %>
-      <a href="<%= url('/public') %>">public timeline</a> |
-      <a href="<%= url('/register') %>">sign up</a> |
+      <a href="<%= url('/public') %>">public timeline | </a> 
+      <a href="<%= url('/register') %>">sign up | </a> 
       <a href="<%= url('/login') %>">sign in</a>
     <% end %>
   </div>
