@@ -109,12 +109,12 @@ end
 
 post '/login' do
   user = query_db('SELECT * FROM user WHERE username = ?', params['username']).first
-  if user.nil? || !(BCrypt::Password.new(user['pw_hash']) == params['password'])
+  if user.nil? || !(BCrypt::Password.new(user[3]) == params['password']) #user[3] is the pw_hash field
     @error = 'Invalid username or password'
     @username = params['username']
     erb :login, layout: :layout
   else
-    session[:user_id] = user['user_id']
+    session[:user_id] = user[0]
     redirect to('/')
   end
 end
