@@ -8,7 +8,9 @@ require 'sinatra/content_for'
 
 helpers Sinatra::ContentFor
 set :public_folder, File.dirname(__FILE__) + '/public'
-set :views, File.dirname(__FILE__) + '/views'
+# set :views, File.dirname(__FILE__) + '/views'
+set :root, File.dirname(__FILE__) # Explicitly set the root (important!)
+set :views, File.join(settings.root, 'views') # Set views relative to root
 enable :static
 
 # Configuration
