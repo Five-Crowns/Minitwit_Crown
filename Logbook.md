@@ -14,6 +14,20 @@ Date: (year), (day of the week) (month) (day), (time) (timezone)
 (changes)
 
 ---
+Author: brka, <brka@itu.dk> <br>
+Date: 2025, Mon Feb 17, 17:40:02 UTC+1
+
+Fixed exceptions when querying /login /register / / public
+
+Most of the errors were caused by either:
+    1. an incorrect call to `query_db`, which should take a query and an array of arguments. The arguments were being passed individually.
+    2. configuring the database to return records as a map. Getting values by their keys eg `user.["user_id]` then worked.
+
+Other than that, `timeline.erb` is having issues with other profiles than the user's own.
+`/public` was having similar issues because it was trying to access profile specific information, eg `followed?` on the public timeline.
+That has been corrected to first check if the page is a user's timeline or the public one.  
+
+---
 
 Author: nals, <nals@itu.dk> <br>
 Date: 2025, Mon Feb 17, 14:57:27 UTC+1
