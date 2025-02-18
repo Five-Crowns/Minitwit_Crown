@@ -14,6 +14,20 @@ Date: (year), (day of the week) (month) (day), (time) (timezone)
 (changes)
 
 ---
+
+Author: mnla, <mnla@itu.dk> <br>
+Date: 2025, Tue Feb 18, 11:40:00 UTC+1
+
+Intialized docker setup
+
+    1. Added the docker files that needs to be ajusted
+    2. Added a gem file for easier setup of the application
+    3. Fixed secret to be fixed and not generated new each time the program launches
+
+
+
+---
+
 Author: brka, <brka@itu.dk> <br>
 Date: 2025, Mon Feb 17, 17:40:02 UTC+1
 
