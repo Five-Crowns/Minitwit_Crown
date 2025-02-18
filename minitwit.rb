@@ -5,6 +5,7 @@ require 'securerandom'
 require 'bcrypt'
 require 'time'
 require 'sinatra/content_for'
+require 'dotenv/load'
 
 helpers Sinatra::ContentFor
 set :public_folder, File.dirname(__FILE__) + '/public'
@@ -14,13 +15,13 @@ set :views, File.join(settings.root, 'views') # Set views relative to root
 enable :static
 
 # Configuration
-HOST = 'localhost'
+HOST = '0.0.0.0'
 PORT = 5000
 DATABASE = 'minitwit.db'
 SCHEMA_PATH = 'schema.sql'
 PER_PAGE = 30
 DEBUG = true
-SECRET_KEY = SecureRandom.hex(64)  # Generate a 64-byte secret key
+
 
 # Database connection
 def connect_db
@@ -208,6 +209,6 @@ end
 set :bind, HOST
 set :port, PORT
 set :sessions, true
-set :session_secret, SECRET_KEY
+set :session_secret, ENV['SESSION_SECRET'] || SecureRandom.hex(64)  # Fallback if ENV is missing
 
 Sinatra::Application.run! if __FILE__ == $0
