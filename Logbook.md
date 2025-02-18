@@ -15,6 +15,18 @@ Date: (year), (day of the week) (month) (day), (time) (timezone)
 
 ---
 
+---
+
+Author: mnla, <mnla@itu.dk> <br>
+Date: 2025, Tue Feb 18, 15:31:00 UTC+1
+
+Conternerized the application
+
+    1. setup the docker compose and docker file to create a working docker image
+
+
+---
+
 Author: mnla, <mnla@itu.dk> <br>
 Date: 2025, Tue Feb 18, 11:40:00 UTC+1
 

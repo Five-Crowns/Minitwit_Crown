@@ -15,7 +15,7 @@ set :views, File.join(settings.root, 'views') # Set views relative to root
 enable :static
 
 # Configuration
-HOST = 'localhost'
+HOST = '0.0.0.0'
 PORT = 5000
 DATABASE = 'minitwit.db'
 SCHEMA_PATH = 'schema.sql'
