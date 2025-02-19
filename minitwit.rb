@@ -57,7 +57,7 @@ end
 # Get user ID
 def get_user_id(username)
   result = query_db('SELECT user_id FROM user WHERE username = ?', username)
-  result.empty? ? nil : result[0][0]
+  result.empty? ? nil : result.first['user_id']
 end
 
 # Format datetime
