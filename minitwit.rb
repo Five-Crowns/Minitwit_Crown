@@ -15,7 +15,7 @@ set :views, File.join(settings.root, 'views') # Set views relative to root
 enable :static
 
 # Configuration
-HOST = '0.0.0.0'
+HOST = '0.0.0.0' # Can also insert localhost if you want to run it yourself
 PORT = 5000
 DATABASE = 'minitwit.db'
 SCHEMA_PATH = 'schema.sql'
@@ -159,31 +159,13 @@ get '/logout' do
   redirect to('/public')
 end
 
-get '/:username' do
-  profile_user = query_db('SELECT * FROM user WHERE username = ?', params[:username]).first
-  halt 404 if profile_user.nil?
-
-  followed = false
-  if @user
-    followed = !query_db('SELECT 1 FROM follower WHERE follower.who_id = ? AND follower.whom_id = ?',
-                          [session[:user_id], profile_user['user_id']]).empty?
-  end
-
-  @messages = query_db('''
-    SELECT message.*, user.* FROM message, user WHERE
-    user.user_id = message.author_id AND user.user_id = ?
-    ORDER BY message.pub_date DESC LIMIT ?''',
-    [profile_user['user_id'], PER_PAGE])
-
-  erb :timeline, locals: { followed: followed, profile_user: profile_user }
-end
-
 get '/:username/follow' do
   halt 401 unless @user
   whom_id = get_user_id(params[:username])
   halt 404 if whom_id.nil?
 
-  @db.execute('INSERT INTO follower (who_id, whom_id) VALUES (?, ?)', session[:user_id], whom_id)
+  query_db('INSERT INTO follower (who_id, whom_id) VALUES (?, ?)', 
+           [session[:user_id], whom_id])
   redirect to("/#{params[:username]}")
 end
 
@@ -192,17 +174,37 @@ get '/:username/unfollow' do
   whom_id = get_user_id(params[:username])
   halt 404 if whom_id.nil?
 
-  @db.execute('DELETE FROM follower WHERE who_id = ? AND whom_id = ?', session[:user_id], whom_id)
+  query_db('DELETE FROM follower WHERE who_id = ? AND whom_id = ?', 
+           [session[:user_id], whom_id])
   redirect to("/#{params[:username]}")
 end
 
 post '/add_message' do
   halt 401 unless session[:user_id]
   if params['text'] && !params['text'].empty?
-    @db.execute('INSERT INTO message (author_id, text, pub_date, flagged) VALUES (?, ?, ?, 0)',
-                [session[:user_id], params['text'], Time.now.to_i])
+    query_db('INSERT INTO message (author_id, text, pub_date, flagged) VALUES (?, ?, ?, 0)',
+             [session[:user_id], params['text'], Time.now.to_i])
     redirect to('/')
   end
+end
+
+get '/:username' do
+  @profile_user = query_db('SELECT * FROM user WHERE username = ?', params[:username]).first
+  halt 404 if @profile_user.nil?
+
+  @followed = false
+  if @user
+    @followed = !query_db('SELECT 1 FROM follower WHERE follower.who_id = ? AND follower.whom_id = ?',
+                          [session[:user_id], @profile_user['user_id']]).empty?
+  end
+
+  @messages = query_db('''
+    SELECT message.*, user.* FROM message, user WHERE
+    user.user_id = message.author_id AND user.user_id = ?
+    ORDER BY message.pub_date DESC LIMIT ?''',
+    [@profile_user['user_id'], PER_PAGE])
+
+  erb :timeline
 end
 
 # Start the Sinatra application

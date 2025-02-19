@@ -15,6 +15,15 @@ Date: (year), (day of the week) (month) (day), (time) (timezone)
 
 ---
 
+Author: nals, <nals@itu.dk> <br>
+Date: 2025, Mon Feb 19, 16:18:28 UTC+1
+
+Fixed displaying of user profiles
+
+Moved username query to the bottom, as it could intepret other queries as user queries if it gets to them first. Also fixed such that we use the helper query_db instead of @db.execute.  Also fixed such that user profiles can now be displayed, this was due to use forgetting to put '@' in front of "profile_user" thus not using the instance variable from Sinatra.
+
+Also discovered that follow and unfollow does not seem to work. Creating new branch to fix this.
+
 ---
 
 Author: mnla, <mnla@itu.dk> <br>
