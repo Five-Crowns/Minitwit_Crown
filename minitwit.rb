@@ -172,7 +172,8 @@ get '/:username/follow' do
 
   query_db('INSERT INTO follower (who_id, whom_id) VALUES (?, ?)', 
            [session[:user_id], whom_id])
-  session[:success_message] = 'You are now following ' + params[:username]
+  session[:success_message] = "You are now following \"#{params[:username]}\""
+
   redirect to("/#{params[:username]}")
 end
 
@@ -183,7 +184,7 @@ get '/:username/unfollow' do
 
   query_db('DELETE FROM follower WHERE who_id = ? AND whom_id = ?', 
            [session[:user_id], whom_id])
-  session[:success_message] = 'You are no longer following ' + params[:username]
+  session[:success_message] = "You are no longer following \"#{params[:username]}\""
   redirect to("/#{params[:username]}")
 end
 
