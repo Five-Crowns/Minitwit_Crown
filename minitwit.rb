@@ -80,6 +80,17 @@ def api_response(error, success_message)
 end
 
 # General endpoint methods
+def personal_timeline
+  offset = params['offset'] ? params['offset'].to_i : 0
+  @messages = query_db("
+      SELECT message.*, user.* FROM message, user
+      WHERE message.flagged = 0 AND message.author_id = user.user_id AND (
+        user.user_id = ? OR
+        user.user_id IN (SELECT whom_id FROM follower WHERE who_id = ?))
+      ORDER BY message.pub_date DESC LIMIT ? OFFSET ?",
+                       [session[:user_id], session[:user_id], PER_PAGE, offset])
+end
+
 def public_timeline
   @messages = query_db("
     SELECT message.*, user.* FROM message, user
@@ -120,7 +131,7 @@ def login_user(username, password)
     @username = username
     user = query_db('SELECT * FROM user WHERE username = ?', username).first
     if user.nil? || !(BCrypt::Password.new(user["pw_hash"]) == password)
-      'Invalid username or password'
+      'Invalid username or Invalid password'
     else
       session[:user_id] = user["user_id"]
       nil
@@ -213,14 +224,7 @@ get '/' do
   if @user.nil?
     redirect to('/public')
   else
-    offset = params['offset'] ? params['offset'].to_i : 0
-    @messages = query_db("
-      SELECT message.*, user.* FROM message, user
-      WHERE message.flagged = 0 AND message.author_id = user.user_id AND (
-        user.user_id = ? OR
-        user.user_id IN (SELECT whom_id FROM follower WHERE who_id = ?))
-      ORDER BY message.pub_date DESC LIMIT ? OFFSET ?",
-      [session[:user_id], session[:user_id], PER_PAGE, offset])
+    personal_timeline
     erb :timeline
   end
 end
@@ -291,6 +295,11 @@ before do
   content_type :json if request.path.start_with?('/api/')
 end
 
+get '/api/' do
+  personal_timeline
+  api_response(nil, @messages.map { |msg| {user: msg['username'], text: msg['text'], timestamp: format_datetime(msg['pub_date'])} })
+end
+
 get '/api/public' do
   @error = public_timeline
   api_response(@error, @messages.map { |msg| {user: msg['username'], text: msg['text'], timestamp: format_datetime(msg['pub_date'])} })
@@ -298,22 +307,22 @@ end
 
 post '/api/login' do
   @error = login_user(params['username'], params['password'])
-  api_response(@error, "Logged in as #{@username}")
+  api_response(@error, "You were logged in")
 end
 
 post '/api/register' do
   @error = register_user(params['username'], params['email'], params['password'], params['password2'])
-  api_response(@error, "Registered as #{@username}")
+  api_response(@error, "You were successfully registered and can login now")
 end
 
-post '/api/logout' do
+get '/api/logout' do
   @error = logout
-  api_response(@error, 'Logged out')
+  api_response(@error, 'You were logged out')
 end
 
-post 'api/add_message' do
+post '/api/add_message' do
   @error = add_message(params['text'])
-  api_response(@error, 'Message added')
+  api_response(@error, 'Your message was recorded')
 end
 
 get '/api/:username' do
@@ -321,14 +330,14 @@ get '/api/:username' do
   api_response(@error, @messages.map { |msg| {text: msg['text'], timestamp: format_datetime(msg['pub_date'])} })
 end
 
-post '/api/:username/follow' do
+get '/api/:username/follow' do
   @error = follow(params[:username])
-  api_response(@error, "Now following #{params[:username]}")
+  api_response(@error, "You are now following #{params[:username]}")
 end
 
-post '/api/:username/unfollow' do
+get '/api/:username/unfollow' do
   @error = unfollow(params[:username])
-  api_response(@error, "Unfollowed #{params[:username]}")
+  api_response(@error, "You are no longer following #{params[:username]}")
 end
 
 # Start the Sinatra application
