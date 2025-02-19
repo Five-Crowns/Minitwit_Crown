@@ -15,6 +15,12 @@ Date: (year), (day of the week) (month) (day), (time) (timezone)
 
 ---
 
+Author: mnla, <mnla@itu.dk> <br>
+Date: 2025, wed Feb 19, 20:31:13 UTC+1
+
+Fixed two of the 4 tests passing in the refactored test-suite
+---
+
 Author: nals, <nals@itu.dk> <br>
 Date: 2025, Mon Feb 19, 19:19:13 UTC+1
 
