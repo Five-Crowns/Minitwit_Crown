@@ -112,15 +112,18 @@ end
 
 post '/login' do
   user = query_db('SELECT * FROM user WHERE username = ?', params['username']).first
-  if user.nil? || !(BCrypt::Password.new(user["pw_hash"]) == params['password'])
-    @error = 'Invalid password'
-    @username = params['username']
-    erb :login, layout: :layout
+  if user.nil?
+    @error = 'Invalid username'  # Username doesn't exist
+  elsif !(BCrypt::Password.new(user["pw_hash"]) == params['password'])
+    @error = 'Invalid password'  # Password doesn't match
   else
     session[:user_id] = user["user_id"]
     session[:success_message] = 'You were logged in'
     redirect to('/')
+    return
   end
+  @username = params['username']
+  erb :login, layout: :layout
 end
 
 get '/register' do
