@@ -15,7 +15,7 @@ set :views, File.join(settings.root, 'views') # Set views relative to root
 enable :static
 
 # Configuration
-HOST = '0.0.0.0' # Can also insert localhost if you want to run it yourself
+HOST = 'localhost' # Can also insert localhost if you want to run it yourself
 PORT = 5000
 DATABASE = 'minitwit.db'
 SCHEMA_PATH = 'schema.sql'
@@ -57,7 +57,7 @@ end
 # Get user ID
 def get_user_id(username)
   result = query_db('SELECT user_id FROM user WHERE username = ?', username)
-  result.empty? ? nil : result[0][0]
+  result.empty? ? nil : result.first['user_id']
 end
 
 # Format datetime

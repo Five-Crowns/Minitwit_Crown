@@ -16,6 +16,15 @@ Date: (year), (day of the week) (month) (day), (time) (timezone)
 ---
 
 Author: nals, <nals@itu.dk> <br>
+Date: 2025, Mon Feb 19, 19:19:13 UTC+1
+
+Fixed follow and unfollow
+
+The issue arose from `def get_user_id(username)` where we had to specify the correct column name to actually retrieve the correct user. Fixed by adding `result.first['user_id']`
+
+---
+
+Author: nals, <nals@itu.dk> <br>
 Date: 2025, Mon Feb 19, 16:18:28 UTC+1
 
 Fixed displaying of user profiles
