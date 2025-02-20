@@ -22,6 +22,12 @@ SCHEMA_PATH = 'schema.sql'
 PER_PAGE = 30
 DEBUG = true
 
+helpers do
+  # Escape HTML characters
+  def h(text)
+    Rack::Utils.escape_html(text)
+  end
+end
 
 # Database connection
 def connect_db

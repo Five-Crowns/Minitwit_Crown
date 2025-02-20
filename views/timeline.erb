@@ -42,7 +42,7 @@ You are not yet following this user.
 <% @messages.each do |message| %>
 <li><img src="<%= gravatar_url(message['email'], 48) %>"><p>
 <strong><a href="<%= url("/#{message['username']}") %>"><%= message['username'] %></a></strong>
-<%= message['text'] %>
+<%= h(message['text']) %>
 <small>&mdash; <%= format_datetime(message['pub_date']) %></small>
 </p></li>
 <% end %>
