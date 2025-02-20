@@ -1,21 +1,10 @@
+DATABASE = 'minitwit.db'
 SCHEMA_PATH = 'schema.sql'
-
-# Configuration for in memory testing
-DATABASE = if ENV['RACK_ENV'] == 'test'
-  ':memory:'
-else
-  'minitwit.db'
-end
 
 # Database connection
 def connect_db
   db = SQLite3::Database.new(DATABASE)
   db.results_as_hash = true #Allows accessing record fields by their name
-  if DATABASE == ':memory:'
-     # Initialize schema for in-memory database
-     sql = File.read(SCHEMA_PATH)
-     db.execute_batch(sql)
-  end
   db
 end
 
