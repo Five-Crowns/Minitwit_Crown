@@ -30,7 +30,8 @@ end
 
 def register_and_login(username, password)
   register(username, password)
-  login(username, password)
+  login(username, password) # Print session data after login
+
 end
 
 def logout
@@ -108,13 +109,27 @@ describe 'User Login & Logout' do
   end
 end
 
+
+# this test fails because the add_message method does not work as intended
 describe 'Message Posting' do
   it 'adds messages successfully' do
     register_and_login('foo', 'default')
+    # Add messages but add message method does not work as intended
     add_message('test message 1')
     add_message('<test message 2>')
     response = RestClient.get(BASE_URL)
+    puts "Add message response: #{response.body}"
     expect(response.body).to include('test message 1')
     expect(response.body).to include('<test message 2>')
   end
+end
+
+describe 'Login and register' do
+  it 'logs in and logs out successfully' do
+    response = register_and_login('user1', 'default')
+    puts "Register and login response: #{response.body}"
+    expect(response.body).to include('You were logged in')
+    response = logout
+    expect(response.body).to include('You were logged out')
+    end
 end
