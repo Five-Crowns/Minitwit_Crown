@@ -1,19 +1,6 @@
 ﻿require 'rspec'
 require 'rest-client'
 require 'json'
-require 'rack/test'
-require 'sqlite3'
-
-ENV['RACK_ENV'] = 'test'
-require_relative '../minitwit'  # Load the main Sinatra app
-
-RSpec.configure do |config|
-  config.include Rack::Test::Methods
-
-  def app
-    Sinatra::Application
-  end
-end
 
 BASE_URL = 'http://localhost:5000'
 
