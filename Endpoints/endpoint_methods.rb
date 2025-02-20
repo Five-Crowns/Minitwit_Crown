@@ -105,14 +105,9 @@ def register_user(username, email, password, password2)
 end
 
 def logout
-  if session[:user_id].nil?
-    session[:success_message] = 'You are not logged in'
-    'You are not logged in'
-  else
-    session[:user_id] = nil
-    session[:success_message] = 'You were logged out'
-    nil
-  end
+  session[:user_id] = nil
+  session[:success_message] = 'You were logged out'
+  nil
 end
 
 def add_message(text)

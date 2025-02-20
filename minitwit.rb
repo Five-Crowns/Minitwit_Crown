@@ -6,8 +6,8 @@ require 'bcrypt'
 require 'time'
 require 'sinatra/content_for'
 require 'dotenv/load'
-require_relative 'endpoints_html'
-require_relative 'endpoints_api'
+require_relative 'Endpoints/endpoints_html'
+require_relative 'Endpoints/endpoints_api'
 
 helpers Sinatra::ContentFor
 set :public_folder, File.dirname(__FILE__) + '/public'
@@ -20,6 +20,13 @@ enable :static
 HOST = '0.0.0.0' # Can also insert localhost if you want to run it yourself
 PORT = 5000
 DEBUG = true
+
+helpers do
+  # Escape HTML characters
+  def h(text)
+    Rack::Utils.escape_html(text)
+  end
+end
 
 # Format datetime
 def format_datetime(timestamp)
