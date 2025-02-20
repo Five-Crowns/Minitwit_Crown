@@ -21,6 +21,7 @@ Date: 2025, wed Feb 20, 20:04:05 UTC+1
 In memory testing for SQLite3
 
 Setup in memory testing by setting database path depending on enviroment variable that can be set from test.
+Application has not been setup to launch automatically when running tests and application should therefore be hosted manually for testing.
 
 ---
 
