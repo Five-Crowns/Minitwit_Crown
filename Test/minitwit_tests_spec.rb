@@ -128,7 +128,7 @@ describe 'Message Posting' do
     puts "Add message response: #{response.body}"
 
     expect(response.body).to include('test message 1')
-    expect(response.body).to include('<test message 2>')
+    expect(response.body).to include('&lt;test message 2&gt;')
   end
 end
 
