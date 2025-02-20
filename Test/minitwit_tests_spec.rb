@@ -17,22 +17,25 @@ rescue RestClient::ExceptionWithResponse => e
 end
 
 def login(username, password)
-  session = RestClient::Request.execute(
+  response = RestClient::Request.execute(
     method: :post,
     url: "#{BASE_URL}/login",
     payload: { username: username, password: password },
     follow_redirects: true
   )
-  return session
+  cookies = response.cookies # Capture session cookies
+  return response, cookies
 rescue RestClient::ExceptionWithResponse => e
   e.response
 end
 
+
 def register_and_login(username, password)
   register(username, password)
-  login(username, password) # Print session data after login
-
+  response, cookies = login(username, password) # Capture session cookies
+  return response, cookies
 end
+
 
 def logout
   RestClient.get("#{BASE_URL}/logout", { follow_redirects: true })
@@ -40,11 +43,14 @@ rescue RestClient::ExceptionWithResponse => e
   e.response
 end
 
-def add_message(text)
-  response = RestClient.post("#{BASE_URL}/add_message", { text: text }, { follow_redirects: true })
+def add_message(text, cookies)
+  response = RestClient.post(
+    "#{BASE_URL}/add_message",
+    { text: text },
+    { cookies: cookies, follow_redirects: true }
+  )
 
   if text
-    # Check that the message was recorded successfully
     expect(response.body).to include('Your message was recorded')
   end
 
@@ -52,6 +58,7 @@ def add_message(text)
 rescue RestClient::ExceptionWithResponse => e
   e.response
 end
+
 
 
 
@@ -91,7 +98,7 @@ end
 describe 'User Login & Logout' do
   it 'logs in and logs out successfully' do
     register('user1', 'default')
-    response = login('user1', 'default')
+    response, cookies = login('user1', 'default')
     expect(response.body).to include('You were logged in')
     response = logout
     expect(response.body).to include('You were logged out')
@@ -99,12 +106,12 @@ describe 'User Login & Logout' do
 
   it 'fails with wrong password' do
     register('user1', 'default')
-    response = login('user1', 'wrongpassword')
+    response, cookies = login('user1', 'wrongpassword')
     expect(response.body).to include('Invalid password')
   end
 
   it 'fails with non-existent username' do
-    response = login('user2', 'wrongpassword')
+    response, cookies = login('user2', 'wrongpassword')
     expect(response.body).to include('Invalid username')
   end
 end
@@ -113,20 +120,22 @@ end
 # this test fails because the add_message method does not work as intended
 describe 'Message Posting' do
   it 'adds messages successfully' do
-    register_and_login('foo', 'default')
-    # Add messages but add message method does not work as intended
-    add_message('test message 1')
-    add_message('<test message 2>')
-    response = RestClient.get(BASE_URL)
+    response, cookies = register_and_login('foo', 'default')
+    add_message('test message 1', cookies)
+    add_message('<test message 2>', cookies)
+
+    response = RestClient.get(BASE_URL, { cookies: cookies }) # Ensure session is maintained
     puts "Add message response: #{response.body}"
+
     expect(response.body).to include('test message 1')
     expect(response.body).to include('<test message 2>')
   end
 end
 
+
 describe 'Login and register' do
   it 'logs in and logs out successfully' do
-    response = register_and_login('user1', 'default')
+    response, cookies = register_and_login('foo', 'default')
     puts "Register and login response: #{response.body}"
     expect(response.body).to include('You were logged in')
     response = logout
