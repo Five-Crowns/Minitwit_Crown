@@ -9,3 +9,7 @@ gem 'sinatra-content-for'       # For managing content-for (layouts)
 gem 'securerandom'              # For generating random data (already used in the code)
 gem "rackup", "~> 2.2"
 gem "puma", "~> 6.6"
+gem 'rspec'
+gem 'rest-client'
+gem 'rack-test'
+gem 'ffi'

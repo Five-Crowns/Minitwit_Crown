@@ -1,5 +1,7 @@
 .env
 # Default ignored files
+.pytetst_cache/
+__pycache__/
 /shelf/
 /workspace.xml
 # Editor-based HTTP Client requests
