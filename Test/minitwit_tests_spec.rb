@@ -59,6 +59,19 @@ rescue RestClient::ExceptionWithResponse => e
   e.response
 end
 
+def follow_user(username, cookies)
+  response = RestClient.get("#{BASE_URL}/#{username}/follow", { cookies: cookies, follow_redirects: true })
+  #expect(response.body).to include("You are now following \"#{username}\"")
+rescue RestClient::ExceptionWithResponse => e
+  e.response
+end
+
+def unfollow_user(username, cookies)
+  response = RestClient.get("#{BASE_URL}/#{username}/unfollow", { cookies: cookies, follow_redirects: true })
+  #expect(response.body).to include("You are no longer following \"#{username}\"")
+rescue RestClient::ExceptionWithResponse => e
+  e.response
+end
 
 
 
@@ -125,7 +138,7 @@ describe 'Message Posting' do
     add_message('<test message 2>', cookies)
 
     response = RestClient.get(BASE_URL, { cookies: cookies }) # Ensure session is maintained
-    puts "Add message response: #{response.body}"
+
 
     expect(response.body).to include('test message 1')
     expect(response.body).to include('&lt;test message 2&gt;')
@@ -136,9 +149,59 @@ end
 describe 'Login and register' do
   it 'logs in and logs out successfully' do
     response, cookies = register_and_login('foo', 'default')
-    puts "Register and login response: #{response.body}"
+
     expect(response.body).to include('You were logged in')
     response = logout
     expect(response.body).to include('You were logged out')
     end
+end
+
+describe 'Follow and unfollow' do
+  it 'follow worls' do
+    response = register('bar', 'default')
+    response, cookies = register_and_login('foo', 'default')
+    response = follow_user('bar', cookies)
+    expect(response.body).to include('You are now following "bar"')
+
+  end
+  it 'unfollow works' do
+    response = register('bar', 'default')
+    response, cookies = register_and_login('foo', 'default')
+    response = follow_user('bar', cookies)
+    response = unfollow_user('bar', cookies)
+    expect(response.body).to include('You are no longer following "bar"')
+  end
+end
+
+describe 'Timeline' do
+  it 'tests timelines' do
+    response, cookies = register_and_login('foo', 'default')
+    add_message('the message by foo', cookies)
+
+    response, cookies = register_and_login('bar','default')
+    add_message('the message by bar', cookies)
+
+    response = RestClient.get("#{BASE_URL}/public", { cookies: cookies})
+
+    expect(response.body).to include('the message by foo')
+    expect(response.body).to include('the message by bar')
+
+    follow_user('foo', cookies)
+    response = RestClient.get("#{BASE_URL}/", { cookies: cookies})
+    expect(response.body).to include('the message by foo')
+    expect(response.body).to include('the message by bar')
+
+    response = RestClient.get("#{BASE_URL}/bar", { cookies: cookies})
+    expect(response.body).to include('the message by bar')
+    expect(response.body).not_to include('the message by foo')
+
+    response = RestClient.get("#{BASE_URL}/foo", { cookies: cookies})
+    expect(response.body).to include('the message by foo')
+    expect(response.body).not_to include('the message by bar')
+
+    unfollow_user('foo', cookies)
+    response = RestClient.get("#{BASE_URL}/", { cookies: cookies})
+    expect(response.body).to include('the message by bar')
+    expect(response.body).not_to include('the message by foo')
+  end
 end

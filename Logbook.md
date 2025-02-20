@@ -13,10 +13,28 @@ Date: (year), (day of the week) (month) (day), (time) (timezone)
 
 (changes)
 
+
+
 ---
 
 Author: mnla, <mnla@itu.dk> <br>
-Date: 2025, wed Feb 20, 15:038:13 UTC+1
+Date: 2025, wed Feb 20, 17:40:43 UTC+1
+
+Completly refactored the python test into ruby using rspec
+Everything passes
+Test include
+- login
+- register
+- logout
+- add_message
+- follow
+- unfollow
+- timeline test ( for interaction)
+
+---
+
+Author: mnla, <mnla@itu.dk> <br>
+Date: 2025, wed Feb 20, 15:38:13 UTC+1
 
 Refactored python test suite to ruby.
 Everything passes
