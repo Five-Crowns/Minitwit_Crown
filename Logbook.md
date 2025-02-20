@@ -13,6 +13,20 @@ Date: (year), (day of the week) (month) (day), (time) (timezone)
 
 (changes)
 
+
+
+
+---
+
+Author: mnla, <mnla@itu.dk> <br>
+Date: 2025, wed Feb 20, 12:03:13 UTC+1
+
+Started the refactor on the test suite
+add_message is not working as intended and follow / unfollow and timeline test is missing
+
+added Login, register and logout test working
+setup the test as a rspec file for testing ruby files
+
 ---
 
 Author: mnla, <mnla@itu.dk> <br>
