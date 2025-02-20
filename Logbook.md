@@ -16,6 +16,15 @@ Date: (year), (day of the week) (month) (day), (time) (timezone)
 ---
 
 Author: nals, <nals@itu.dk> <br>
+Date: 2025, wed Feb 20, 21:56:23 UTC+1
+
+In memory testing for SQLite3 pt. 2
+
+Created rspec helper, the intention is for the in memory database to be initialized from there. As i discovered that i had not done as inteded in regards to an in memory db.
+
+---
+
+Author: nals, <nals@itu.dk> <br>
 Date: 2025, wed Feb 20, 20:04:05 UTC+1
 
 In memory testing for SQLite3
