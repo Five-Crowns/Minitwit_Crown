@@ -15,6 +15,16 @@ Date: (year), (day of the week) (month) (day), (time) (timezone)
 
 ---
 
+Author: mnla, <mnla@itu.dk> <br>
+Date: 2025, wed Feb 20, 15:038:13 UTC+1
+
+Refactored python test suite to ruby.
+Everything passes
+
+Missing unfollow and follow test aswell as the timeline test
+
+---
+
 Author: nals, <nals@itu.dk> <br>
 Date: 2025, wed Feb 20, 15:27:13 UTC+1
 
