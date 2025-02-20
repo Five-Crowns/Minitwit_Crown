@@ -134,6 +134,7 @@ def login_user(username, password)
       'Invalid username or Invalid password'
     else
       session[:user_id] = user["user_id"]
+      session[:success_message] = 'You were logged in'
       nil
     end
   end
@@ -159,15 +160,18 @@ def register_user(username, email, password, password2)
       'INSERT INTO user (username, email, pw_hash) VALUES (?, ?, ?)',
       [username, email, pw_hash]
     )
+    session[:success_message] = 'You were successfully registered and can login now'
     nil
   end
 end
 
 def logout
   if session[:user_id].nil?
+    session[:success_message] = 'You are not logged in'
     'You are not logged in'
   else
     session[:user_id] = nil
+    session[:success_message] = 'You were logged out'
     nil
   end
 end
@@ -182,6 +186,7 @@ def add_message(text)
     'INSERT INTO message (author_id, text, pub_date, flagged) VALUES (?, ?, ?, 0)',
     [session[:user_id], text, Time.now.to_i]
   )
+  session[:success_message] = 'Your message was recorded'
   nil
 end
 
@@ -194,6 +199,7 @@ def follow(username)
     'INSERT INTO follower (who_id, whom_id) VALUES (?, ?)',
     [session[:user_id], whom_id]
   )
+  session[:success_message] = "You are now following \"#{params[:username]}\""
   nil
 end
 
@@ -206,6 +212,7 @@ def unfollow(username)
     'DELETE FROM follower WHERE who_id = ? AND whom_id = ?',
     [session[:user_id], whom_id]
   )
+  session[:success_message] = "You are no longer following \"#{params[:username]}\""
   nil
 end
 
