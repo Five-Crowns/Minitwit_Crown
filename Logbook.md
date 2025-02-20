@@ -15,6 +15,23 @@ Date: (year), (day of the week) (month) (day), (time) (timezone)
 
 ---
 
+Author: mnla, <mnla@itu.dk> <br>
+Date: 2025, wed Feb 19, 22:26:13 UTC+1
+
+Fixed last two tests in the refactored test-suite
+Had to change them since they expected
+'&lt;test message 2&gt;' and '&#34foo&#34' to be returned
+instead of the actual messages.
+changed to '<test message 2>' and '"foo"' respectively
+
+---
+
+Author: mnla, <mnla@itu.dk> <br>
+Date: 2025, wed Feb 19, 20:31:13 UTC+1
+
+Fixed two of the 4 tests passing in the refactored test-suite
+---
+
 Author: nals, <nals@itu.dk> <br>
 Date: 2025, Mon Feb 19, 19:19:13 UTC+1
 

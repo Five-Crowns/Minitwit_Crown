@@ -112,14 +112,18 @@ end
 
 post '/login' do
   user = query_db('SELECT * FROM user WHERE username = ?', params['username']).first
-  if user.nil? || !(BCrypt::Password.new(user["pw_hash"]) == params['password'])
-    @error = 'Invalid username or password'
-    @username = params['username']
-    erb :login, layout: :layout
+  if user.nil?
+    @error = 'Invalid username'  # Username doesn't exist
+  elsif !(BCrypt::Password.new(user["pw_hash"]) == params['password'])
+    @error = 'Invalid password'  # Password doesn't match
   else
     session[:user_id] = user["user_id"]
+    session[:success_message] = 'You were logged in'
     redirect to('/')
+    return
   end
+  @username = params['username']
+  erb :login, layout: :layout
 end
 
 get '/register' do
@@ -148,6 +152,7 @@ post '/register' do
     pw_hash = BCrypt::Password.create(params['password'])
     query_db('INSERT INTO user (username, email, pw_hash) VALUES (?, ?, ?)',
               [params['username'], params['email'], pw_hash])
+    session[:success_message] = 'You were successfully registered and can login now'
     redirect to('/login')
   end
   
@@ -156,6 +161,7 @@ end
 
 get '/logout' do
   session[:user_id] = nil
+  session[:success_message] = 'You were logged out'
   redirect to('/public')
 end
 
@@ -166,6 +172,8 @@ get '/:username/follow' do
 
   query_db('INSERT INTO follower (who_id, whom_id) VALUES (?, ?)', 
            [session[:user_id], whom_id])
+  session[:success_message] = "You are now following \"#{params[:username]}\""
+
   redirect to("/#{params[:username]}")
 end
 
@@ -176,6 +184,7 @@ get '/:username/unfollow' do
 
   query_db('DELETE FROM follower WHERE who_id = ? AND whom_id = ?', 
            [session[:user_id], whom_id])
+  session[:success_message] = "You are no longer following \"#{params[:username]}\""
   redirect to("/#{params[:username]}")
 end
 
@@ -184,6 +193,7 @@ post '/add_message' do
   if params['text'] && !params['text'].empty?
     query_db('INSERT INTO message (author_id, text, pub_date, flagged) VALUES (?, ?, ?, 0)',
              [session[:user_id], params['text'], Time.now.to_i])
+    session[:success_message] = 'Your message was recorded'
     redirect to('/')
   end
 end

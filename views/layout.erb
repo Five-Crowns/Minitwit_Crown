@@ -9,11 +9,15 @@
       <a href="<%= url('/public') %>">public timeline | </a>
       <a href="<%= url('/logout') %>">sign out [<%= @user['username'] %>]</a>
     <% else %>
-      <a href="<%= url('/public') %>">public timeline | </a> 
-      <a href="<%= url('/register') %>">sign up | </a> 
+      <a href="<%= url('/public') %>">public timeline | </a>
+      <a href="<%= url('/register') %>">sign up | </a>
       <a href="<%= url('/login') %>">sign in</a>
     <% end %>
   </div>
+  <% if session[:success_message] %>
+    <div class="success"><%= session[:success_message] %></div>
+    <% session[:success_message] = nil %>
+  <% end %>
   <% if @flashes %>
     <ul class="flashes">
       <% @flashes.each do |message| %>
