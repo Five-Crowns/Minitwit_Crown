@@ -13,8 +13,12 @@ Date: (year), (day of the week) (month) (day), (time) (timezone)
 
 (changes)
 
+---
 
+Author: nals, <nals@itu.dk> <br>
+Date: 2025, wed Feb 20, 15:27:13 UTC+1
 
+Fixed displaying html tags in timeline. The issue arose when trying to input ex. `<hello>` as input for the message. The page would then just display a blank message instead of the text. Fixed using a function in Rack utils called escape_html().
 
 ---
 
