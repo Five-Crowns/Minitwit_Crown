@@ -24,9 +24,32 @@ get '/api/msgs' do
     limit = params['no']
   end
 
-  messages = all_messages(limit)
+  messages = get_messages(limit)
   filtered_messages = messages.map { |msg| {content: msg['text'], user: msg['author_id'], pub_date: msg['pub_date']}}
   filtered_messages.to_json
+end
+
+get '/api/msgs/:username' do
+  messages = get_messages(100, params[:username])
+  filtered_messages = messages.map { |msg| {content: msg['text'], user: msg['author_id'], pub_date: msg['pub_date']}}
+  filtered_messages.to_json
+end
+
+post '/api/msgs/:username' do
+  user_id = get_user_id(params[:username])
+  add_message(params['content'], user_id)
+  status 204
+end
+
+get '/api/fllws/:username' do
+  getFollowers(params[:username], params[:no].to_i)
+  filtered_followers = followers.map { |msg| {username: msg['text'], follows: msg['author_id']}}
+  filtered_followers.to_json
+end
+
+post '/api/fllws/:username' do
+  # if request.method == "POST" and "follow"
+  # else if  request.method == "POST" and "unfollow"
 end
 
 get '/api/public' do
