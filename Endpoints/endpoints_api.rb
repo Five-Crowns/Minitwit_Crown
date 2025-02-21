@@ -9,14 +9,29 @@ def api_response(error, success_message)
   end
 end
 
+get '/api/latest' do
+  return get_latest.to_json
+end
+
 get '/api/' do
   personal_timeline
-  api_response(nil, @messages.map { |msg| {user: msg['username'], text: msg['text'], timestamp: format_datetime(msg['pub_date'])} })
+  api_response(nil, @messages.map { |msg| {user: msg['author_id'], content: msg['text'], pub_date: format_datetime(msg['pub_date'])} })
+end
+
+get '/api/msgs' do
+  limit = 100
+  unless params['no'].nil?
+    limit = params['no']
+  end
+
+  messages = all_messages(limit)
+  filtered_messages = messages.map { |msg| {content: msg['text'], user: msg['author_id'], pub_date: msg['pub_date']}}
+  filtered_messages.to_json
 end
 
 get '/api/public' do
   @error = public_timeline
-  api_response(@error, @messages.map { |msg| {user: msg['username'], text: msg['text'], timestamp: format_datetime(msg['pub_date'])} })
+  api_response(@error, @messages.map { |msg| {user: msg['author_id'], content: msg['text'], pub_date: format_datetime(msg['pub_date'])} })
 end
 
 post '/api/login' do
@@ -25,7 +40,7 @@ post '/api/login' do
 end
 
 post '/api/register' do
-  @error = register_user(params['username'], params['email'], params['password'], params['password2'])
+  @error = register_user(params['username'], params['email'], params['password'], params['password'])
   api_response(@error, "You were successfully registered and can login now")
 end
 
@@ -41,7 +56,7 @@ end
 
 get '/api/:username' do
   @error = user_timeline(params[:username])
-  api_response(@error, @messages.map { |msg| {text: msg['text'], timestamp: format_datetime(msg['pub_date'])} })
+  api_response(@error, @messages.map { |msg| {content: msg['text'], pub_date: format_datetime(msg['pub_date'])} })
 end
 
 get '/api/:username/follow' do
