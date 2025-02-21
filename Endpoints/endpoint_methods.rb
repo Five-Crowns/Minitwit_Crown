@@ -1,6 +1,7 @@
 require_relative 'database'
 
 PER_PAGE = 30
+LATEST_FILENAME = 'latest_processed_sim_action_id.txt'
 
 # Get user ID
 def get_user_id(username)
@@ -12,11 +13,30 @@ end
 before do
   @db = connect_db
   @user = session[:user_id] ? query_db('SELECT * FROM user WHERE user_id = ?', session[:user_id]).first : nil
-  content_type :json if request.path.start_with?('/api/')
+  if request.path.start_with?('/api/')
+    content_type :json
+    update_latest
+  end
 end
 
 after do
   @db.close if @db
+end
+
+# Latest handling
+def update_latest
+  latest = params['latest']
+  return if latest.nil? || latest.empty?
+
+  write_latest(latest.to_s)
+end
+
+def get_latest
+  File.read(LATEST_FILENAME)
+end
+
+def write_latest(latest)
+  File.write(LATEST_FILENAME, latest)
 end
 
 def personal_timeline
