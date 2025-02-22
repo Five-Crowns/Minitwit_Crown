@@ -7,6 +7,10 @@ def api_response(error, success_message)
   { status: status, message: message }.to_json
 end
 
+def filter_messages(messages)
+  messages.map { |msg| { content: msg['text'], user: msg['author_id'], pub_date: msg['pub_date'] } }
+end
+
 get '/api/latest' do
   return get_latest.to_json
 end
@@ -18,18 +22,21 @@ get '/api/msgs' do
   end
 
   messages = get_messages(limit)
-  filtered_messages = messages.map { |msg| {content: msg['text'], user: msg['author_id'], pub_date: msg['pub_date']}}
-  filtered_messages.to_json
+  filter_messages(messages).to_json
 end
 
 get '/api/msgs/:username' do
-  messages = get_messages(100, params[:username])
-  filtered_messages = messages.map { |msg| {content: msg['text'], user: msg['author_id'], pub_date: msg['pub_date']}}
-  filtered_messages.to_json
+  user_id = get_user_id(params[:username])
+  halt 404 if user_id.nil?
+
+  messages = get_messages(100, user_id)
+  filter_messages(messages).to_json
 end
 
 post '/api/msgs/:username' do
   user_id = get_user_id(params[:username])
+  halt 404 if user_id.nil?
+
   add_message(params['content'], user_id)
   status 204
 end
