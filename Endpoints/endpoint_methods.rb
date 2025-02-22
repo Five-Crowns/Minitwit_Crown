@@ -32,6 +32,8 @@ def update_latest
 end
 
 def get_latest
+  return nil unless File.exist?(LATEST_FILENAME)
+
   File.read(LATEST_FILENAME)
 end
 
