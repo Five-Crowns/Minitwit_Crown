@@ -18,7 +18,7 @@ end
 get '/api/msgs' do
   limit = 100
   unless params['no'].nil?
-    limit = params['no']
+    limit = params['no'].to_i
   end
 
   messages = get_messages(limit)
