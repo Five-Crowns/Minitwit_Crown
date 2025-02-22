@@ -38,7 +38,7 @@ end
 
 post '/api/msgs/:username' do
   user_id = get_user_id(params[:username])
-  add_message(params['content'], user_id)
+  post_message(params['content'], user_id)
   status 204
 end
 
@@ -74,7 +74,7 @@ get '/api/logout' do
 end
 
 post '/api/add_message' do
-  @error = add_message(params['text'])
+  @error = post_message(params['text'])
   api_response(@error, 'Your message was recorded')
 end
 

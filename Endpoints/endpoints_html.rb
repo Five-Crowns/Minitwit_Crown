@@ -51,7 +51,7 @@ get '/logout' do
 end
 
 post '/add_message' do
-  @error = add_message(params['text'])
+  @error = post_message(params['text'])
   redirect to('/')
 end
 

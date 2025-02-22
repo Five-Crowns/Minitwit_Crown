@@ -141,7 +141,7 @@ def logout
   nil
 end
 
-def add_message(text, user = -1)
+def post_message(text, user = -1)
   user_id = session[:user_id]
   user_id = user if user > 0
 
