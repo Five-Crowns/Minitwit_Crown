@@ -2,11 +2,9 @@ require_relative 'endpoint_methods'
 
 # Formatter for API responses
 def api_response(error, success_message)
-  if error.nil?
-    { status: 'success', message: success_message }.to_json
-  else
-    { status: 'error', message: error }.to_json
-  end
+  status = error.nil? ? 'success' : 'error'
+  message = error.nil? ? success_message : error
+  { status: status, message: message }.to_json
 end
 
 get '/api/latest' do
