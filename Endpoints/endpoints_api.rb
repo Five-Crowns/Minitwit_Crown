@@ -11,16 +11,21 @@ def filter_messages(messages)
   messages.map { |msg| { content: msg['text'], user: msg['author_id'], pub_date: msg['pub_date'] } }
 end
 
+def get_param_or_default(param_name, default_value)
+  val = default_value
+  unless params[param_name].nil?
+    val = params[param_name].to_i
+  end
+
+  val
+end
+
 get '/api/latest' do
   return get_latest.to_json
 end
 
 get '/api/msgs' do
-  limit = 100
-  unless params['no'].nil?
-    limit = params['no'].to_i
-  end
-
+  limit = get_param_or_default('no', 100)
   messages = get_messages(limit)
   filter_messages(messages).to_json
 end
