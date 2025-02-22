@@ -6,7 +6,10 @@ LATEST_FILENAME = 'latest_processed_sim_action_id.txt'
 # Get user ID
 def get_user_id(username)
   result = query_db('SELECT user_id FROM user WHERE username = ?', username)
-  result.empty? ? nil : result.first['user_id']
+  user_id = result.empty? ? nil : result.first['user_id']
+  halt 404 if user_id.nil?
+
+  user_id
 end
 
 # Sinatra routes
@@ -158,7 +161,6 @@ end
 def follow(username)
   halt 401 unless @user
   whom_id = get_user_id(username)
-  halt 404 if whom_id.nil?
 
   query_db(
     'INSERT INTO follower (who_id, whom_id) VALUES (?, ?)',
@@ -171,7 +173,6 @@ end
 def unfollow(username)
   halt 401 unless @user
   whom_id = get_user_id(username)
-  halt 404 if whom_id.nil?
 
   query_db(
     'DELETE FROM follower WHERE who_id = ? AND whom_id = ?',
@@ -184,7 +185,6 @@ end
 def getFollowers(username, limit = 100)
   halt 401 unless @user
   whom_id = get_user_id(username)
-  halt 404 if whom_id.nil?
 
   query_db(
     'SELECT user.username FROM user

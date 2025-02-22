@@ -32,16 +32,12 @@ end
 
 get '/api/msgs/:username' do
   user_id = get_user_id(params[:username])
-  halt 404 if user_id.nil?
-
   messages = get_messages(100, user_id)
   filter_messages(messages).to_json
 end
 
 post '/api/msgs/:username' do
   user_id = get_user_id(params[:username])
-  halt 404 if user_id.nil?
-
   add_message(params['content'], user_id)
   status 204
 end
