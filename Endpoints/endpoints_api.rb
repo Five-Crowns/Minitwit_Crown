@@ -1,4 +1,6 @@
 require_relative 'endpoint_methods'
+require 'json'
+
 
 # Filters messages to contain only the content (text), user (author_id), and pub_date (pub_date)
 def filter_messages(messages, verbose)
@@ -29,6 +31,7 @@ post '/api/register' do
   error = register_user(params['username'], params['email'], params['password'], params['password'])
   status = error.nil? ? 'success' : 'error'
   message = error.nil? ? "You were successfully registered and can login now" : error
+  content_type :json
   { status: status, message: message }.to_json
 end
 
