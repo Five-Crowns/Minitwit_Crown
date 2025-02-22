@@ -3,15 +3,6 @@ require_relative 'database'
 PER_PAGE = 30
 LATEST_FILENAME = 'latest_processed_sim_action_id.txt'
 
-# Get user ID
-def get_user_id(username)
-  result = query_db('SELECT user_id FROM user WHERE username = ?', username)
-  user_id = result.empty? ? nil : result.first['user_id']
-  halt 404 if user_id.nil?
-
-  user_id
-end
-
 # Sinatra routes
 before do
   @db = connect_db
@@ -44,17 +35,16 @@ def write_latest(latest)
   File.write(LATEST_FILENAME, latest)
 end
 
-def personal_timeline
-  offset = params['offset'] ? params['offset'].to_i : 0
-  @messages = query_db("
-      SELECT message.*, user.* FROM message, user
-      WHERE message.flagged = 0 AND message.author_id = user.user_id AND (
-        user.user_id = ? OR
-        user.user_id IN (SELECT whom_id FROM follower WHERE who_id = ?))
-      ORDER BY message.pub_date DESC LIMIT ? OFFSET ?",
-                       [session[:user_id], session[:user_id], PER_PAGE, offset])
+# Get user ID
+def get_user_id(username)
+  result = query_db('SELECT user_id FROM user WHERE username = ?', username)
+  user_id = result.empty? ? nil : result.first['user_id']
+  halt 404 if user_id.nil?
+
+  user_id
 end
 
+# General query for messages
 def get_messages(limit = -1, user = -1, flagged = -1)
   q_select = "SELECT message.*, user.* FROM message, user "
 
@@ -67,6 +57,18 @@ def get_messages(limit = -1, user = -1, flagged = -1)
 
   query_string = q_select + q_where + q_order
   query_db(query_string)
+end
+
+# Endpoint Methods
+def personal_timeline
+  offset = params['offset'] ? params['offset'].to_i : 0
+  @messages = query_db("
+      SELECT message.*, user.* FROM message, user
+      WHERE message.flagged = 0 AND message.author_id = user.user_id AND (
+        user.user_id = ? OR
+        user.user_id IN (SELECT whom_id FROM follower WHERE who_id = ?))
+      ORDER BY message.pub_date DESC LIMIT ? OFFSET ?",
+                       [session[:user_id], session[:user_id], PER_PAGE, offset])
 end
 
 def public_timeline
