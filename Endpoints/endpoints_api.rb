@@ -24,8 +24,10 @@ end
 # API Endpoints
 
 get '/api/latest' do
-  return get_latest.to_json
+  latest = get_latest.to_i  # Ensure the value is an integer
+  return { latest: latest }.to_json  # Return the integer as part of a JSON object
 end
+
 
 post '/api/register' do
   error = register_user(params['username'], params['email'], params['password'], params['password'])
