@@ -182,7 +182,7 @@ def unfollow(username)
   nil
 end
 
-def getFollowers(username, limit = 100)
+def get_followers(username, limit = 100)
   halt 401 unless @user
   whom_id = get_user_id(username)
 

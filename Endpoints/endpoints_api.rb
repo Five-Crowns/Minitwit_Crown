@@ -55,7 +55,7 @@ end
 
 get '/api/public' do
   @error = public_timeline
-  api_response(@error, @messages.map { |msg| {user: msg['author_id'], content: msg['text'], pub_date: format_datetime(msg['pub_date'])} })
+  api_response(@error, @messages.map { |msg| {user: msg['username'], content: msg['text'], timestamp: format_datetime(msg['pub_date'])} })
 end
 
 post '/api/login' do
@@ -80,7 +80,7 @@ end
 
 get '/api/:username' do
   @error = user_timeline(params[:username])
-  api_response(@error, @messages.map { |msg| {content: msg['text'], pub_date: format_datetime(msg['pub_date'])} })
+  api_response(@error, @messages.map { |msg| { content: msg['text'], timestamp: format_datetime(msg['pub_date']) } })
 end
 
 get '/api/:username/follow' do
