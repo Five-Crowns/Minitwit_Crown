@@ -13,11 +13,6 @@ get '/api/latest' do
   return get_latest.to_json
 end
 
-get '/api/' do
-  personal_timeline
-  api_response(nil, @messages.map { |msg| {user: msg['author_id'], content: msg['text'], pub_date: format_datetime(msg['pub_date'])} })
-end
-
 get '/api/msgs' do
   limit = 100
   unless params['no'].nil?
