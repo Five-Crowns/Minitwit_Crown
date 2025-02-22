@@ -162,6 +162,16 @@ end
 
 def follow(follower_id, follows)
   follows_id = get_user_id(follows)
+  return nil unless follows_id
+  # Check if the user is already following
+  # the user they are trying to follow
+  unless query_db(
+    'SELECT 1 FROM follower WHERE who_id = ? AND whom_id = ?',
+    [follower_id, follows_id]
+  ).empty?
+    session[:success_message] = "You are already following \"#{follows}\""
+    return nil
+  end
 
   query_db(
     'INSERT INTO follower (who_id, whom_id) VALUES (?, ?)',
