@@ -184,16 +184,13 @@ def unfollow(username)
   nil
 end
 
-def get_followers(username, limit = 100)
-  halt 401 unless @user
+def get_followers(username, limit)
   whom_id = get_user_id(username)
-
   query_db(
-    'SELECT user.username FROM user
-     INNER JOIN follower ON follower.whom_id=user.user_id
-     WHERE follower.who_id=?
+    'SELECT user.username
+     FROM user
+     INNER JOIN follower ON follower.whom_id = user.user_id
+     WHERE follower.who_id = ?
      LIMIT ?',
-    [session[:user_id], whom_id, limit]
-  )
-  nil
+    [whom_id, limit])
 end
