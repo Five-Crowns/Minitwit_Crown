@@ -32,7 +32,8 @@ end
 
 get '/api/msgs/:username' do
   user_id = get_user_id(params[:username])
-  messages = get_messages(100, user_id)
+  limit = get_param_or_default('no', 100)
+  messages = get_messages(limit, user_id)
   filter_messages(messages).to_json
 end
 
