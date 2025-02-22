@@ -160,27 +160,25 @@ def post_message(text, user = -1)
   nil
 end
 
-def follow(username)
-  halt 401 unless @user
-  whom_id = get_user_id(username)
+def follow(follower_id, follows)
+  follows_id = get_user_id(follows)
 
   query_db(
     'INSERT INTO follower (who_id, whom_id) VALUES (?, ?)',
-    [session[:user_id], whom_id]
+    [follower_id, follows_id]
   )
-  session[:success_message] = "You are now following \"#{params[:username]}\""
+  session[:success_message] = "You are now following \"#{follows}\""
   nil
 end
 
-def unfollow(username)
-  halt 401 unless @user
-  whom_id = get_user_id(username)
+def unfollow(follower_id, follows)
+  follows_id = get_user_id(follows)
 
   query_db(
     'DELETE FROM follower WHERE who_id = ? AND whom_id = ?',
-    [session[:user_id], whom_id]
+    [follower_id, follows_id]
   )
-  session[:success_message] = "You are no longer following \"#{params[:username]}\""
+  session[:success_message] = "You are no longer following \"#{follows}\""
   nil
 end
 

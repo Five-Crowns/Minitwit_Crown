@@ -61,11 +61,13 @@ get '/:username' do
 end
 
 get '/:username/follow' do
-  @error = follow(params[:username])
+  halt 401 unless @user
+  @error = follow(session[:user_id], params[:username])
   redirect to("/#{params[:username]}")
 end
 
 get '/:username/unfollow' do
-  @error = unfollow(params[:username])
+  halt 401 unless @user
+  @error = unfollow(session[:user_id], params[:username])
   redirect to("/#{params[:username]}")
 end
