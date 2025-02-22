@@ -57,7 +57,7 @@ post '/api/msgs/:username' do
   message = params['content']
   post_message(message, user_id)
 
-  status 204
+  status 200
 end
 
 get '/api/fllws/:username' do
@@ -70,13 +70,13 @@ post '/api/fllws/:username' do
   unless params['follow'].nil?
     follower_id = get_user_id(params[:username])
     follow(follower_id, params['follow'])
-    status 204
+    status 200
   end
 
   unless params['unfollow'].nil?
     follower_id = get_user_id(params[:username])
     unfollow(follower_id, params['unfollow'])
-    status 204
+    status 200
   end
 
   status 400
