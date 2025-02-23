@@ -13,7 +13,11 @@ Date: (year), (day of the week) (month) (day), (time) (timezone)
 
 (changes)
 
+Author: mnla, <mnla@itu.dk> <br>
+Date: 2025, wed Feb 22, 21:46:43 UTC+1
 
+added a check such that the user can't follow more than once
+---
 
 ---
 

@@ -1,24 +1,65 @@
 require_relative 'database'
 
 PER_PAGE = 30
-
-# Get user ID
-def get_user_id(username)
-  result = query_db('SELECT user_id FROM user WHERE username = ?', username)
-  result.empty? ? nil : result.first['user_id']
-end
+LATEST_FILENAME = 'latest_processed_sim_action_id.txt'
 
 # Sinatra routes
 before do
   @db = connect_db
   @user = session[:user_id] ? query_db('SELECT * FROM user WHERE user_id = ?', session[:user_id]).first : nil
-  content_type :json if request.path.start_with?('/api/')
+  if request.path.start_with?('/api/')
+    content_type :json
+    update_latest
+  end
 end
 
 after do
   @db.close if @db
 end
 
+# Latest handling
+def update_latest
+  latest = params['latest']
+  return if latest.nil? || latest.empty?
+
+  write_latest(latest)
+end
+
+def get_latest
+  return nil unless File.exist?(LATEST_FILENAME)
+
+  File.read(LATEST_FILENAME)
+end
+
+def write_latest(latest)
+  File.write(LATEST_FILENAME, latest)
+end
+
+# Get user ID
+def get_user_id(username)
+  result = query_db('SELECT user_id FROM user WHERE username = ?', username)
+  user_id = result.empty? ? nil : result.first['user_id']
+  halt 404 if user_id.nil?
+
+  user_id
+end
+
+# General query for messages
+def get_messages(limit = -1, user = -1, flagged = -1)
+  q_select = "SELECT message.*, user.* FROM message, user "
+
+  q_where = "WHERE message.author_id = user.user_id "
+  q_where += "AND message.flagged = #{flagged} " if flagged >= 0
+  q_where += "AND user.user_id = #{user} " if user >= 0
+
+  q_order = "ORDER BY message.pub_date DESC "
+  q_order += "LIMIT #{limit} " if limit > 0
+
+  query_string = q_select + q_where + q_order
+  query_db(query_string)
+end
+
+# Endpoint Methods
 def personal_timeline
   offset = params['offset'] ? params['offset'].to_i : 0
   @messages = query_db("
@@ -31,11 +72,7 @@ def personal_timeline
 end
 
 def public_timeline
-  @messages = query_db("
-    SELECT message.*, user.* FROM message, user
-    WHERE message.flagged = 0 AND message.author_id = user.user_id
-    ORDER BY message.pub_date DESC LIMIT ?", PER_PAGE
-  )
+  @messages = get_messages(PER_PAGE, -1, 0)
   nil
 end
 
@@ -51,11 +88,7 @@ def user_timeline(username)
     ).empty?
   end
 
-  @messages = query_db('''
-    SELECT message.*, user.* FROM message, user WHERE
-    user.user_id = message.author_id AND user.user_id = ?
-    ORDER BY message.pub_date DESC LIMIT ?''',
-                       [@profile_user['user_id'], PER_PAGE])
+  @messages = get_messages(PER_PAGE, @profile_user['user_id'])
   nil
 end
 
@@ -110,42 +143,62 @@ def logout
   nil
 end
 
-def add_message(text)
-  halt 401 unless session[:user_id]
+def post_message(text, user = -1)
+  user_id = session[:user_id]
+  user_id = user if user > 0
+
+  halt 401 unless user_id
   if text.nil? || text.empty?
     return "You can't post an empty message."
   end
 
   query_db(
     'INSERT INTO message (author_id, text, pub_date, flagged) VALUES (?, ?, ?, 0)',
-    [session[:user_id], text, Time.now.to_i]
+    [user_id, text, Time.now.to_i]
   )
   session[:success_message] = 'Your message was recorded'
   nil
 end
 
-def follow(username)
-  halt 401 unless @user
-  whom_id = get_user_id(username)
-  halt 404 if whom_id.nil?
+def follow(follower_id, follows)
+  follows_id = get_user_id(follows)
+  return nil unless follows_id
+  # Check if the user is already following
+  # the user they are trying to follow
+  unless query_db(
+    'SELECT 1 FROM follower WHERE who_id = ? AND whom_id = ?',
+    [follower_id, follows_id]
+  ).empty?
+    session[:success_message] = "You are already following \"#{follows}\""
+    return nil
+  end
 
   query_db(
     'INSERT INTO follower (who_id, whom_id) VALUES (?, ?)',
-    [session[:user_id], whom_id]
+    [follower_id, follows_id]
   )
-  session[:success_message] = "You are now following \"#{params[:username]}\""
+  session[:success_message] = "You are now following \"#{follows}\""
   nil
 end
 
-def unfollow(username)
-  halt 401 unless @user
-  whom_id = get_user_id(username)
-  halt 404 if whom_id.nil?
+def unfollow(follower_id, follows)
+  follows_id = get_user_id(follows)
 
   query_db(
     'DELETE FROM follower WHERE who_id = ? AND whom_id = ?',
-    [session[:user_id], whom_id]
+    [follower_id, follows_id]
   )
-  session[:success_message] = "You are no longer following \"#{params[:username]}\""
+  session[:success_message] = "You are no longer following \"#{follows}\""
   nil
+end
+
+def get_followers(username, limit)
+  whom_id = get_user_id(username)
+  query_db(
+    'SELECT user.username
+     FROM user
+     INNER JOIN follower ON follower.whom_id = user.user_id
+     WHERE follower.who_id = ?
+     LIMIT ?',
+    [whom_id, limit])
 end
