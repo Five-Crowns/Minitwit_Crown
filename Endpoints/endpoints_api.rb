@@ -56,7 +56,8 @@ end
 get '/api/fllws/:username' do
   limit = get_param_or_default('no', 100)
   followers = get_followers(params[:username], limit)
-  { follows: followers }.to_json
+  usernames = followers.map { |f| f['username'] }
+  return { follows: usernames }.to_json
 end
 
 post '/api/fllws/:username' do
