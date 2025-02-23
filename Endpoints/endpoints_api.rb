@@ -14,7 +14,8 @@ end
 # API Endpoints
 
 get '/api/latest' do
-  return get_latest.to_json
+  latest = get_latest.to_i
+  return { latest: latest }.to_json
 end
 
 post '/api/register' do
