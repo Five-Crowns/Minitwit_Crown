@@ -21,7 +21,8 @@ end
 post '/api/register' do
   error = register_user(@data['username'], @data['email'], @data['pwd'], @data['pwd'])
   if error.nil?
-    status 200, 'You were successfully registered and can login now'
+    status 200
+    'You were successfully registered and can login now'
   else
     halt 400, error
   end
