@@ -240,14 +240,14 @@ end
 # @param [String] followee The username of the followee.
 # # @return Nil, if user was unfollowed properly. Otherwise, an error message.
 def unfollow(follower_id, followee)
-  already_following = follows(follower_id, followee)
-  unless already_following
-    return "You were never following \"#{followee}\""
-  end
-
   followee_id = get_user_id(followee)
   if followee_id == follower_id
     return "Now that's just kinda sad..."
+  end
+
+  already_following = follows(follower_id, followee)
+  unless already_following
+    return "You were never following \"#{followee}\""
   end
 
   query_db(
