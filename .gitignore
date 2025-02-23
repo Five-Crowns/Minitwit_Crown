@@ -14,3 +14,4 @@ __pycache__/
 # Auto gen IDE code
 .idea/
 .vscode/  
+/latest_processed_sim_action_id.txt

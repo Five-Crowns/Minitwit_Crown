@@ -4,27 +4,39 @@ get '/' do
   if @user.nil?
     redirect to('/public')
   else
-    personal_timeline
+    page = get_param_or_default('page', 0)
+    @messages = personal_timeline(@user_id, page)
     erb :timeline
   end
 end
 
 get '/public' do
-  public_timeline
+  page = get_param_or_default('page', 0)
+  @messages = public_timeline(page)
   erb :timeline
 end
 
 get '/login' do
+  unless @user_id.nil?
+    session[:success_message] = 'You are already logged in'
+    redirect to('/')
+    return
+  end
+
   @error = nil
   @username = nil
   erb :login, layout: :layout
 end
 
 post '/login' do
-  @error = login_user(params['username'], params['password'])
-  if @error.nil?
+  @username = params['username']
+  response = login_user(@username, params['password'])
+  if response.is_a?(Integer)
+    session[:user_id] = response.to_i
+    session[:success_message] = 'You were logged in'
     redirect to('/')
   else
+    @error = response
     erb :login, layout: :layout
   end
 end
@@ -37,8 +49,11 @@ get '/register' do
 end
 
 post '/register' do
-  @error = register_user(params['username'], params['email'], params['password'], params['password2'])
+  @username = params['username']
+  @email = params['email']
+  @error = register_user(@username, @email, params['password'], params['password2'])
   if @error.nil?
+    session[:success_message] = 'You were successfully registered and can login now'
     redirect to('/login')
   else
     erb :register, layout: :layout
@@ -46,28 +61,51 @@ post '/register' do
 end
 
 get '/logout' do
-  logout
+  session[:user_id] = nil
+  session[:success_message] = 'You were logged out'
   redirect to('/public')
 end
 
 post '/add_message' do
-  @error = post_message(params['text'])
+  halt 401 unless @user
+  @error = post_message(params['text'], @user_id)
+  if @error.nil?
+    session[:success_message] = 'Your message was recorded'
+  else
+    session[:success_message] = @error
+  end
   redirect to('/')
 end
 
 get '/:username' do
-  user_timeline(params[:username])
+  page_user = params[:username]
+  @profile_user = get_user(page_user)
+  halt 404, '404 User not found' if @profile_user.nil?
+
+  @followed = @user ? follows(@user_id, page_user) : false
+
+  @messages = user_timeline(page_user)
   erb :timeline
 end
 
 get '/:username/follow' do
   halt 401 unless @user
-  @error = follow(session[:user_id], params[:username])
+  followee = params[:username]
+
+  @error = follow(@user_id, followee)
+  @error.nil? ?
+    session[:success_message] = "You are now following \"#{followee}\"" :
+    session[:success_message] = @error
   redirect to("/#{params[:username]}")
 end
 
 get '/:username/unfollow' do
   halt 401 unless @user
-  @error = unfollow(session[:user_id], params[:username])
+  followee = params[:username]
+
+  @error = unfollow(@user_id, followee)
+  @error.nil? ?
+    session[:success_message] = "You are no longer following \"#{followee}\"" :
+    session[:success_message] = @error
   redirect to("/#{params[:username]}")
 end

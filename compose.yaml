@@ -7,7 +7,7 @@ services:
     volumes:
       - ".:/app"          # Mount the app code
       - "./minitwit.db:/app/minitwit.db"  # Mount the SQLite DB file (if it's outside of the container)
-      - ".env:/app/.env"   # Mount the .env file
+      #- ".env:/app/.env"   # Mount the .env file
     environment:
       - RACK_ENV=production
     command: ruby minitwit.rb

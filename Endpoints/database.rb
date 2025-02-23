@@ -1,7 +1,7 @@
 DATABASE = 'minitwit.db'
 SCHEMA_PATH = 'schema.sql'
 
-# Database connection
+# @return A connection to the database.
 def connect_db
   db = SQLite3::Database.new(DATABASE)
   db.results_as_hash = true #Allows accessing record fields by their name
@@ -25,6 +25,8 @@ end
 init_db unless File.exist?(DATABASE)
 
 # Query the database
+# @param [String] query The SQL query to execute on the database.
+# @param args A list of arguments to insert into the query; works by mapping each "?" to each argument.
 def query_db(query, *args)
   db = connect_db
   result = db.execute(query, *args)

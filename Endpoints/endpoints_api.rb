@@ -1,78 +1,81 @@
 require_relative 'endpoint_methods'
 
-# Filters messages to contain only the content (text), user (author_id), and pub_date (pub_date)
-def filter_messages(messages, verbose)
-  if verbose
-    messages.map { |msg| { user: msg['username'], content: msg['text'], timestamp: format_datetime(msg['pub_date']) } }
-  else
-    messages.map { |msg| { content: msg['text'], user: msg['author_id'], pub_date: msg['pub_date'] } }
-  end
-end
-
-# Returns the value of a given parameter, or if it hasn't been passed, the default value
-def get_param_or_default(param_name, default_value)
-  val = default_value
-  unless params[param_name].nil?
-    val = params[param_name].to_i
-  end
-
-  val
+# Filters messages to contain only necessary information, that being user (username), content (text), and timestamp (pub_date).
+# @param messages The list of messages to filter.
+def filter_messages(messages)
+  messages.map { |msg| { user: msg['username'], content: msg['text'], timestamp: format_datetime(msg['pub_date']) } }
 end
 
 # API Endpoints
 
 get '/api/latest' do
-  return get_latest.to_json
+  latest = get_latest.to_i
+  return { latest: latest }.to_json
 end
 
 post '/api/register' do
-  error = register_user(params['username'], params['email'], params['password'], params['password'])
-  status = error.nil? ? 'success' : 'error'
-  message = error.nil? ? "You were successfully registered and can login now" : error
-  { status: status, message: message }.to_json
+  error = register_user(@data['username'], @data['email'], @data['pwd'], @data['pwd'])
+  if error.nil?
+    status 200
+    'You were successfully registered and can login now'
+  else
+    halt 400, error
+  end
 end
 
 get '/api/msgs' do
-  verbose = get_param_or_default('verbose', 0)
   limit = get_param_or_default('no', 100)
   messages = get_messages(limit)
-  filter_messages(messages, verbose == 1).to_json
+  filter_messages(messages).to_json
 end
 
 get '/api/msgs/:username' do
-  verbose = get_param_or_default('verbose', 0)
   user_id = get_user_id(params[:username])
   limit = get_param_or_default('no', 100)
   messages = get_messages(limit, user_id)
-  filter_messages(messages, verbose == 1).to_json
+  filter_messages(messages).to_json
 end
 
 post '/api/msgs/:username' do
   user_id = get_user_id(params[:username])
-  message = params['content']
-  post_message(message, user_id)
-
-  status 204
+  message = @data['content']
+  error = post_message(message, user_id)
+  if error.nil?
+    status 204
+  else
+    halt 400, error
+  end
 end
 
 get '/api/fllws/:username' do
   limit = get_param_or_default('no', 100)
   followers = get_followers(params[:username], limit)
-  { follows: followers }.to_json
+  usernames = followers.map { |f| f['username'] }
+  return { follows: usernames }.to_json
 end
 
 post '/api/fllws/:username' do
-  unless params['follow'].nil?
+  follow = @data['follow'].to_s
+  unless follow.empty?
     follower_id = get_user_id(params[:username])
-    follow(follower_id, params['follow'])
-    status 204
+    error = follow(follower_id, follow)
+    if error.nil?
+      return status 204
+    else
+      return halt 400, error
+    end
   end
 
-  unless params['unfollow'].nil?
+  unfollow = @data['unfollow'].to_s
+  unless unfollow.empty?
     follower_id = get_user_id(params[:username])
-    unfollow(follower_id, params['unfollow'])
-    status 204
+    error = unfollow(follower_id, unfollow)
+    if error.nil?
+      return status 204
+    else
+      return halt 400, error
+    end
   end
 
-  status 400
+  halt 400, 'No follow command specified'
 end
