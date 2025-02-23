@@ -14,6 +14,8 @@ before do
   if request.path.start_with?('/api/')
     content_type :json
     update_latest(params['latest'])
+    request_body = request.body.read
+    @data = request_body.empty? ? "" : JSON.parse(request_body)
   end
 end
 

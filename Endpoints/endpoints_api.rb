@@ -18,7 +18,7 @@ get '/api/latest' do
 end
 
 post '/api/register' do
-  error = register_user(params['username'], params['email'], params['password'], params['password'])
+  error = register_user(@data['username'], @data['email'], @data['pwd'], @data['pwd'])
   if error.nil?
     status 200, 'You were successfully registered and can login now'
   else
@@ -43,7 +43,7 @@ end
 
 post '/api/msgs/:username' do
   user_id = get_user_id(params[:username])
-  message = params['content']
+  message = @data['content']
   error = post_message(message, user_id)
   if error.nil?
     status 204
@@ -59,7 +59,7 @@ get '/api/fllws/:username' do
 end
 
 post '/api/fllws/:username' do
-  follow = params['follow'].to_s
+  follow = @data['follow'].to_s
   unless follow.empty?
     follower_id = get_user_id(params[:username])
     error = follow(follower_id, follow)
@@ -70,7 +70,7 @@ post '/api/fllws/:username' do
     end
   end
 
-  unfollow = params['unfollow'].to_s
+  unfollow = @data['unfollow'].to_s
   unless unfollow.empty?
     follower_id = get_user_id(params[:username])
     error = unfollow(follower_id, unfollow)
