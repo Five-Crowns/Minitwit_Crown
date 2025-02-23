@@ -15,12 +15,18 @@ before do
     content_type :json
     update_latest(params['latest'])
     request_body = request.body.read
-    @data = request_body.empty? ? "" : JSON.parse(request_body)
+    @data = request_body.empty? ? "" : try_parse_json(request_body)
   end
 end
 
 after do
   @db.close if @db
+end
+
+def try_parse_json(json)
+  JSON.parse(json)
+rescue JSON::ParserError, TypeError => e
+  halt 400, 'Invalid JSON body'
 end
 
 # Updates 'latest' if it isn't nil or empty.
