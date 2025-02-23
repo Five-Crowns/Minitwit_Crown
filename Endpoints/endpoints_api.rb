@@ -1,14 +1,9 @@
 require_relative 'endpoint_methods'
 
-# Filters messages to contain only necessary information
+# Filters messages to contain only necessary information, that being user (username), content (text), and timestamp (pub_date).
 # @param messages The list of messages to filter.
-# @param [Integer] verbose Changes if messages are filtered for the simulator (0), or for human readability (1).
-def filter_messages(messages, verbose)
-  if verbose == 1
-    messages.map { |msg| { user: msg['username'], content: msg['text'], timestamp: format_datetime(msg['pub_date']) } }
-  else
-    messages.map { |msg| { content: msg['text'], user: msg['author_id'], pub_date: msg['pub_date'] } }
-  end
+def filter_messages(messages)
+  messages.map { |msg| { user: msg['username'], content: msg['text'], timestamp: format_datetime(msg['pub_date']) } }
 end
 
 # API Endpoints
@@ -29,18 +24,16 @@ post '/api/register' do
 end
 
 get '/api/msgs' do
-  verbose = get_param_or_default('verbose', 0)
   limit = get_param_or_default('no', 100)
   messages = get_messages(limit)
-  filter_messages(messages, verbose).to_json
+  filter_messages(messages).to_json
 end
 
 get '/api/msgs/:username' do
-  verbose = get_param_or_default('verbose', 0)
   user_id = get_user_id(params[:username])
   limit = get_param_or_default('no', 100)
   messages = get_messages(limit, user_id)
-  filter_messages(messages, verbose).to_json
+  filter_messages(messages).to_json
 end
 
 post '/api/msgs/:username' do
