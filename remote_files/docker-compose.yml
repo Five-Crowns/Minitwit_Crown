@@ -11,13 +11,13 @@ services:
     networks:
       - main
     depends_on:
-      - Databaseimage
+      - itusqlimage
     ports:
       - '5000:5000'
 
-  Databaseimage:
-    image: ${DOCKER_USERNAME}/mydb
-    container_name: minitwit_db
+  itusqlimage:
+    image: ${DOCKER_USERNAME}/mysqlimage
+    container_name: minitwit_mysql
     networks:
       - main
     ports:
