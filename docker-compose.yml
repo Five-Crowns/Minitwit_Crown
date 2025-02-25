@@ -1,0 +1,18 @@
+version: '3'
+
+networks:
+  main:
+
+services:
+  app:
+    image: mysinatraapp
+    container_name: minitwit
+    networks:
+      - main
+    ports:
+      - "5000:5000"
+    volumes:
+      - sqlite_data:/app/data  # Persistent SQLite database file
+
+volumes:
+  sqlite_data:
