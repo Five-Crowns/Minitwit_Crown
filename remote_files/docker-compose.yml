@@ -3,7 +3,7 @@ networks:
 
 services:
   app:
-    image: niko391a/minitwitimage # this should reflect the name of the repository it will be uploaded to on docker hub
+    image: ${DOCKER_USERNAME}/minitwitimage # this should reflect the name of the repository it will be uploaded to on docker hub
     container_name: minitwit
     networks:
       - main
