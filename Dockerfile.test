@@ -1,0 +1,23 @@
+# Use an official Ruby runtime as the base image
+FROM ruby:3.1
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy application files
+COPY . .
+
+# Install dependencies
+RUN gem install bundler && bundle install
+
+# Install test dependencies
+RUN gem install rspec
+
+# Install Python and dependencies
+RUN apt-get update && apt-get install -y python3 python3-pip
+RUN pip3 install requests
+
+# Run the tests
+COPY run_tests.sh /run_tests.sh
+RUN chmod +x /run_tests.sh
+CMD ["/run_tests.sh"]
