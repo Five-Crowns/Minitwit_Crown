@@ -49,9 +49,11 @@ jobs:
 
       - name: Test minitwit
         run: |
+          # Build the test image
           docker build -t $DOCKER_USERNAME/minitwittestimage -f Dockerfile.test .
-          yes 2>/dev/null | docker compose up -d
-          docker run --rm --network=itu-minitwit-network $DOCKER_USERNAME/minitwittestimage
+
+          # Run the tests
+          docker run --rm $DOCKER_USERNAME/minitwittestimage
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
 
@@ -66,8 +68,7 @@ jobs:
       - name: Deploy to server
         # Configure the ~./bash_profile and deploy.sh file on the Vagrantfile
         run: >
-          ssh $SSH_USER@$SSH_HOST
-          -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no
+          ssh $SSH_USER@$SSH_HOST -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no
           '/minitwit/deploy.sh'
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
