@@ -1,0 +1,16 @@
+networks:
+  main:
+
+services:
+  app:
+    image: niko391a/minitwitimage # specify the full image name including the username
+    container_name: minitwit
+    networks:
+      - main
+    ports:
+      - "5000:5000"
+    volumes:
+      - sqlite_data:/app/data  # Persistent SQLite database file
+
+volumes:
+  sqlite_data:

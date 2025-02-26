@@ -1,0 +1,16 @@
+networks:
+  main:
+
+services:
+  app:
+    image: ${DOCKER_USERNAME}/minitwitimage # this should reflect the name of the repository it will be uploaded to on docker hub
+    container_name: minitwit
+    networks:
+      - main
+    ports:
+      - "5000:5000"
+    volumes:
+      - sqlite_data:/app/data  # Persistent SQLite database file
+
+volumes:
+  sqlite_data:

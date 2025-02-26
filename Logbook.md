@@ -12,12 +12,24 @@ Date: (year), (day of the week) (month) (day), (time) (timezone)
 (header/one-line summary)
 
 (changes)
+---
+
+Author: NALS, <nals@itu.dk> <br>
+Date: 2025, wed Feb 26, 17:39:43 UTC+1
+
+Modified vagrant- and dockerfiles which were based on tutorial from:
+https://github.com/itu-devops/itu-minitwit-ci
+
+Deployed by using SSH to access server and ran the deploy.sh script. A workflow is being added in another pull request separate from this, which will hopefully automate the running of the shell script.
+
+Chose not to make a separate docker image for the SQL which the tutorial does as we use SQLite which stores the data in a .db file thus it is simply embedded into the image. The data should therefore also be persistent to crashes/restarts, as i assigned it a volume.
+
+---
 
 Author: mnla, <mnla@itu.dk> <br>
 Date: 2025, wed Feb 22, 21:46:43 UTC+1
 
 added a check such that the user can't follow more than once
----
 
 ---
 
