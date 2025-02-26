@@ -1,11 +1,9 @@
-version: '3'
-
 networks:
   main:
 
 services:
   app:
-    image: mysinatraapp
+    image: niko391a/minitwitimage # specify the full image name including the username
     container_name: minitwit
     networks:
       - main

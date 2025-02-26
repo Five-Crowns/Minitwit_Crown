@@ -1,26 +1,16 @@
-version: '3.3'
-
 networks:
   main:
 
 services:
-
-  minitwitimage:
-    image: ${DOCKER_USERNAME}/minitwitimage
+  app:
+    image: niko391a/minitwitimage # this should reflect the name of the repository it will be uploaded to on docker hub
     container_name: minitwit
     networks:
       - main
-    depends_on:
-      - itusqlimage
     ports:
-      - '5000:5000'
+      - "5000:5000"
+    volumes:
+      - sqlite_data:/app/data  # Persistent SQLite database file
 
-  itusqlimage:
-    image: ${DOCKER_USERNAME}/mysqlimage
-    container_name: minitwit_mysql
-    networks:
-      - main
-    ports:
-      - '3306:3306'
-    environment:
-      - MYSQL_ROOT_PASSWORD=root
+volumes:
+  sqlite_data:
