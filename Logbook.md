@@ -24,6 +24,8 @@ Had trouble sucessfully deploying using workflow. The issue was due to me not co
 (Base64-encoded key content here)
 -----END RSA PRIVATE KEY-----
 
+The workflow now also runs tests by building and running the Dockerfile.test, which executes a shell script that runs the rspec and python tests.
+
 ---
 
 Author: NALS, <nals@itu.dk> <br>
