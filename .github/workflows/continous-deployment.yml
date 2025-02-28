@@ -57,6 +57,7 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
 
       - name: Configure SSH
+        if: success() # Only runs if all previous steps succeeded
         run: |
           mkdir -p ~/.ssh/
           echo "$SSH_KEY" > ~/.ssh/do_ssh_key
@@ -65,6 +66,7 @@ jobs:
           SSH_KEY: ${{ secrets.SSH_KEY }}
 
       - name: Deploy to server
+        if: success() # Only runs if all previous steps succeeded
         # Configure the ~./bash_profile and deploy.sh file on the Vagrantfile
         run: >
           ssh $SSH_USER@$SSH_HOST -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no
