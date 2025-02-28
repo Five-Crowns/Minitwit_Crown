@@ -196,3 +196,7 @@ def test_a_unfollows_b():
     response = requests.get(f'{BASE_URL}/latest', headers=HEADERS)
     assert response.json()['latest'] == 11
 
+# def test_deliberate_failure():
+#     """This test is designed to fail to test the CI/CD pipeline"""
+#     # This assertion will always fail
+#     assert False, "This test is deliberately failing to test the CI pipeline"
