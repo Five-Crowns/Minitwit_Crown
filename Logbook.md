@@ -12,6 +12,20 @@ Date: (year), (day of the week) (month) (day), (time) (timezone)
 (header/one-line summary)
 
 (changes)
+
+---
+
+Author: NALS, <nals@itu.dk> <br>
+Date: 2025, wed Feb 27, 20:56:23 UTC+1
+
+Had trouble sucessfully deploying using workflow. The issue was due to me not copying the private properly, to incldue the headers and footers also:
+
+-----BEGIN RSA PRIVATE KEY-----
+(Base64-encoded key content here)
+-----END RSA PRIVATE KEY-----
+
+The workflow now also runs tests by building and running the Dockerfile.test, which executes a shell script that runs the rspec and python tests.
+
 ---
 
 Author: NALS, <nals@itu.dk> <br>

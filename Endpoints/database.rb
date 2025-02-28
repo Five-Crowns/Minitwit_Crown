@@ -1,4 +1,6 @@
-DATABASE = 'minitwit.db'
+# DATABASE = 'minitwit.db'
+DATABASE = File.join(ENV['DB_PATH'] || 'data', 'minitwit.db')
+Dir.mkdir(File.dirname(DATABASE)) unless Dir.exist?(File.dirname(DATABASE))
 SCHEMA_PATH = 'schema.sql'
 
 # @return A connection to the database.
