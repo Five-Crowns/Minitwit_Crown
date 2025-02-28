@@ -51,7 +51,7 @@ def test_register():
     username = 'a'
     email = 'a@a.a'
     pwd = 'a'
-    data = {'username': username, 'email': email, 'pwd': username}
+    data = {'username': username, 'email': email, 'pwd': pwd}
     params = {'latest': 1}
     response = requests.post(f'{BASE_URL}/register',
                              data=json.dumps(data), headers=HEADERS, params=params)
