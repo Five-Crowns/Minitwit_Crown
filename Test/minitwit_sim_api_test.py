@@ -51,7 +51,7 @@ def test_register():
     username = 'a'
     email = 'a@a.a'
     pwd = 'a'
-    data = {'username': username, 'email': email, 'pwd': pwd}
+    data = {'username': username, 'email': email, 'pwd': username}
     params = {'latest': 1}
     response = requests.post(f'{BASE_URL}/register',
                              data=json.dumps(data), headers=HEADERS, params=params)
@@ -196,3 +196,7 @@ def test_a_unfollows_b():
     response = requests.get(f'{BASE_URL}/latest', headers=HEADERS)
     assert response.json()['latest'] == 11
 
+# def test_deliberate_failure():
+#     """This test is designed to fail to test the CI/CD pipeline"""
+#     # This assertion will always fail
+#     assert False, "This test is deliberately failing to test the CI pipeline"
