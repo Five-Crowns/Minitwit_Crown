@@ -143,15 +143,13 @@ end
 # @param [String] password
 # @param [String] password2
 # @return Nil, if user was registered properly. Otherwise, an error message.
-def register_user(username, email, password, password2)
+def register_user(username, email, password)
   if username.to_s.empty?
     'You have to enter a username'
   elsif email.to_s.empty? || !email.include?('@')
     'You have to enter a valid email address'
   elsif password.to_s.empty?
     'You have to enter a password'
-  elsif password != password2
-    'The two passwords do not match'
   elsif !query_db('SELECT user_id FROM user WHERE username = ?', username).empty?
     'The username is already taken'
   else
