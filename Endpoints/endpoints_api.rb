@@ -16,10 +16,9 @@ end
 post '/api/register' do
   error = register_user(@data['username'], @data['email'], @data['pwd'], @data['pwd'])
   if error.nil?
-    status 200
-    'You were successfully registered and can login now'
+    status 204
   else
-    halt 400, error
+    halt 400, { status: 400, error_msg: error }.to_json
   end
 end
 

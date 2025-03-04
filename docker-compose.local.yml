@@ -1,0 +1,18 @@
+networks:
+  main:
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    container_name: minitwit_local
+    networks:
+      - main
+    ports:
+      - "5000:5000"
+    volumes:
+      - sqlite_data:/app/data  # Persistent SQLite database file
+
+volumes:
+  sqlite_data:

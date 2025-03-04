@@ -17,7 +17,7 @@ set :views, File.join(settings.root, 'views') # Set views relative to root
 enable :static
 
 # Configuration
-HOST = '0.0.0.0' # Can also insert localhost if you want to run it yourself
+HOST = '0.0.0.0' # Can also insert localhost instead of 0.0.0.0 if you want to run it yourself
 PORT = 5000
 DEBUG = true
 
