@@ -29,10 +29,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build test image
-        run: docker build -t $DOCKER_USERNAME/minitwittestimage -f Dockerfile.test .
+      - name: Test minitwit
+        run: |
+          # Build the test image
+          docker build -t $DOCKER_USERNAME/minitwittestimage -f Dockerfile.test .
 
-      - name: Run tests
-        run: docker run --rm $DOCKER_USERNAME/minitwittestimage
+          # Run the tests
+          docker run --rm $DOCKER_USERNAME/minitwittestimage
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
