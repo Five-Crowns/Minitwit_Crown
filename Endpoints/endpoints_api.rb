@@ -14,7 +14,7 @@ get '/api/latest' do
 end
 
 post '/api/register' do
-  error = register_user(@data['username'], @data['email'], @data['pwd'])
+  error = register_user(@data['username'], @data['email'], @data['pwd'], @data['pwd'])
   if error.nil?
     status 204
   else
