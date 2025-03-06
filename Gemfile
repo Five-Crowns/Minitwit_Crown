@@ -7,6 +7,7 @@ gem 'bcrypt'                    # For password hashing
 gem 'dotenv'                    # For loading environment variables
 gem 'sinatra-content-for'       # For managing content-for (layouts)
 gem 'securerandom'              # For generating random data (already used in the code)
+gem 'sinatra-activerecord'      # For ActiveRecord ORM
 gem "rackup", "~> 2.2"
 gem "puma", "~> 6.6"
 gem 'rspec'
