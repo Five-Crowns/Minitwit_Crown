@@ -35,10 +35,4 @@ task :start do
   sh 'ruby minitwit.rb'
 end
 
-desc 'Initialize the database'
-task :init_db do
-  require_relative 'Endpoints/database'
-  init_db
-end
-
 task default: :spec
