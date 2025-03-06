@@ -1,0 +1,5 @@
+﻿development:
+  adapter: sqlite3
+  database: data/minitwit.db
+  pool: 5
+  timeout: 5000
