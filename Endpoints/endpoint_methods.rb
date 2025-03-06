@@ -5,6 +5,10 @@ LATEST_FILENAME = 'latest_processed_sim_action_id.txt'
 
 # Sinatra routes
 
+
+# Now need to remove the query_db method from the endpoint_methods.rb file.
+# such that the endpoint_methods.rb file looks like this:
+# User.find_by(username: username) instead of query_db("SELECT * FROM users WHERE username = ?", username)
 before do
   @db = connect_db
   @user_id = session[:user_id]
