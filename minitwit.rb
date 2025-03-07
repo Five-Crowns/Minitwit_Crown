@@ -8,6 +8,7 @@ require 'sinatra/content_for'
 require 'dotenv/load'
 require_relative 'Endpoints/endpoints_html'
 require_relative 'Endpoints/endpoints_api'
+#Put in prometheus
 
 helpers Sinatra::ContentFor
 set :public_folder, File.dirname(__FILE__) + '/public'
