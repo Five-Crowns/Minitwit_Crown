@@ -3,10 +3,9 @@ name: Continuous Deployment
 
 on:
   push:
-    # Run workflow every time something is pushed to the main branch
-    branches:
-      - main
-      - master
+    # Run workflow every time something is pushed with tags v* (v1.0, v20.15.10)
+    tags:
+      - 'v*'
   # allow manual triggers for now too
   workflow_dispatch:
     manual: true
