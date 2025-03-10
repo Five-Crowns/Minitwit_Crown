@@ -17,3 +17,6 @@ __pycache__/
 .vscode/  
 /latest_processed_sim_action_id.txt
 *.db
+./db/development.sqlite3
+./db/schema.rb
+./db/test.sqlite3
