@@ -6,9 +6,20 @@ require 'bcrypt'
 require 'time'
 require 'sinatra/content_for'
 require 'dotenv/load'
-#require './models/user'
+require 'active_record'
+require 'yaml'
+require './models/user'
+require_relative "db_config"
+
+# Initialize database connection
+MiniTwit::DbConfig.setup
+
+
 require_relative 'Endpoints/endpoints_html'
 require_relative 'Endpoints/endpoints_api'
+require_relative 'models/user'
+require_relative 'models/message'
+require_relative 'models/follower'
 
 helpers Sinatra::ContentFor
 set :public_folder, File.dirname(__FILE__) + '/public'
@@ -16,6 +27,7 @@ set :public_folder, File.dirname(__FILE__) + '/public'
 set :root, File.dirname(__FILE__) # Explicitly set the root (important!)
 set :views, File.join(settings.root, 'views') # Set views relative to root
 enable :static
+
 
 # Configuration
 HOST = '0.0.0.0' # Can also insert localhost instead of 0.0.0.0 if you want to run it yourself

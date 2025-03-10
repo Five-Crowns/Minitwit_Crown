@@ -1,5 +1,6 @@
 source 'https://rubygems.org'
 
+gem 'rubocop', group: 'development', require: false
 gem 'sinatra', '~> 4.1'        # For Sinatra framework
 gem 'sinatra-contrib'           # For Sinatra contributions (helpers, sessions, etc.)
 gem 'sqlite3'                   # For SQLite database connection

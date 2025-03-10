@@ -10,6 +10,7 @@ __pycache__/
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
+./.ruby-lsp
 
 # Auto gen IDE code
 .idea/

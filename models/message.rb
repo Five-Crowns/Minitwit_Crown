@@ -1,4 +1,5 @@
-﻿class Message < ActiveRecord::Base
+﻿require 'active_record'
+class Message < ActiveRecord::Base
   # Relationships
   belongs_to :author, class_name: "User", foreign_key: :author_id
 

@@ -1,4 +1,5 @@
-﻿class Follower < ActiveRecord::Base
+﻿require 'active_record'
+class Follower < ActiveRecord::Base
   # Relationships
   belongs_to :who, class_name: "User", foreign_key: :who_id
   belongs_to :whom, class_name: "User", foreign_key: :whom_id
