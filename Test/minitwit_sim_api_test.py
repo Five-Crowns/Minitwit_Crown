@@ -8,7 +8,7 @@ from contextlib import closing
 
 
 BASE_URL = 'http://localhost:5000/api'
-DATABASE = "../minitwit.db" # If testing locally change "../minitwit.db" to DATABASE = "data/minitwit.db"
+DATABASE = "../db/development.sqlite3 # If testing locally change "../db/development.sqlite3" to DATABASE = "data/minitwit.db"
 USERNAME = 'simulator'
 PWD = 'super_safe!'
 CREDENTIALS = ':'.join([USERNAME, PWD]).encode('ascii')

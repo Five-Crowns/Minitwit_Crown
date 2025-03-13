@@ -82,7 +82,11 @@ get '/:username' do
   @profile_user = get_user(page_user)
   halt 404, '404 User not found' if @profile_user.nil?
 
-  @followed = @user ? follows(@user_id, page_user) : false
+  # Check if this is the current user's profile
+  @is_current_user = @user && @user.username == page_user
+
+  # Only check follow status if viewing someone else's profile
+  @followed = !@is_current_user && @user ? follows(@user_id, page_user) : false
 
   @messages = user_timeline(page_user)
   erb :timeline

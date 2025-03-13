@@ -214,7 +214,6 @@ def follow(follower_id, followee)
     return "You are already following \"#{followee}\""
   end
 
-  # Create the follow relationship
   Follower.create(who_id: follower_id, whom_id: followee_id)
   nil
 end
@@ -234,14 +233,17 @@ def unfollow(follower_id, followee)
     return "You can't unfollow yourself"
   end
 
-  # Check if not following
-  unless Follower.exists?(who_id: follower_id, whom_id: followee_id)
-    return "You were never following \"#{followee}\""
+  # Use direct SQL execution to avoid ActiveRecord issues
+  begin
+    # Delete using raw SQL to bypass potential ActiveRecord mapping issues
+    ActiveRecord::Base.connection.execute(
+      "DELETE FROM followers WHERE who_id = #{follower_id} AND whom_id = #{followee_id}"
+    )
+    nil
+  rescue => e
+    puts "Error in unfollow: #{e.message}"
+    "Database error while unfollowing: #{followee}"
   end
-
-  # Remove the follow relationship
-  Follower.where(who_id: follower_id, whom_id: followee_id).destroy_all
-  nil
 end
 
 # Gets a list of a given user's followers.
@@ -255,5 +257,4 @@ def get_followers(username, limit)
   User.joins("INNER JOIN followers ON users.id = followers.who_id")
       .where(followers: { whom_id: user_id })
       .limit(limit)
-      .pluck(:username)
 end
