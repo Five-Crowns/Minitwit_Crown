@@ -86,7 +86,7 @@ def get_messages(limit = -1, user_id = -1, offset = -1, flagged = -1)
   messages = messages.order(pub_date: :desc)
   messages = messages.limit(limit) if limit > 0
   messages = messages.offset(offset) if offset > 0
-  messages
+  messages.select('messages.*, users.*')
 end
 
 # Generalized query for getting specific page of messages.
@@ -110,6 +110,7 @@ def personal_timeline(user_id, page = 0)
          .order(pub_date: :desc)
          .limit(PER_PAGE)
          .offset(page * PER_PAGE)
+         .select('messages.*, users.*')
 end
 
 # The public timeline containing everyone's messages.
