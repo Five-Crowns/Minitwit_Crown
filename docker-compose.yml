@@ -12,5 +12,12 @@ services:
     volumes:
       - sqlite_data:/app/data  # Persistent SQLite database file
 
-volumes:
-  sqlite_data:
+  itusqlimage:
+    image: ${DOCKER_USERNAME}/postgresqlimage
+    container_name: minitwit_mysql
+    networks:
+      - main
+    ports:
+      - '3306:3306'
+    environment:
+        - MYSQL_ROOT_PASSWORD=root

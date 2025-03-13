@@ -13,3 +13,4 @@ gem 'rspec'
 gem 'rest-client'
 gem 'rack-test'
 gem 'ffi'
+gem 'pg' # For PostgreSQL database connection
