@@ -187,7 +187,10 @@ end
 # @param [String] followee The username of the followee.
 # @return [Boolean] True, if 'follower' follows 'followee'. Otherwise, returns false.
 def follows(follower_id, followee)
-  followee_id = get_user_id(followee)
+  followee_user = get_user(followee)
+  return false if followee_user.nil?
+
+  followee_id = followee_user.id
   Follower.exists?(who_id: follower_id, whom_id: followee_id)
 end
 
@@ -196,16 +199,22 @@ end
 # @param [String] followee The username of the followee.
 # @return Nil, if user was followed properly. Otherwise, an error message.
 def follow(follower_id, followee)
-  already_following = follows(follower_id, followee)
-  if already_following
-    return "You are already following \"#{followee}\""
-  end
+  followee_user = get_user(followee)
+  return "User #{followee} not found" if followee_user.nil?
 
-  followee_id = get_user_id(followee)
+  followee_id = followee_user.id
+
+  # Check if trying to follow yourself
   if followee_id == follower_id
     return "You can't follow yourself"
   end
 
+  # Check if already following
+  if Follower.exists?(who_id: follower_id, whom_id: followee_id)
+    return "You are already following \"#{followee}\""
+  end
+
+  # Create the follow relationship
   Follower.create(who_id: follower_id, whom_id: followee_id)
   nil
 end
@@ -215,16 +224,22 @@ end
 # @param [String] followee The username of the followee.
 # # @return Nil, if user was unfollowed properly. Otherwise, an error message.
 def unfollow(follower_id, followee)
-  followee_id = get_user_id(followee)
+  followee_user = get_user(followee)
+  return "User #{followee} not found" if followee_user.nil?
+
+  followee_id = followee_user.id
+
+  # Check if trying to unfollow yourself
   if followee_id == follower_id
-    return "Now that's just kinda sad..."
+    return "You can't unfollow yourself"
   end
 
-  already_following = follows(follower_id, followee)
-  unless already_following
+  # Check if not following
+  unless Follower.exists?(who_id: follower_id, whom_id: followee_id)
     return "You were never following \"#{followee}\""
   end
 
+  # Remove the follow relationship
   Follower.where(who_id: follower_id, whom_id: followee_id).destroy_all
   nil
 end
@@ -233,6 +248,12 @@ end
 # @param [String] username The username of the user whose list of foFllowers you wish to see.
 # @param [Integer] limit The max number of followers you wish to see.
 def get_followers(username, limit)
-  whom_id = get_user_id(username)
-  User.joins(:followers).where(followers: { who_id: whom_id }).limit(limit).pluck(:username)
+  user_id = get_user_id(username)
+
+  # This finds users who follow the specified user
+  # The users are the 'who_id' in the Follower table where 'whom_id' is our target user
+  User.joins("INNER JOIN followers ON users.id = followers.who_id")
+      .where(followers: { whom_id: user_id })
+      .limit(limit)
+      .pluck(:username)
 end
