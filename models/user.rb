@@ -1,4 +1,5 @@
-﻿require 'active_record'
+﻿# models/user.rb
+require 'active_record'
 class User < ActiveRecord::Base
   # Relationships
   has_many :messages, foreign_key: :author_id

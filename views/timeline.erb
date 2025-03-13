@@ -36,15 +36,15 @@ You are not yet following this user.
 <% end %>
 
 <ul class="messages">
-<% if @messages.empty? %>
-<li><em>There's no message so far.</em></li>
-<% else %>
-<% @messages.each do |message| %>
-<li><img src="<%= gravatar_url(message['email'], 48) %>"><p>
-<strong><a href="<%= url("/#{message['username']}") %>"><%= message['username'] %></a></strong>
-<%= h(message['text']) %>
-<small>&mdash; <%= format_datetime(message['pub_date']) %></small>
-</p></li>
-<% end %>
-<% end %>
+  <% if @messages.empty? %>
+    <li><em>There's no message so far.</em></li>
+  <% else %>
+    <% @messages.each do |message| %>
+      <li><img src="<%= gravatar_url(message['email'], 48) %>"><p>
+        <strong><a href="<%= url("/#{message['username']}") %>"><%= message['username'] %></a></strong>
+        <%= h(message['text']) %>
+        <small>&mdash; <%= format_datetime(message['pub_date']) %></small>
+      </p></li>
+    <% end %>
+  <% end %>
 </ul>

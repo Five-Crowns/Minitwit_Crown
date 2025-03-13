@@ -6,10 +6,10 @@ LATEST_FILENAME = 'latest_processed_sim_action_id.txt'
 
 # Now need to remove the query_db method from the endpoint_methods.rb file.
 # such that the endpoint_methods.rb file looks like this:
-# User.find_by(username: username) instead of query_db("SELECT * FROM users WHERE username = ?", username)
+# User.find_by(username: username) instead of querFy_db("SELECT * FROM users WHERE username = ?", username)
 before do
-  @user_id = session[:user_id]
-  @user = @user_id.nil? ? nil : User.find_by(user_id: @user_id)
+  @user_id = session[:id]
+  @user = @user_id.nil? ? nil : User.find_by(id: @user_id)
   if request.path.start_with?('/api/')
     content_type :json
     update_latest(params['latest'])
@@ -80,7 +80,7 @@ end
 # @param [Integer] offset The 'index' at which you start getting messages.
 # @param [Integer] flagged For if you want to fetch only flagged (or non-flagged) messages.
 def get_messages(limit = -1, user_id = -1, offset = -1, flagged = -1)
-  messages = Message.joins(:user)
+  messages = Message.joins(:author)
   messages = messages.where(flagged: flagged) if flagged >= 0
   messages = messages.where(author_id: user_id) if user_id >= 0
   messages = messages.order(pub_date: :desc)
@@ -103,7 +103,7 @@ end
 # @param [Integer] user_id The user_id of the user whose personal timeline you wish to see.
 # @param [Integer] page What page of messages you want to see.
 def personal_timeline(user_id, page = 0)
-  Message.joins(:user)
+  Message.joins(:author)
          .where(flagged: 0)
          .where('author_id = ? OR author_id IN (SELECT whom_id FROM followers WHERE who_id = ?)', user_id, user_id)
          .order(pub_date: :desc)
@@ -228,7 +228,7 @@ def unfollow(follower_id, followee)
 end
 
 # Gets a list of a given user's followers.
-# @param [String] username The username of the user whose list of followers you wish to see.
+# @param [String] username The username of the user whose list of foFllowers you wish to see.
 # @param [Integer] limit The max number of followers you wish to see.
 def get_followers(username, limit)
   whom_id = get_user_id(username)

@@ -5,14 +5,14 @@ get '/' do
     redirect to('/public')
   else
     page = get_param_or_default('page', 0)
-    @messages = personal_timeline(@user_id, page)
+    @messages = Message.joins(:author).select('messages.*, users.email, users.username').all
     erb :timeline
   end
 end
 
 get '/public' do
   page = get_param_or_default('page', 0)
-  @messages = public_timeline(page)
+  @messages = Message.joins(:author).select('messages.*, users.email, users.username').all
   erb :timeline
 end
 
@@ -32,7 +32,7 @@ post '/login' do
   @username = params['username']
   response = login_user(@username, params['password'])
   if response.is_a?(Integer)
-    session[:user_id] = response.to_i
+    session[:id] = response.to_i
     session[:success_message] = 'You were logged in'
     redirect to('/')
   else
@@ -61,7 +61,7 @@ post '/register' do
 end
 
 get '/logout' do
-  session[:user_id] = nil
+  session[:id] = nil
   session[:success_message] = 'You were logged out'
   redirect to('/public')
 end

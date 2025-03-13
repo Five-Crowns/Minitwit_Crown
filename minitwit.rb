@@ -48,7 +48,8 @@ end
 
 # Gravatar URL
 def gravatar_url(email, size = 80)
-  "http://www.gravatar.com/avatar/#{Digest::MD5.hexdigest(email.strip.downcase)}?d=identicon&s=#{size}"
+  email = email.to_s.strip.downcase
+  "http://www.gravatar.com/avatar/#{Digest::MD5.hexdigest(email)}?d=identicon&s=#{size}"
 end
 
 # Start the Sinatra application
