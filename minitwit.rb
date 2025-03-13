@@ -6,6 +6,7 @@ require 'bcrypt'
 require 'time'
 require 'sinatra/content_for'
 require 'dotenv/load'
+require 'pg'
 require_relative 'Endpoints/endpoints_html'
 require_relative 'Endpoints/endpoints_api'
 

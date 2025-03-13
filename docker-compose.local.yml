@@ -1,18 +1,26 @@
 networks:
   main:
+    name: itu-minitwit-network
 
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile.app
+    image: minitwitimage
     container_name: minitwit_local
     networks:
       - main
+    depends_on:
+      - itusqlimage
     ports:
       - "5000:5000"
-    volumes:
-      - sqlite_data:/app/data  # Persistent SQLite database file
 
-volumes:
-  sqlite_data:
+  itusqlimage:
+    image: postgresqlimage
+    container_name: minitwit_postgresql
+    networks:
+      - main
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=minitwit
