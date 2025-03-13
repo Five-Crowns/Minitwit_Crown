@@ -5,14 +5,14 @@ get '/' do
     redirect to('/public')
   else
     page = get_param_or_default('page', 0)
-    @messages = Message.joins(:author).select('messages.*, users.email, users.username').all
+    @messages = personal_timeline(@user_id, page)
     erb :timeline
   end
 end
 
 get '/public' do
   page = get_param_or_default('page', 0)
-  @messages = Message.joins(:author).select('messages.*, users.email, users.username').all
+  @messages = public_timeline(page)
   erb :timeline
 end
 
