@@ -30,7 +30,8 @@ end
 
 # Format datetime
 def format_datetime(timestamp)
-  Time.at(timestamp).utc.strftime('%Y-%m-%d @ %H:%M')
+  time = Time.at(timestamp).getlocal
+  time.strftime('%Y-%m-%d @ %H:%M:%S')
 end
 
 # Gravatar URL
