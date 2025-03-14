@@ -1,4 +1,5 @@
 require_relative 'database'
+require_relative '../metrics'
 
 PER_PAGE = 30
 LATEST_FILENAME = 'latest_processed_sim_action_id.txt'
@@ -6,6 +7,8 @@ LATEST_FILENAME = 'latest_processed_sim_action_id.txt'
 # Sinatra routes
 
 before do
+  @start_time = Time.now
+  Metrics.active_users.increment
   @db = connect_db
   @user_id = session[:user_id]
   @user = @user_id.nil? ?
@@ -21,7 +24,21 @@ end
 
 after do
   @db.close if @db
-  HTTP_RESPONSES.increment
+  duration = Time.now - @start_time
+
+  # Increment request count
+  Metrics.http_requests_total.increment(
+    labels: { method: request.request_method, route: request.path, status: response.status }
+  )
+
+  # Track request duration
+  Metrics.http_request_duration_seconds.observe(
+    duration,
+    labels: { method: request.request_method, route: request.path, status: response.status }
+  )
+
+  # Decrease active users
+  Metrics.active_users.decrement
 end
 
 def try_parse_json(json)

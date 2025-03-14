@@ -6,7 +6,6 @@ require 'bcrypt'
 require 'time'
 require 'sinatra/content_for'
 require 'dotenv/load'
-require 'prometheus/client'
 require 'prometheus/middleware/exporter'
 require_relative 'Endpoints/endpoints_html'
 require_relative 'Endpoints/endpoints_api'
@@ -32,13 +31,6 @@ set :root, File.dirname(__FILE__) # Explicitly set the root (important!)
 set :views, File.join(settings.root, 'views') # Set views relative to root
 enable :static
 
-# Prometheus setup
-PROMETHEUS = Prometheus::Client.registry
-HTTP_RESPONSES = Prometheus::Client::Counter.new(
-  :http_responses_total,
-  docstring: 'HTTP response counter'
-)
-PROMETHEUS.register(HTTP_RESPONSES)
 
 use Prometheus::Middleware::Exporter
 
