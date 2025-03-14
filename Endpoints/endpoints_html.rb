@@ -32,7 +32,7 @@ post '/login' do
   @username = params['username']
   response = login_user(@username, params['password'])
   if response.is_a?(Integer)
-    session[:user_id] = response.to_i
+    session[:id] = response.to_i
     session[:success_message] = 'You were logged in'
     redirect to('/')
   else
@@ -61,7 +61,7 @@ post '/register' do
 end
 
 get '/logout' do
-  session[:user_id] = nil
+  session[:id] = nil
   session[:success_message] = 'You were logged out'
   redirect to('/public')
 end
@@ -82,7 +82,11 @@ get '/:username' do
   @profile_user = get_user(page_user)
   halt 404, '404 User not found' if @profile_user.nil?
 
-  @followed = @user ? follows(@user_id, page_user) : false
+  # Check if this is the current user's profile
+  @is_current_user = @user && @user.username == page_user
+
+  # Only check follow status if viewing someone else's profile
+  @followed = !@is_current_user && @user ? follows(@user_id, page_user) : false
 
   @messages = user_timeline(page_user)
   erb :timeline
