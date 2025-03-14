@@ -1,17 +1,26 @@
 ﻿development:
-  adapter: sqlite3
+  adapter: postgresql
+  encoding: unicode
   database: db/development.sqlite3
   pool: 5
   timeout: 5000
 
 test:
-  adapter: sqlite3
+  adapter: postgresql
   database: db/test.sqlite3
   pool: 5
   timeout: 5000
 
 production:
-  adapter: sqlite3
+  adapter: postgresql
   database: db/production.sqlite3
   pool: 5
   timeout: 5000
+
+# By default Active Record uses database features like prepared statements and advisory locks. 
+# You might need to disable those features if you're using an external connection pooler like PgBouncer:
+# LINK: https://guides.rubyonrails.org/configuring.html#configuring-a-postgresql-database
+# production:
+#   adapter: postgresql
+#   prepared_statements: false
+#   advisory_locks: false
