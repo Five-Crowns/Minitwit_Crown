@@ -21,6 +21,7 @@ end
 
 after do
   @db.close if @db
+  HTTP_RESPONSES.increment
 end
 
 def try_parse_json(json)

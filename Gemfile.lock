@@ -23,6 +23,8 @@ GEM
       ruby2_keywords (~> 0.0.1)
     netrc (0.11.0)
     nio4r (2.7.4)
+    prometheus-client (4.2.4)
+      base64
     puma (6.6.0)
       nio4r (~> 2.0)
     rack (3.1.10)
@@ -87,6 +89,7 @@ DEPENDENCIES
   bcrypt
   dotenv
   ffi
+  prometheus-client
   puma (~> 6.6)
   rack-test
   rackup (~> 2.2)
