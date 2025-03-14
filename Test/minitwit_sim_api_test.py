@@ -3,7 +3,7 @@ import json
 import base64
 import sqlite3
 import subprocess
-
+import atexit
 import requests
 from pathlib import Path
 from contextlib import closing
@@ -22,16 +22,29 @@ HEADERS = {'Connection': 'close',
 
 
 def init_db():
-    """Creates the database tables."""
-    with closing(sqlite3.connect(DATABASE)) as db:
-        with open("../schema.sql") as fp: # Change "../schema.sql" to schema.sql if testing locally
-            db.cursor().executescript(fp.read())
-        db.commit()
+    """Creates the database tables using rake db:setup."""
+    try:
+        # Run rake db:setup to create database and apply migrations
+        subprocess.run(['rake', 'db:setup'], check=True)
+        print("Database initialized successfully with rake db:setup")
+    except subprocess.CalledProcessError as e:
+        print(f"An error occurred while setting up the database: {e}")
 
+# Database cleanup function to be called when connection is closed
+def cleanup_db():
+    """Cleans up the database when connection is closed."""
+    try:
+        # You can use rake db:drop or another appropriate rake task
+        subprocess.run(['rake', 'db:drop'], check=True)
+        print("Database cleaned up successfully")
+    except subprocess.CalledProcessError as e:
+        print(f"An error occurred while cleaning up the database: {e}")
 
-# Empty the database and initialize the schema again
-Path(DATABASE).unlink()
+# Initialize the database
 init_db()
+
+# Register cleanup to happen when the program exits
+atexit.register(cleanup_db)
 
 def test_latest():
     # post something to update LATEST
