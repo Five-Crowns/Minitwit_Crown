@@ -10,7 +10,7 @@ drop table if exists follower;
 create table follower (
   who_id integer,
   whom_id integer
-);mathiasl2@hotmail.com
+);
 
 drop table if exists message;
 create table message (
