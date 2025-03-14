@@ -11,6 +11,8 @@ require 'prometheus/middleware/exporter'
 require_relative 'Endpoints/endpoints_html'
 require_relative 'Endpoints/endpoints_api'
 
+#TODO this fixed the 403 on /metrics, but unsure why
+#See if it can be fixed without production environment
 set :environment, :production
 
 configure do
