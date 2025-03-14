@@ -27,3 +27,7 @@ scrape_configs:
       - targets: ['app:5000']
         labels:
           group: 'production'
+
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']

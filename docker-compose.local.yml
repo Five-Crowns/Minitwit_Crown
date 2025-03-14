@@ -26,5 +26,12 @@ services:
     depends_on:
       - app
 
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor
+    ports:
+      - "8080:8080"
+    networks:
+      - main
+
 volumes:
   sqlite_data:
