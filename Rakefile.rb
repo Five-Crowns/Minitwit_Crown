@@ -45,6 +45,10 @@ namespace :db do
   desc "Reset database"
   task reset: [:drop, :create, :migrate]
 
+  desc "Create the database and apply migrations"
+  task setup: [:create, :migrate]
+
+
   namespace :schema do
     desc "Create schema.rb file"
     task dump: :load_config do
@@ -62,4 +66,9 @@ namespace :db do
       load(filename) if File.exist?(filename)
     end
   end
+
+
+
+
+
 end

@@ -20,13 +20,14 @@ HEADERS = {'Connection': 'close',
            f'Authorization': f'Basic {ENCODED_CREDENTIALS}'}
 
 
+
 def init_db():
-    """Runs the rake db:migrate command to create the database tables."""
-    try:
-        result = subprocess.run(['rake', 'db:migrate'], check=True, capture_output=True, text=True)
-        print(result.stdout)
-    except subprocess.CalledProcessError as e:
-        print(f"An error occurred while running rake db:migrate: {e.stderr}")
+    """Creates the database tables."""
+    with closing(sqlite3.connect(DATABASE)) as db:
+        with open("../schema.sql") as fp: # Change "../schema.sql" to schema.sql if testing locally
+            db.cursor().executescript(fp.read())
+        db.commit()
+
 
 # Empty the database and initialize the schema again
 Path(DATABASE).unlink()
