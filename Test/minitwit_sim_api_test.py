@@ -2,13 +2,15 @@ import os
 import json
 import base64
 import sqlite3
+import subprocess
+
 import requests
 from pathlib import Path
 from contextlib import closing
 
 
 BASE_URL = 'http://localhost:5000/api'
-DATABASE = "../db/development.sqlite3 # If testing locally change "../db/development.sqlite3" to DATABASE = "data/minitwit.db"
+DATABASE = "../db/development.sqlite3"  # If testing locally change "..//db//development.sqlite3" to DATABASE = "..//db//development.sqlite3"
 USERNAME = 'simulator'
 PWD = 'super_safe!'
 CREDENTIALS = ':'.join([USERNAME, PWD]).encode('ascii')
@@ -19,17 +21,16 @@ HEADERS = {'Connection': 'close',
 
 
 def init_db():
-    """Creates the database tables."""
-    with closing(sqlite3.connect(DATABASE)) as db:
-        with open("../schema.sql") as fp: # Change "../schema.sql" to schema.sql if testing locally
-            db.cursor().executescript(fp.read())
-        db.commit()
-
+    """Runs the rake db:migrate command to create the database tables."""
+    try:
+        result = subprocess.run(['rake', 'db:migrate'], check=True, capture_output=True, text=True)
+        print(result.stdout)
+    except subprocess.CalledProcessError as e:
+        print(f"An error occurred while running rake db:migrate: {e.stderr}")
 
 # Empty the database and initialize the schema again
 Path(DATABASE).unlink()
 init_db()
-
 
 def test_latest():
     # post something to update LATEST
