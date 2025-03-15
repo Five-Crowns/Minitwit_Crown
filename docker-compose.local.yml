@@ -39,6 +39,11 @@ services:
       - "3000:3000"
     networks:
       - main
+    volumes:
+      - grafana_data:/var/lib/grafana  # Persist dashboards & settings
+    depends_on:
+      - prometheus
 
 volumes:
   sqlite_data:
+  grafana_data:
