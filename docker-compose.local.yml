@@ -33,5 +33,12 @@ services:
     networks:
       - main
 
+  grafana:
+    image: grafana/grafana:10.2.4
+    ports:
+      - "3000:3000"
+    networks:
+      - main
+
 volumes:
   sqlite_data:
