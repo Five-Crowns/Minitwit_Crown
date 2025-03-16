@@ -1,8 +1,6 @@
 # NOTE FOR DEVELOPERS!
 # PostgreSQL does not use ? for parameterized queries instead use $1, $2.....$n and so on
 
-require_relative 'database'
-
 PER_PAGE = 30
 LATEST_FILENAME = 'latest_processed_sim_action_id.txt'
 

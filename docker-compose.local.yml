@@ -12,7 +12,15 @@ services:
       - itusqlimage
     ports:
       - "5000:5000"
-
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=itusqlimage
+      - POSTGRES_PORT=5432
+    command: >
+      sh -c "bundle exec rake db:create db:migrate && bundle exec ruby minitwit.rb -o 0.0.0.0"
+      
   itusqlimage:
     image: postgresqlimage
     container_name: minitwit_postgresql
@@ -26,3 +34,6 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
     volumes:
       - postgresql_data:/app/data  # Persistent SQLite database file
+
+volumes:
+  postgresql_data:

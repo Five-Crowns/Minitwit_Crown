@@ -6,4 +6,4 @@ FROM postgres:latest
 EXPOSE 5432
 
 # Default command to run the database
-CMD["postgres"]
+CMD ["postgres"]
