@@ -1,6 +1,6 @@
 require "active_record"
 require "yaml"
-require "erb"  # Add this line
+require "erb"  # Added this line as it is needed for the database.yml to properly evaluate environment variables
 
 module MiniTwit
   class DbConfig
