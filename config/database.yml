@@ -1,21 +1,23 @@
-﻿development:
+﻿default:
   adapter: postgresql
   encoding: unicode
-  database: db/development.sqlite3
   pool: 5
-  timeout: 5000
+  username: <%= ENV['DB_USERNAME'] %>
+  password: <%= ENV['DB_PASSWORD'] %>
+  host: <%= ENV['DB_HOST'] || 'localhost' %>
+
+
+development:
+  <<: *default
+  database: my_app_development
 
 test:
-  adapter: postgresql
-  database: db/test.sqlite3
-  pool: 5
-  timeout: 5000
+  <<: *default
+  database: my_app_test
 
 production:
-  adapter: postgresql
-  database: db/production.sqlite3
-  pool: 5
-  timeout: 5000
+  <<: *default
+  database: my_app_production
 
 # By default Active Record uses database features like prepared statements and advisory locks. 
 # You might need to disable those features if you're using an external connection pooler like PgBouncer:
