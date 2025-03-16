@@ -19,7 +19,7 @@ services:
       - POSTGRES_HOST=itusqlimage
       - POSTGRES_PORT=5432
     command: >
-      sh -c "bundle exec rake db:create db:migrate && bundle exec ruby minitwit.rb -o 0.0.0.0"
+      bash -c "bundle exec rake db:create db:migrate && bundle exec ruby minitwit.rb -o 0.0.0.0"
       
   itusqlimage:
     image: postgresqlimage
