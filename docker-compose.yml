@@ -1,23 +1,18 @@
 networks:
   main:
-
 services:
   app:
-    image: niko391a/minitwitimage # specify the full image name including the username
+    image: ${DOCKER_USERNAME}/minitwitimage
     container_name: minitwit
     networks:
       - main
     ports:
       - "5000:5000"
-    volumes:
-      - sqlite_data:/app/data  # Persistent SQLite database file
-
-  itusqlimage:
-    image: ${DOCKER_USERNAME}/postgresqlimage
-    container_name: minitwit_mysql
-    networks:
-      - main
-    ports:
-      - '3306:3306'
     environment:
-        - MYSQL_ROOT_PASSWORD=root
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=${POSTGRES_HOST_REMOTE}
+      - POSTGRES_PORT=5432
+    command: >
+      bash -c "sleep 10 && bundle exec rake db:create db:migrate && bundle exec ruby minitwit.rb -o 0.0.0.0"
