@@ -58,9 +58,13 @@ Vagrant.configure("2") do |config|
   
       echo -e "\nSelecting Minitwit Folder as default folder when you ssh into the server...\n"
       echo "cd /minitwit-db" >> ~/.bash_profile
-  
+
+      # Add this just before the final SHELL
+      echo -e "\nStarting PostgreSQL container...\n"
+      cd /minitwit-db && bash deploy-db.sh
+
       echo -e "\nVagrant setup done ..."
-      echo -e "minitwit will later be accessible at http://$(hostname -I | awk '{print $1}'):5000"
+      echo -e "PostgreSQL database will be accessible at $(hostname -I | awk '{print $1}'):5432"
       SHELL
     end
   end
