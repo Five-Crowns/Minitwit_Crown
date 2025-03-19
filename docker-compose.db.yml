@@ -1,0 +1,20 @@
+networks:
+  main:
+  
+services:
+  itusqlimage:
+    image: niko391a/postgresqlimage:latest
+    container_name: minitwit_postgresql
+    networks:
+      - main
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - postgresql_data:/app/data  # Persistent SQLite database file
+
+volumes:
+  postgresql_data:
