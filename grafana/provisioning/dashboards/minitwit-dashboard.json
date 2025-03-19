@@ -1,0 +1,48 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "MiniTwit Dashboard",
+    "panels": [
+      {
+        "title": "HTTP Requests Total",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum by(method, route, status) (http_requests_total)",
+            "legendFormat": "{{method}} {{route}} ({{status}})"
+          }
+        ],
+        "gridPos": { "x": 0, "y": 0, "w": 12, "h": 6 }
+      },
+      {
+        "title": "HTTP Request Duration",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, method, route))",
+            "legendFormat": "p95 latency ({{method}} {{route}})"
+          },
+          {
+            "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, method, route))",
+            "legendFormat": "p50 latency ({{method}} {{route}})"
+          }
+        ],
+        "gridPos": { "x": 0, "y": 6, "w": 12, "h": 6 }
+      },
+      {
+        "title": "Active Users",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "active_users",
+            "legendFormat": "Active Users"
+          }
+        ],
+        "gridPos": { "x": 0, "y": 12, "w": 12, "h": 6 }
+      }
+    ],
+    "schemaVersion": 16,
+    "version": 1
+  },
+  "overwrite": true
+}
