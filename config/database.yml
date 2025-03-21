@@ -6,17 +6,7 @@
   timeout: 5000
   username: <%= ENV['POSTGRES_USER'] %>
   password: <%= ENV['POSTGRES_PASSWORD'] %>
-  host: <%= ENV['POSTGRES_HOST_REMOTE'] %>
-  port: 5432
-
-test:
-  adapter: postgresql
-  database: minitwit_test
-  pool: 5
-  timeout: 5000
-  username: <%= ENV['POSTGRES_USER'] %>
-  password: <%= ENV['POSTGRES_PASSWORD'] %>
-  host: <%= ENV['POSTGRES_HOST_REMOTE'] %>
+  host: <%= ENV['POSTGRES_HOST'] %>
   port: 5432
 
 production:
