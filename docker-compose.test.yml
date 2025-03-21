@@ -7,7 +7,7 @@ services:
     # image: minitwitimage
     build:
       context: .
-      dockerfile: Dockerfile.app
+      dockerfile: Dockerfile.test
     container_name: minitwit_local
     networks:
       - main
@@ -16,14 +16,13 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - RAILS_ENV=development
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_HOST=itusqlimage
-      - POSTGRES_PORT=5432
+      - POSTGRES_NAME=${POSTGRES_DB}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
     command: >
-      bash -c "sleep 10 && bundle exec rake db:create db:migrate && bundle exec ruby minitwit.rb -o 0.0.0.0"
+      bash -c "sleep 10 && bundle exec rake db:create db:migrate && cd Test && ls && ./run_tests.sh"
       
   itusqlimage:
     # image: postgresqlimage
@@ -34,13 +33,8 @@ services:
     networks:
       - main
     ports:
-      - '5432:5432'
+      - '5432:5432' # Default port for PostgreSQL
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-    volumes:
-      - postgresql_data:/app/data  # Persistent SQLite database file
-
-volumes:
-  postgresql_data:
+      - POSTGRES_DB=${POSTGRES_NAME}
