@@ -8,7 +8,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.test
-    container_name: minitwit_local
+    container_name: minitwit_local_test
     networks:
       - main
     depends_on:
@@ -16,10 +16,11 @@ services:
     ports:
       - "5000:5000"
     environment:
+      - RAILS_ENV=test
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_NAME=${POSTGRES_DB}
-      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_HOST=${POSTGRES_HOST_TEST}
       - POSTGRES_PORT=${POSTGRES_PORT}
     command: >
       bash -c "sleep 10 && bundle exec rake db:create db:migrate && cd Test && ls && ./run_tests.sh"
@@ -29,7 +30,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.postgresql
-    container_name: minitwit_postgresql
+    container_name: minitwit_postgresql_test
     networks:
       - main
     ports:
@@ -38,3 +39,5 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_NAME}
+    volumes:
+      - /var/lib/postgresql/data  # Empty mount point makes this ephemeral
