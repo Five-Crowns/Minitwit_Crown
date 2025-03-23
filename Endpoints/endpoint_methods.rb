@@ -194,7 +194,7 @@ def follows(follower_id, followee)
   return false if followee_user.nil?
 
   followee_id = followee_user.id
-  Follower.exists?(who_id: follower_id, whom_id: followee_id)
+  Follower.exists?(who_id:followee_id , whom_id:follower_id )
 end
 
 # Makes 'follower' follow 'followee'.
@@ -213,11 +213,11 @@ def follow(follower_id, followee)
   end
 
   # Check if already following
-  if Follower.exists?(who_id: follower_id, whom_id: followee_id)
+  if Follower.exists?(who_id:followee_id , whom_id:follower_id)
     return "You are already following \"#{followee}\""
   end
 
-  Follower.create(who_id: follower_id, whom_id: followee_id)
+  Follower.create(who_id: followee_id, whom_id:follower_id )
   nil
 end
 
@@ -240,7 +240,7 @@ def unfollow(follower_id, followee)
   begin
     # Delete using raw SQL to bypass potential ActiveRecord mapping issues
     ActiveRecord::Base.connection.execute(
-      "DELETE FROM followers WHERE who_id = #{follower_id} AND whom_id = #{followee_id}"
+      "DELETE FROM followers WHERE who_id = #{followee_id} AND whom_id = #{follower_id}"
     )
     nil
   rescue => e
