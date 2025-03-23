@@ -21,11 +21,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+    
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Test minitwit
         run: |
-          # Build and run the test images
-          docker compose -f docker-compose.test.yml up --build --exit-code-from app
+          # Build the test image
+          docker build -t $DOCKER_USERNAME/minitwit-test-image -f Dockerfile.test .
+
+          # Build the PG image
+          docker build -t $DOCKER_USERNAME/postgresqlimage -f Dockerfile.postgresql .
+
+          # Run the tests
+          docker compose -f docker-compose.test.yml up --exit-code-from app
