@@ -106,7 +106,7 @@ end
 # @param [Integer] user_id The user_id of the user whose personal timeline you wish to see.
 # @param [Integer] page What page of messages you want to see.
 def personal_timeline(user_id, page = 0)
-  followed_ids = Follower.where(who_id: user_id).pluck(:whom_id)
+  followed_ids = Follower.where(whom_id: user_id).pluck(:who_id)
   Message.joins(:author)
          .where(flagged: 0)
          .where(author_id: [user_id, *followed_ids])

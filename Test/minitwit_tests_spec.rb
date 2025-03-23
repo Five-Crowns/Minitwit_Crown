@@ -175,21 +175,28 @@ end
 
 describe 'Timeline' do
   it 'tests timelines' do
+
     response, cookies = register_and_login('foo', 'default')
     add_message('the message by foo', cookies)
 
     response, cookies = register_and_login('bar','default')
     add_message('the message by bar', cookies)
 
+    sleep 2
+
     response = RestClient.get("#{BASE_URL}/public", { cookies: cookies})
+
 
     expect(response.body).to include('the message by foo')
     expect(response.body).to include('the message by bar')
 
+    # fails following the user dosent display tweets of whom you are following
     follow_user('foo', cookies)
     response = RestClient.get("#{BASE_URL}/", { cookies: cookies})
     expect(response.body).to include('the message by foo')
     expect(response.body).to include('the message by bar')
+
+
 
     response = RestClient.get("#{BASE_URL}/bar", { cookies: cookies})
     expect(response.body).to include('the message by bar')
