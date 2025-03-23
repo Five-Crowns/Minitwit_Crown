@@ -11,25 +11,21 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    env:
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_DB: test_db
+      POSTGRES_HOST_TEST: minitwit_postgresql_test
+      POSTGRES_PORT: 5432
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Test minitwit
         run: |
-          # Build the test image
-          docker build -t $DOCKER_USERNAME/minitwittestimage -f Dockerfile.test .
-
-          # Run the tests
-          docker run --rm $DOCKER_USERNAME/minitwittestimage
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          # Build and run the test images
+          docker compose -f docker-compose.test.yml up --build --exit-code-from app
