@@ -33,11 +33,22 @@ jobs:
 
       - name: Test minitwit
         run: |
-          # Build the test image
-          docker build -t $DOCKER_USERNAME/minitwit-test-image -f Dockerfile.test .
 
-          # Build the PG image
-          docker build -t $DOCKER_USERNAME/postgresqlimage -f Dockerfile.postgresql .
+          # Try to pull test image first. Build it locally if it fails.
+          if docker pull $DOCKER_USERNAME/minitwit-test-image; then
+            echo "Successfully pulled test image from Docker Hub"
+          else
+            echo "Image not found in Docker Hub, building locally"
+            docker build -t $DOCKER_USERNAME/minitwit-test-image -f Dockerfile.test .
+          fi
+          
+          # Try to pull PG image first. Build it locally if it fails.
+          if docker pull $DOCKER_USERNAME/postgresqlimage; then
+            echo "Successfully pulled PostgreSQL image from Docker Hub"
+          else
+            echo "Image not found in Docker Hub, building locally"
+            docker build -t $DOCKER_USERNAME/postgresqlimage -f Dockerfile.postgresql .
+          fi
 
           # Run the tests
           docker compose -f docker-compose.test.yml up --exit-code-from app
