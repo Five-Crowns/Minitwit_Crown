@@ -2,9 +2,11 @@ require "active_record"
 require "fileutils"
 require_relative "db_config"
 
-include ActiveRecord::Tasks
+
 
 namespace :db do
+  include ActiveRecord::Tasks
+
   task :environment do
     MiniTwit::DbConfig.setup
   end
