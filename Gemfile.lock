@@ -321,6 +321,7 @@ DEPENDENCIES
   rubocop
   rubycritic
   securerandom
+  simplecov
   sinatra (~> 4.1)
   sinatra-activerecord
   sinatra-content-for

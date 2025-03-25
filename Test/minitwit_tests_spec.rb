@@ -1,6 +1,9 @@
 ﻿require "rspec"
 require "rest-client"
 require "json"
+require 'simplecov'
+
+SimpleCov.start
 
 BASE_URL = "http://localhost:5000"
 
