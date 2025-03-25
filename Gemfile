@@ -19,3 +19,4 @@ gem 'rest-client'
 gem 'rack-test'
 gem 'ffi'
 gem 'pg' # For PostgreSQL database connection
+gem "prometheus-client"
