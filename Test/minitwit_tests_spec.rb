@@ -4,7 +4,9 @@ require "json"
 require "simplecov"
 
 SimpleCov.start do
-  coverage_dir("/app/coverage")  # Save coverage reports to the mounted volume
+  enable_coverage :branch            # Enable branch coverage (for deeper analysis)
+  add_filter "/spec/"                # Exclude the spec files from coverage report
+  coverage_dir("/app/coverage")      # Save coverage reports to a specific directory (e.g., inside Docker container)
 end
 BASE_URL = "http://localhost:5000"
 
