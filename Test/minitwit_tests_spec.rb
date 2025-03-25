@@ -1,10 +1,5 @@
 ﻿require "simplecov"
-SimpleCov.start do
-  enable_coverage :branch           # Enable branch coverage (for deeper analysis)
-  add_filter "/Test/"               # Exclude spec files from coverage report (if you have any)
-  coverage_dir "coverage"     # Set the directory where reports will be saved
-  track_files "app/**/*.rb"      # Add 'app/Test' to the coverage report
-end
+SimpleCov.start
 require_relative "../minitwit"  # Update this to your main app file
 require "rspec"
 require "rest-client"
