@@ -3,8 +3,9 @@ require "rest-client"
 require "json"
 require "simplecov"
 
-SimpleCov.start
-
+SimpleCov.start do
+  coverage_dir('/app/coverage')  # Save coverage reports to the mounted volume
+end
 BASE_URL = "http://localhost:5000"
 
 def register(username, password, password2 = nil, email = nil)

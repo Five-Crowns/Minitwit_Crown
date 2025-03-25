@@ -86,8 +86,6 @@ jobs:
           # Run the tests
           docker compose -f docker-compose.test.yml up --exit-code-from app
           
-          # Copy the coverage results out of the container
-          docker cp $(docker ps -q -f "name=minitwit_local_test"):/path/to/coverage/lcov-report/lcov-report.html ./coverage/lcov-report.html
 
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
