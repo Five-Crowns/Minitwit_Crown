@@ -1,14 +1,15 @@
-﻿require "rspec"
-require "rest-client"
-require "json"
-require "simplecov"
-
+﻿require "simplecov"
 SimpleCov.start do
   enable_coverage :branch           # Enable branch coverage (for deeper analysis)
-  add_filter "/spec/"               # Exclude spec files from coverage report (if you have any)
-  coverage_dir("/app/coverage")     # Set the directory where reports will be saved
-  add_group "Test", "app/Test"      # Add 'app/Test' to the coverage report
+  add_filter "/Test/"               # Exclude spec files from coverage report (if you have any)
+  coverage_dir "coverage"     # Set the directory where reports will be saved
+  track_files "app/**/*.rb"      # Add 'app/Test' to the coverage report
 end
+require_relative "../minitwit"  # Update this to your main app file
+require "rspec"
+require "rest-client"
+require "json"
+
 BASE_URL = "http://localhost:5000"
 
 def register(username, password, password2 = nil, email = nil)
