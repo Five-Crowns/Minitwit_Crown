@@ -24,5 +24,3 @@ gem "sqlite3" # For SQLite database connection
 gem "dawnscanner"
 gem "standard"
 gem "rubycritic", require: false # For Ruby code quality analysis
-gem "codeclimate-test-reporter"
-gem "simplecov", require: false
