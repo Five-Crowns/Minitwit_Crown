@@ -23,3 +23,4 @@ gem "sqlite3" # For SQLite database connection
 # add the following gems to the Gemfile
 gem "dawnscanner"
 gem "standard"
+gem "rubycritic", require: false
