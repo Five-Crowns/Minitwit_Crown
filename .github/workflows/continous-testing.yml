@@ -97,6 +97,6 @@ jobs:
 
       - name: Upload coverage to Code Climate
         run: |
-          codeclimate-test-reporter < ./coverage/.resultset.json
+          codeclimate-test-reporter
         env:
           CODECLIMATE_REPO_TOKEN: ${{ secrets.CODECLIMATE_REPO_TOKEN }}
