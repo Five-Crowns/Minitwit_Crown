@@ -1,7 +1,7 @@
 ﻿require "rspec"
 require "rest-client"
 require "json"
-require 'simplecov'
+require "simplecov"
 
 SimpleCov.start
 
