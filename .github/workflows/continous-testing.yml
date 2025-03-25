@@ -24,7 +24,7 @@ jobs:
 
       - name: Run standardrb
         run: |
-          gem install standardrb
+          gem install standardrb --user-install
           standardrb
           echo "Standardrb passed"
     
