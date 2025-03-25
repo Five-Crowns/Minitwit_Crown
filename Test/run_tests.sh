@@ -30,10 +30,3 @@ if [ $RSPEC_EXIT -ne 0 ] || [ $PYTEST_EXIT -ne 0 ]; then
     echo "Tests failed! Aborting deployment."
   exit 1
 fi
-
-if [ -d coverage ]; then
-  echo "Coverage report generated successfully."
-else
-  echo "Error: Coverage report NOT found!"
-  exit 1
-fi

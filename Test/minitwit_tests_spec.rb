@@ -1,6 +1,4 @@
-﻿require "simplecov"
-SimpleCov.start
-require_relative "../minitwit"  # Update this to your main app file
+﻿require_relative "../minitwit"  # Update this to your main app file
 require "rspec"
 require "rest-client"
 require "json"
