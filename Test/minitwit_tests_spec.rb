@@ -11,7 +11,6 @@ SimpleCov.start do
 end
 BASE_URL = "http://localhost:5000"
 
-
 def register(username, password, password2 = nil, email = nil)
   password2 ||= password
   email ||= "#{username}@example.com"
