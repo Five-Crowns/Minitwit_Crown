@@ -39,7 +39,7 @@ jobs:
           
       - name: Clone KB repository
         run: |
-          git clone https://github.com/thesp0nge/dawnscanner_knowledge_base.git $HOME/dawnscanner-kb  
+          git clone https://github.com/thesp0nge/dawnscanner_knowledge_base.git $HOME/dawnscanner/kb  
 
       - name: Run dawnscanner
         run: |
