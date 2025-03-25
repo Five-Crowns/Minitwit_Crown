@@ -1,3 +1,5 @@
+require_relative '../metrics'
+
 # NOTE FOR DEVELOPERS!
 # PostgreSQL does not use ? for parameterized queries instead use $1, $2.....$n and so on
 
