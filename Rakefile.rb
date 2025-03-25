@@ -2,8 +2,6 @@ require "active_record"
 require "fileutils"
 require_relative "db_config"
 
-
-
 namespace :db do
   include ActiveRecord::Tasks
 
