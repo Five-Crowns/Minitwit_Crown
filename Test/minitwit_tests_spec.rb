@@ -7,8 +7,11 @@ SimpleCov.start do
   enable_coverage :branch            # Enable branch coverage (for deeper analysis)
   add_filter "/spec/"                # Exclude the spec files from coverage report
   coverage_dir("/app/coverage")      # Save coverage reports to a specific directory (e.g., inside Docker container)
+  add_group "Test", "Test" # This adds the 'Test' folder to the coverage report
 end
 BASE_URL = "http://localhost:5000"
+
+puts "SimpleCov started" if SimpleCov.started?
 
 def register(username, password, password2 = nil, email = nil)
   password2 ||= password
