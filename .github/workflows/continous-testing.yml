@@ -90,6 +90,11 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
 
+      - name: Check coverage report
+        run: |
+          ls -la ./coverage
+            cat ./coverage/.resultset.json
+
       - name: Upload coverage to Code Climate
         run: |
           codeclimate-test-reporter < ./coverage/.resultset.json
