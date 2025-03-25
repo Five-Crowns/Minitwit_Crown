@@ -4,10 +4,10 @@ require "json"
 require "simplecov"
 
 SimpleCov.start do
-  enable_coverage :branch            # Enable branch coverage (for deeper analysis)
-  add_filter "/spec/"                # Exclude the spec files from coverage report
-  coverage_dir("/app/coverage")      # Save coverage reports to a specific directory (e.g., inside Docker container)
-  add_group "Test", "Test" # This adds the 'Test' folder to the coverage report
+  enable_coverage :branch           # Enable branch coverage (for deeper analysis)
+  add_filter "/spec/"               # Exclude spec files from coverage report (if you have any)
+  coverage_dir("/app/coverage")     # Set the directory where reports will be saved
+  add_group "Test", "app/Test"      # Add 'app/Test' to the coverage report
 end
 BASE_URL = "http://localhost:5000"
 
