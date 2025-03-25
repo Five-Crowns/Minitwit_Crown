@@ -1,22 +1,35 @@
-drop table if exists user;
-create table user (
-  user_id integer primary key autoincrement,
-  username string not null,
-  email string not null,
-  pw_hash string not null
+-- Manually ensure the database exists before running this script
+-- CREATE DATABASE should be run separately
+-- Run this in the psql shell: CREATE DATABASE minitwit;
+
+-- Connect to the database (only needed in psql shell)
+-- \c minitwit;
+
+-- Drop tables in the correct order to avoid foreign key issues
+DROP TABLE IF EXISTS follower;
+DROP TABLE IF EXISTS message;
+DROP TABLE IF EXISTS usr;
+
+-- Create the table "usr" instead of "users" as user is a reserved keyword
+CREATE TABLE usr (
+  user_id SERIAL PRIMARY KEY,
+  username VARCHAR NOT NULL UNIQUE,
+  email VARCHAR NOT NULL UNIQUE,
+  pw_hash VARCHAR NOT NULL
 );
 
-drop table if exists follower;
-create table follower (
-  who_id integer,
-  whom_id integer
+-- Create the follower table
+CREATE TABLE follower (
+  who_id INTEGER REFERENCES usr(user_id) ON DELETE CASCADE,
+  whom_id INTEGER REFERENCES usr(user_id) ON DELETE CASCADE,
+  PRIMARY KEY (who_id, whom_id) -- Prevent duplicate follow relationships
 );
 
-drop table if exists message;
-create table message (
-  message_id integer primary key autoincrement,
-  author_id integer not null,
-  text string not null,
-  pub_date integer,
-  flagged integer
+-- Create the message table
+CREATE TABLE message (
+  message_id SERIAL PRIMARY KEY,
+  author_id INTEGER NOT NULL REFERENCES usr(user_id) ON DELETE CASCADE,
+  text TEXT NOT NULL, -- TEXT is better for longer messages
+  pub_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  flagged BOOLEAN DEFAULT FALSE -- Use BOOLEAN instead of INTEGER for flags
 );

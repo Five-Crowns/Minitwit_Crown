@@ -1,14 +1,18 @@
 import os
 import json
 import base64
-import sqlite3
+import psycopg2  # Replacement with sqlite3
 import requests
+import os
+import subprocess
 from pathlib import Path
 from contextlib import closing
+from dotenv import load_dotenv  # Add this to load environment variables
 
+# Load environment variables
+load_dotenv()
 
 BASE_URL = 'http://localhost:5000/api'
-DATABASE = "../minitwit.db" # If testing locally change "../minitwit.db" to DATABASE = "data/minitwit.db"
 USERNAME = 'simulator'
 PWD = 'super_safe!'
 CREDENTIALS = ':'.join([USERNAME, PWD]).encode('ascii')
@@ -17,19 +21,30 @@ HEADERS = {'Connection': 'close',
            'Content-Type': 'application/json',
            f'Authorization': f'Basic {ENCODED_CREDENTIALS}'}
 
+# # PostgreSQL connection parameters
+# DB_PARAMS = {
+#     'dbname': os.getenv('POSTGRES_DB', 'minitwit_development'),
+#     'user': os.getenv('POSTGRES_USER', 'postgres'),
+#     'password': os.getenv('POSTGRES_PASSWORD', 'placeholder'),
+#     'host': os.getenv('POSTGRES_HOST', 'localhost'),
+#     'port': os.getenv('POST_PORT', '5432')
+# }
 
-def init_db():
-    """Creates the database tables."""
-    with closing(sqlite3.connect(DATABASE)) as db:
-        with open("../schema.sql") as fp: # Change "../schema.sql" to schema.sql if testing locally
-            db.cursor().executescript(fp.read())
-        db.commit()
+# # Set Rails environment to test
+# os.environ["RAILS_ENV"] = "test"
+
+# def init_db():
+#     """Initialize the database using Rails' rake tasks."""
+#     try:
+#         subprocess.run(["rake", "db:reset"], check=True)
+#         print("Database initialized successfully using Rails migrations.")
+#     except subprocess.CalledProcessError as e:
+#         print(f"Error initializing the database: {e}")
+#         raise
 
 
-# Empty the database and initialize the schema again
-Path(DATABASE).unlink()
-init_db()
-
+# Initialize the database
+# init_db()
 
 def test_latest():
     # post something to update LATEST

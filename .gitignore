@@ -10,9 +10,13 @@ __pycache__/
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
+./.ruby-lsp
 
 # Auto gen IDE code
 .idea/
 .vscode/  
 /latest_processed_sim_action_id.txt
 *.db
+./db/development.sqlite3
+./db/schema.rb
+./db/test.sqlite3

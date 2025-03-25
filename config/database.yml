@@ -1,0 +1,39 @@
+﻿development:
+  adapter: postgresql
+  encoding: unicode
+  database: minitwit_development
+  pool: 5
+  timeout: 5000
+  username: <%= ENV['POSTGRES_USER'] %>
+  password: <%= ENV['POSTGRES_PASSWORD'] %>
+  host: <%= ENV['POSTGRES_HOST'] %>
+  port: 5432
+
+test:
+  adapter: postgresql
+  encoding: unicode
+  database: minitwit_test
+  pool: 5
+  timeout: 5000
+  username: <%= ENV['POSTGRES_USER'] %>
+  password: <%= ENV['POSTGRES_PASSWORD'] %>
+  host: <%= ENV['POSTGRES_HOST_TEST'] %>
+  port: 5432
+
+production:
+  adapter: postgresql
+  database: minitwit_production
+  pool: 5
+  timeout: 5000
+  username: <%= ENV['POSTGRES_USER'] %>
+  password: <%= ENV['POSTGRES_PASSWORD'] %>
+  host: <%= ENV['POSTGRES_HOST_REMOTE'] %>
+  port: 5432
+
+# By default Active Record uses database features like prepared statements and advisory locks. 
+# You might need to disable those features if you're using an external connection pooler like PgBouncer:
+# LINK: https://guides.rubyonrails.org/configuring.html#configuring-a-postgresql-database
+# production:
+#   adapter: postgresql
+#   prepared_statements: false
+#   advisory_locks: false

@@ -6,8 +6,21 @@ require 'bcrypt'
 require 'time'
 require 'sinatra/content_for'
 require 'dotenv/load'
+require 'pg'
+require 'active_record'
+require 'yaml'
+require './models/user'
+require_relative "db_config"
+
+# Initialize database connection
+MiniTwit::DbConfig.setup
+
+
 require_relative 'Endpoints/endpoints_html'
 require_relative 'Endpoints/endpoints_api'
+require_relative 'models/user'
+require_relative 'models/message'
+require_relative 'models/follower'
 
 helpers Sinatra::ContentFor
 set :public_folder, File.dirname(__FILE__) + '/public'
@@ -15,6 +28,7 @@ set :public_folder, File.dirname(__FILE__) + '/public'
 set :root, File.dirname(__FILE__) # Explicitly set the root (important!)
 set :views, File.join(settings.root, 'views') # Set views relative to root
 enable :static
+
 
 # Configuration
 HOST = '0.0.0.0' # Can also insert localhost instead of 0.0.0.0 if you want to run it yourself
@@ -36,7 +50,8 @@ end
 
 # Gravatar URL
 def gravatar_url(email, size = 80)
-  "http://www.gravatar.com/avatar/#{Digest::MD5.hexdigest(email.strip.downcase)}?d=identicon&s=#{size}"
+  email = email.to_s.strip.downcase
+  "http://www.gravatar.com/avatar/#{Digest::MD5.hexdigest(email)}?d=identicon&s=#{size}"
 end
 
 # Start the Sinatra application

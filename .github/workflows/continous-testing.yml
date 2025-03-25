@@ -11,10 +11,17 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    env:
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_DB: test_db
+      POSTGRES_HOST_TEST: minitwit_postgresql_test
+      POSTGRES_PORT: 5432
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
+    
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -26,10 +33,24 @@ jobs:
 
       - name: Test minitwit
         run: |
-          # Build the test image
-          docker build -t $DOCKER_USERNAME/minitwittestimage -f Dockerfile.test .
+
+          # Try to pull test image first. Build it locally if it fails.
+          if docker pull $DOCKER_USERNAME/minitwit-test-image; then
+            echo "Successfully pulled test image from Docker Hub"
+          else
+            echo "Image not found in Docker Hub, building locally"
+            docker build -t $DOCKER_USERNAME/minitwit-test-image -f Dockerfile.test .
+          fi
+          
+          # Try to pull PG image first. Build it locally if it fails.
+          if docker pull $DOCKER_USERNAME/postgresqlimage; then
+            echo "Successfully pulled PostgreSQL image from Docker Hub"
+          else
+            echo "Image not found in Docker Hub, building locally"
+            docker build -t $DOCKER_USERNAME/postgresqlimage -f Dockerfile.postgresql .
+          fi
 
           # Run the tests
-          docker run --rm $DOCKER_USERNAME/minitwittestimage
+          docker compose -f docker-compose.test.yml up --exit-code-from app
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}

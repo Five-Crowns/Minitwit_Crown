@@ -18,13 +18,19 @@ RUN apt-get update && apt-get install -y python3 python3-pip
 # RUN pip3 install requests --break-system-packages
 RUN pip3 install requests pytest --break-system-packages
 
-# Modify the Python test file to use the correct database path so that it works for new working directory
-RUN sed -i 's|DATABASE = "../minitwit.db"|DATABASE = "/app/data/minitwit.db"|' Test/minitwit_sim_api_test.py
-RUN sed -i 's|with open("../schema.sql")|with open("/app/schema.sql")|' Test/minitwit_sim_api_test.py
+RUN pip3 install psycopg2-binary --break-system-packages
 
+RUN pip3 install python-dotenv --break-system-packages
+
+# Install dos2unix
+RUN apt-get update && apt-get install -y dos2unix
+
+RUN echo "Testing stage"
 # Run the tests
-COPY Test/run_tests.sh /run_tests.sh
-RUN chmod +x /run_tests.sh
+# COPY Test/run_tests.sh /run_tests.sh
+RUN dos2unix /app/Test/run_tests.sh
+
+RUN chmod +x /app/Test/run_tests.sh
 
 # Run script
-CMD ["/run_tests.sh"]
+# CMD ["/run_tests.sh"]

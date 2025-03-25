@@ -1,16 +1,18 @@
-require_relative 'database'
+# NOTE FOR DEVELOPERS!
+# PostgreSQL does not use ? for parameterized queries instead use $1, $2.....$n and so on
 
 PER_PAGE = 30
 LATEST_FILENAME = 'latest_processed_sim_action_id.txt'
 
 # Sinatra routes
 
+
+# Now need to remove the query_db method from the endpoint_methods.rb file.
+# such that the endpoint_methods.rb file looks like this:
+# User.find_by(username: username) instead of querFy_db("SELECT * FROM users WHERE username = ?", username)
 before do
-  @db = connect_db
-  @user_id = session[:user_id]
-  @user = @user_id.nil? ?
-            nil :
-            query_db('SELECT * FROM user WHERE user_id = ?', @user_id).first
+  @user_id = session[:id]
+  @user = @user_id.nil? ? nil : User.find_by(id: @user_id)
   if request.path.start_with?('/api/')
     content_type :json
     update_latest(params['latest'])
@@ -19,9 +21,6 @@ before do
   end
 end
 
-after do
-  @db.close if @db
-end
 
 def try_parse_json(json)
   JSON.parse(json)
@@ -49,7 +48,7 @@ end
 # @param [String] username The username of the user.
 # @return Nil, if the user wasn't found. Otherwise, the user object.
 def get_user(username)
-  query_db('SELECT * FROM user WHERE username = ?', username).first
+  User.find_by(username: username)
 end
 
 # Gets a user's ID from their username.
@@ -61,7 +60,7 @@ def get_user_id(username)
   if user.nil?
     halt 404, '404 User not found'
   else
-    user['user_id']
+    user.id
   end
 end
 
@@ -84,18 +83,13 @@ end
 # @param [Integer] offset The 'index' at which you start getting messages.
 # @param [Integer] flagged For if you want to fetch only flagged (or non-flagged) messages.
 def get_messages(limit = -1, user_id = -1, offset = -1, flagged = -1)
-  q_select = "SELECT message.*, user.* FROM message, user "
-
-  q_where = "WHERE message.author_id = user.user_id "
-  q_where += "AND message.flagged = #{flagged} " if flagged >= 0
-  q_where += "AND user.user_id = #{user_id} " if user_id >= 0
-
-  q_order = "ORDER BY message.pub_date DESC "
-  q_order += "LIMIT #{limit} " if limit > 0
-  q_order += "OFFSET #{offset} " if offset > 0
-
-  query_string = q_select + q_where + q_order
-  query_db(query_string)
+  messages = Message.joins(:author)
+  messages = messages.where(flagged: flagged) if flagged >= 0
+  messages = messages.where(author_id: user_id) if user_id >= 0
+  messages = messages.order(pub_date: :desc)
+  messages = messages.limit(limit) if limit > 0
+  messages = messages.offset(offset) if offset > 0
+  messages.select('messages.*, users.*')
 end
 
 # Generalized query for getting specific page of messages.
@@ -112,15 +106,14 @@ end
 # @param [Integer] user_id The user_id of the user whose personal timeline you wish to see.
 # @param [Integer] page What page of messages you want to see.
 def personal_timeline(user_id, page = 0)
-  query_db('
-      SELECT message.*, user.* FROM message, user
-      WHERE message.flagged = 0 AND message.author_id = user.user_id AND (
-        user.user_id = ? OR
-        user.user_id IN (SELECT whom_id FROM follower WHERE who_id = ?))
-      ORDER BY message.pub_date DESC
-      LIMIT ?
-      OFFSET ?',
-                       [user_id, user_id, PER_PAGE, page * PER_PAGE])
+  followed_ids = Follower.where(whom_id: user_id).pluck(:who_id)
+  Message.joins(:author)
+         .where(flagged: 0)
+         .where(author_id: [user_id, *followed_ids])
+         .order(pub_date: :desc)
+         .limit(PER_PAGE)
+         .offset(page * PER_PAGE)
+         .select('messages.*, users.*')
 end
 
 # The public timeline containing everyone's messages.
@@ -152,14 +145,11 @@ def register_user(username, email, password, password2)
     'You have to enter a password'
   elsif password != password2
     'The two passwords do not match'
-  elsif !query_db('SELECT user_id FROM user WHERE username = ?', username).empty?
+  elsif User.exists?(username: username)
     'The username is already taken'
   else
     pw_hash = BCrypt::Password.create(password)
-    query_db(
-      'INSERT INTO user (username, email, pw_hash) VALUES (?, ?, ?)',
-      [username, email, pw_hash]
-    )
+    User.create(username: username, email: email, pw_hash: pw_hash)
     nil
   end
 end
@@ -174,10 +164,10 @@ def login_user(username, password)
     'You have to enter a password'
   else
     user = get_user(username)
-    if user.nil? || !(BCrypt::Password.new(user["pw_hash"]) == password)
+    if user.nil? || !(BCrypt::Password.new(user.pw_hash) == password)
       'Invalid username or Invalid password'
     else
-      return user["user_id"]
+      user.id
     end
   end
 end
@@ -191,10 +181,7 @@ def post_message(text, user_id)
     return "You can't post an empty message."
   end
 
-  query_db(
-    'INSERT INTO message (author_id, text, pub_date, flagged) VALUES (?, ?, ?, 0)',
-    [user_id, text, Time.now.to_i]
-  )
+  Message.create(author_id: user_id, text: text, pub_date: Time.now.to_i, flagged: 0)
   nil
 end
 
@@ -203,14 +190,11 @@ end
 # @param [String] followee The username of the followee.
 # @return [Boolean] True, if 'follower' follows 'followee'. Otherwise, returns false.
 def follows(follower_id, followee)
-  followee_id = get_user_id(followee)
-  result = query_db('
-    SELECT 1
-    FROM follower
-    WHERE follower.who_id = ? AND follower.whom_id = ?',
-                    [follower_id, followee_id]
-  )
-  !result.empty?
+  followee_user = get_user(followee)
+  return false if followee_user.nil?
+
+  followee_id = followee_user.id
+  Follower.exists?(who_id:followee_id , whom_id:follower_id )
 end
 
 # Makes 'follower' follow 'followee'.
@@ -218,20 +202,22 @@ end
 # @param [String] followee The username of the followee.
 # @return Nil, if user was followed properly. Otherwise, an error message.
 def follow(follower_id, followee)
-  already_following = follows(follower_id, followee)
-  if already_following
-    return "You are already following \"#{followee}\""
-  end
+  followee_user = get_user(followee)
+  return "User #{followee} not found" if followee_user.nil?
 
-  followee_id = get_user_id(followee)
+  followee_id = followee_user.id
+
+  # Check if trying to follow yourself
   if followee_id == follower_id
     return "You can't follow yourself"
   end
 
-  query_db(
-    'INSERT INTO follower (who_id, whom_id) VALUES (?, ?)',
-    [follower_id, followee_id]
-  )
+  # Check if already following
+  if Follower.exists?(who_id:followee_id , whom_id:follower_id)
+    return "You are already following \"#{followee}\""
+  end
+
+  Follower.create(who_id: followee_id, whom_id:follower_id )
   nil
 end
 
@@ -240,33 +226,38 @@ end
 # @param [String] followee The username of the followee.
 # # @return Nil, if user was unfollowed properly. Otherwise, an error message.
 def unfollow(follower_id, followee)
-  followee_id = get_user_id(followee)
+  followee_user = get_user(followee)
+  return "User #{followee} not found" if followee_user.nil?
+
+  followee_id = followee_user.id
+
+  # Check if trying to unfollow yourself
   if followee_id == follower_id
-    return "Now that's just kinda sad..."
+    return "You can't unfollow yourself"
   end
 
-  already_following = follows(follower_id, followee)
-  unless already_following
-    return "You were never following \"#{followee}\""
+  # Use direct SQL execution to avoid ActiveRecord issues
+  begin
+    # Delete using raw SQL to bypass potential ActiveRecord mapping issues
+    ActiveRecord::Base.connection.execute(
+      "DELETE FROM followers WHERE who_id = #{followee_id} AND whom_id = #{follower_id}"
+    )
+    nil
+  rescue => e
+    puts "Error in unfollow: #{e.message}"
+    "Database error while unfollowing: #{followee}"
   end
-
-  query_db(
-    'DELETE FROM follower WHERE who_id = ? AND whom_id = ?',
-    [follower_id, followee_id]
-  )
-  nil
 end
 
 # Gets a list of a given user's followers.
-# @param [String] username The username of the user whose list of followers you wish to see.
+# @param [String] username The username of the user whose list of foFllowers you wish to see.
 # @param [Integer] limit The max number of followers you wish to see.
 def get_followers(username, limit)
-  whom_id = get_user_id(username)
-  query_db(
-    'SELECT user.username
-     FROM user
-     INNER JOIN follower ON follower.whom_id = user.user_id
-     WHERE follower.who_id = ?
-     LIMIT ?',
-    [whom_id, limit])
+  user_id = get_user_id(username)
+
+  # This finds users who follow the specified user
+  # The users are the 'who_id' in the Follower table where 'whom_id' is our target user
+  User.joins("INNER JOIN followers ON users.id = followers.who_id")
+      .where(followers: { whom_id: user_id })
+      .limit(limit)
 end

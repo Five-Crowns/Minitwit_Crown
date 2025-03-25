@@ -1,0 +1,9 @@
+FROM postgres:latest
+
+# COPY schema.sql /docker-entrypoint-initdb.d/
+
+# Expose PostgreSQL port
+EXPOSE 5432
+
+# Default command to run the database
+CMD ["postgres"]
