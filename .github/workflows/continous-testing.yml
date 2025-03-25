@@ -89,6 +89,6 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
 
       - name: Upload coverage to Code Climate
-        run: ./node_modules/.bin/codeclimate-test-reporter
+        run: codeclimate-test-reporter
         env:
           CODECLIMATE_REPO_TOKEN: ${{ secrets.CODECLIMATE_REPO_TOKEN }}
