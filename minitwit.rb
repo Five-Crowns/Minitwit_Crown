@@ -1,6 +1,5 @@
 require 'sinatra'
 require 'sinatra/contrib'
-require 'sqlite3'
 require 'securerandom'
 require 'bcrypt'
 require 'time'
