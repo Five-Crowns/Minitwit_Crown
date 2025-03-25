@@ -1,3 +1,5 @@
+require_relative '../metrics'
+
 # NOTE FOR DEVELOPERS!
 # PostgreSQL does not use ? for parameterized queries instead use $1, $2.....$n and so on
 
@@ -11,6 +13,9 @@ LATEST_FILENAME = 'latest_processed_sim_action_id.txt'
 # such that the endpoint_methods.rb file looks like this:
 # User.find_by(username: username) instead of querFy_db("SELECT * FROM users WHERE username = ?", username)
 before do
+  @start_time = Time.now
+  Metrics.active_users.increment
+
   @user_id = session[:id]
   @user = @user_id.nil? ? nil : User.find_by(id: @user_id)
   if request.path.start_with?('/api/')
@@ -21,6 +26,23 @@ before do
   end
 end
 
+after do
+  duration = Time.now - @start_time
+
+  # Increment request count
+  Metrics.http_requests_total.increment(
+    labels: { method: request.request_method, route: request.path, status: response.status }
+  )
+
+  # Track request duration
+  Metrics.http_request_duration_seconds.observe(
+    duration,
+    labels: { method: request.request_method, route: request.path, status: response.status }
+  )
+
+  # Decrease active users
+  Metrics.active_users.decrement
+end
 
 def try_parse_json(json)
   JSON.parse(json)
@@ -51,7 +73,7 @@ def get_user(username)
   User.find_by(username: username)
 end
 
-# Gets a user's ID from their username.
+# Gets   user's ID from their username.
 # Throws a 404 if the user doesn't exist.
 # @param [String] username The username of the user.
 # @return [Integer] The user_id of the user.
