@@ -57,6 +57,10 @@ GEM
     parser (3.3.7.1)
       ast (~> 2.4.1)
       racc
+    pg (1.5.9)
+    pg (1.5.9-x64-mingw-ucrt)
+    prometheus-client (4.2.4)
+      base64
     puma (6.6.0)
       nio4r (~> 2.0)
     racc (1.8.1)
@@ -150,6 +154,8 @@ DEPENDENCIES
   bundler
   dotenv
   ffi
+  pg
+  prometheus-client
   puma (~> 6.6)
   rack-test
   rackup (~> 2.2)
