@@ -4,7 +4,7 @@ require "json"
 require "simplecov"
 
 SimpleCov.start do
-  coverage_dir('/app/coverage')  # Save coverage reports to the mounted volume
+  coverage_dir("/app/coverage")  # Save coverage reports to the mounted volume
 end
 BASE_URL = "http://localhost:5000"
 
