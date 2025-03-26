@@ -2,14 +2,14 @@ require "active_record"
 require "fileutils"
 require_relative "db_config"
 
-include ActiveRecord::Tasks
-
 namespace :db do
+  include ActiveRecord::Tasks
+
   task :environment do
     MiniTwit::DbConfig.setup
   end
 
-  task :load_config => :environment do
+  task load_config: :environment do
     # Configure database tasks
     DatabaseTasks.tap do |config|
       config.db_dir = "db"
@@ -54,7 +54,6 @@ namespace :db do
         ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.lease_connection, file)
       end
     end
-
 
     desc "Load schema.rb file"
     task load: :load_config do

@@ -1,25 +1,25 @@
-require_relative 'endpoint_methods'
+require_relative "endpoint_methods"
 
-get '/' do
+get "/" do
   if @user.nil?
-    redirect to('/public')
+    redirect to("/public")
   else
-    page = get_param_or_default('page', 0)
+    page = get_param_or_default("page", 0)
     @messages = personal_timeline(@user_id, page)
     erb :timeline
   end
 end
 
-get '/public' do
-  page = get_param_or_default('page', 0)
+get "/public" do
+  page = get_param_or_default("page", 0)
   @messages = public_timeline(page)
   erb :timeline
 end
 
-get '/login' do
+get "/login" do
   unless @user_id.nil?
-    session[:success_message] = 'You are already logged in'
-    redirect to('/')
+    session[:success_message] = "You are already logged in"
+    redirect to("/")
     return
   end
 
@@ -28,88 +28,84 @@ get '/login' do
   erb :login, layout: :layout
 end
 
-post '/login' do
-  @username = params['username']
-  response = login_user(@username, params['password'])
+post "/login" do
+  @username = params["username"]
+  response = login_user(@username, params["password"])
   if response.is_a?(Integer)
     session[:id] = response.to_i
-    session[:success_message] = 'You were logged in'
-    redirect to('/')
+    session[:success_message] = "You were logged in"
+    redirect to("/")
   else
     @error = response
     erb :login, layout: :layout
   end
 end
 
-get '/register' do
+get "/register" do
   @error = nil
   @username = nil
   @email = nil
   erb :register, layout: :layout
 end
 
-post '/register' do
-  @username = params['username']
-  @email = params['email']
-  @error = register_user(@username, @email, params['password'], params['password2'])
+post "/register" do
+  @username = params["username"]
+  @email = params["email"]
+  @error = register_user(@username, @email, params["password"], params["password2"])
   if @error.nil?
-    session[:success_message] = 'You were successfully registered and can login now'
-    redirect to('/login')
+    session[:success_message] = "You were successfully registered and can login now"
+    redirect to("/login")
   else
     erb :register, layout: :layout
   end
 end
 
-get '/logout' do
+get "/logout" do
   session[:id] = nil
-  session[:success_message] = 'You were logged out'
-  redirect to('/public')
+  session[:success_message] = "You were logged out"
+  redirect to("/public")
 end
 
-post '/add_message' do
+post "/add_message" do
   halt 401 unless @user
-  @error = post_message(params['text'], @user_id)
-  if @error.nil?
-    session[:success_message] = 'Your message was recorded'
+  @error = post_message(params["text"], @user_id)
+  session[:success_message] = if @error.nil?
+    "Your message was recorded"
   else
-    session[:success_message] = @error
+    @error
   end
-  redirect to('/')
+  redirect to("/")
 end
 
-get '/:username' do
+get "/:username" do
   page_user = params[:username]
   @profile_user = get_user(page_user)
-  halt 404, '404 User not found' if @profile_user.nil?
+  halt 404, "404 User not found" if @profile_user.nil?
 
   # Check if this is the current user's profile
   @is_current_user = @user && @user.username == page_user
 
   # Only check follow status if viewing someone else's profile
-  @followed = !@is_current_user && @user ? follows(@user_id, page_user) : false
+  @followed = (!@is_current_user && @user) ? follows(@user_id, page_user) : false
 
   @messages = user_timeline(page_user)
   erb :timeline
 end
 
-get '/:username/follow' do
+get "/:username/follow" do
   halt 401 unless @user
   followee = params[:username]
 
   @error = follow(@user_id, followee)
-  @error.nil? ?
-    session[:success_message] = "You are now following \"#{followee}\"" :
-    session[:success_message] = @error
+  session[:success_message] = @error.nil? ? "You are now following \"#{followee}\"" : @error
   redirect to("/#{params[:username]}")
 end
 
-get '/:username/unfollow' do
+get "/:username/unfollow" do
   halt 401 unless @user
   followee = params[:username]
 
   @error = unfollow(@user_id, followee)
-  @error.nil? ?
-    session[:success_message] = "You are no longer following \"#{followee}\"" :
-    session[:success_message] = @error
+  session[:success_message] = @error.nil? ? "You are no longer following \"#{followee}\"" : @error
   redirect to("/#{params[:username]}")
 end
