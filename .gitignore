@@ -21,3 +21,4 @@ __pycache__/
 ./db/schema.rb
 ./db/test.sqlite3
 ./tmp
+minitwit.db.sql

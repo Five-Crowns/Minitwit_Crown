@@ -1,0 +1,4 @@
+LOAD DATABASE
+    FROM sqlite:///mnt/c/Users/Nikol/source/repos/Minitwit_Crown/minitwit.db
+    INTO postgresql://postgres:Placeholder@localhost:5432/minitwit_development
+    WITH truncate, data only;
