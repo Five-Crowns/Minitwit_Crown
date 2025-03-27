@@ -1,6 +1,6 @@
-class CreateFollowers < ActiveRecord::Migration[7.2]
+class CreateFollower < ActiveRecord::Migration[7.2]
   def change
-    create_table :followers, id: false do |t|  # No primary key
+    create_table :follower, id: false do |t|
       t.integer :who_id, null: false
       t.integer :whom_id, null: false
 
