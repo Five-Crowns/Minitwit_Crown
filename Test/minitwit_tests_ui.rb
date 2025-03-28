@@ -6,7 +6,7 @@ URL = 'http://localhost:5000'.freeze
 RSpec.configure do |config|
   config.before(:each) do
     options = Selenium::WebDriver::Firefox::Options.new
-    # options.add_argument('-headless')
+    options.add_argument('-headless') # Comment this line for visual step-through
 
     @driver = Selenium::WebDriver.for :firefox, options: options
     @driver.manage.timeouts.implicit_wait = 10
