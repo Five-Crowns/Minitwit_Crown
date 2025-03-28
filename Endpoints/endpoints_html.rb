@@ -32,7 +32,7 @@ post "/login" do
   @username = params["username"]
   response = login_user(@username, params["password"])
   if response.is_a?(Integer)
-    session[:id] = response.to_i
+    session[:user_id] = response.to_i
     session[:success_message] = "You were logged in"
     redirect to("/")
   else
@@ -61,7 +61,7 @@ post "/register" do
 end
 
 get "/logout" do
-  session[:id] = nil
+  session[:user_id] = nil
   session[:success_message] = "You were logged out"
   redirect to("/public")
 end

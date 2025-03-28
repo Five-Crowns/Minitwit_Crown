@@ -15,8 +15,8 @@ before do
   @start_time = Time.now
   Metrics.active_users.increment
 
-  @user_id = session[:id]
-  @user = @user_id.nil? ? nil : User.find_by(id: @user_id)
+  @user_id = session[:user_id]
+  @user = @user_id.nil? ? nil : User.find_by(user_id: @user_id)
   if request.path.start_with?("/api/")
     content_type :json
     update_latest(params["latest"])
@@ -250,7 +250,7 @@ def unfollow(follower_id, followee)
   followee_user = get_user(followee)
   return "User #{followee} not found" if followee_user.nil?
 
-  followee_id = followee_user.id
+  followee_id = followee_user.user_id
 
   # Check if trying to unfollow yourself
   if followee_id == follower_id
@@ -278,7 +278,7 @@ def get_followers(username, limit)
 
   # This finds users who follow the specified user
   # The users are the 'who_id' in the Follower table where 'whom_id' is our target user
-  User.joins("INNER JOIN followers ON users.user_id, = followers.who_id")
+  User.joins("INNER JOIN followers ON users.user_id = followers.who_id")
     .where(followers: {whom_id: user_id})
     .limit(limit)
 end
