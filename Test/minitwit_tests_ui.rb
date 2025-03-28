@@ -1,12 +1,12 @@
-﻿require 'selenium-webdriver'
-require 'rspec'
+﻿require "selenium-webdriver"
+require "rspec"
 
-URL = 'http://localhost:5000'.freeze
+URL = "http://localhost:5000".freeze
 
 RSpec.configure do |config|
   config.before(:each) do
     options = Selenium::WebDriver::Firefox::Options.new
-    options.add_argument('-headless') # Comment this line for visual step-through
+    options.add_argument("-headless") # Comment this line for visual step-through
 
     @driver = Selenium::WebDriver.for :firefox, options: options
     @driver.manage.timeouts.implicit_wait = 10
@@ -52,53 +52,53 @@ def find_by_class(class_name)
 end
 
 def assert_success(message)
-  text = find_by_class('success').text
+  text = find_by_class("success").text
   expect(text).to include(message)
 end
 
 def assert_error(message)
-  text = find_by_class('error').text
+  text = find_by_class("error").text
   expect(text).to include(message)
 end
 
 def assert_message(message)
-  text = find_by_class('messages').text
+  text = find_by_class("messages").text
   expect(text).to include(message)
 end
 
 def assert_no_message(message)
-  text = find_by_class('messages').text
+  text = find_by_class("messages").text
   expect(text).not_to include(message)
 end
 
 def register(username, password, password2 = nil, email = nil)
   goto_home
-  link('sign up').click
+  link("sign up").click
 
   password2 ||= password
   email ||= "#{username}@example.com"
 
-  input_field('username', username)
-  input_field('email', email)
-  input_field('password', password)
-  input_field('password2', password2)
+  input_field("username", username)
+  input_field("email", email)
+  input_field("password", password)
+  input_field("password2", password2)
 
-  submit('Sign Up')
+  submit("Sign Up")
 end
 
 def login(username, password)
   goto_home
-  link('sign in').click
+  link("sign in").click
 
-  input_field('username', username)
-  input_field('password', password)
+  input_field("username", username)
+  input_field("password", password)
 
-  submit('Sign In')
+  submit("Sign In")
 end
 
 def logout
   goto_home
-  link('sign out').click
+  link("sign out").click
 end
 
 def register_and_login(username, password)
@@ -107,8 +107,8 @@ def register_and_login(username, password)
 end
 
 def add_message(message)
-  input_field('text', message)
-  submit('Share')
+  input_field("text", message)
+  submit("Share")
 end
 
 def follow_user(username)
@@ -119,27 +119,27 @@ def unfollow_user(username)
   goto("/#{username}/unfollow")
 end
 
-describe 'Homepage' do
-  it 'includes MiniTwit in the title' do
-    expect(@driver.title).to include('MiniTwit')
+describe "Homepage" do
+  it "includes MiniTwit in the title" do
+    expect(@driver.title).to include("MiniTwit")
   end
 
-  it 'has links to the public timeline, sign up, and sign in' do
-    expect(link('public timeline')).not_to be_nil
-    expect(link('sign up')).not_to be_nil
-    expect(link('sign in')).not_to be_nil
+  it "has links to the public timeline, sign up, and sign in" do
+    expect(link("public timeline")).not_to be_nil
+    expect(link("sign up")).not_to be_nil
+    expect(link("sign in")).not_to be_nil
   end
 end
 
-describe 'User Registration' do
-  it 'registers a user successfully' do
+describe "User Registration" do
+  it "registers a user successfully" do
     register("user2", "default")
-    assert_success('successfully registered')
+    assert_success("successfully registered")
   end
 
-  it 'prevents duplicate usernames' do
+  it "prevents duplicate usernames" do
     register("user2", "default")
-    assert_error('username is already taken')
+    assert_error("username is already taken")
   end
 
   it "requires a username" do
