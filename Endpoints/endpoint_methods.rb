@@ -81,7 +81,7 @@ def get_user_id(username)
   if user.nil?
     halt 404, "404 User not found"
   else
-    user.id
+    user.user_id
   end
 end
 
@@ -188,7 +188,7 @@ def login_user(username, password)
     if user.nil? || !(BCrypt::Password.new(user.pw_hash) == password)
       "Invalid username or Invalid password"
     else
-      user.id
+      user.user_id
     end
   end
 end
@@ -214,7 +214,7 @@ def follows(follower_id, followee)
   followee_user = get_user(followee)
   return false if followee_user.nil?
 
-  followee_id = followee_user.id
+  followee_id = followee_user.user_id
   Follower.exists?(who_id: followee_id, whom_id: follower_id)
 end
 
@@ -226,7 +226,7 @@ def follow(follower_id, followee)
   followee_user = get_user(followee)
   return "User #{followee} not found" if followee_user.nil?
 
-  followee_id = followee_user.id
+  followee_id = followee_user.user_id
 
   # Check if trying to follow yourself
   if followee_id == follower_id
