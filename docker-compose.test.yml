@@ -24,7 +24,9 @@ services:
       - POSTGRES_PORT=${POSTGRES_PORT}
     command: >
       bash -c "sleep 10 && bundle exec rake db:create db:migrate && cd Test && ls && ./run_tests.sh"
-      
+    volumes:
+      - ./coverage:/app/coverage  # Mounts local `./coverage` to `/app/coverage` inside the container
+
   itusqlimage:
     # image: postgresqlimage
     build:

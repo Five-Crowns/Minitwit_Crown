@@ -1,31 +1,52 @@
+require_relative "../metrics"
+
 # NOTE FOR DEVELOPERS!
 # PostgreSQL does not use ? for parameterized queries instead use $1, $2.....$n and so on
 
 PER_PAGE = 30
-LATEST_FILENAME = 'latest_processed_sim_action_id.txt'
+LATEST_FILENAME = "latest_processed_sim_action_id.txt"
 
 # Sinatra routes
-
 
 # Now need to remove the query_db method from the endpoint_methods.rb file.
 # such that the endpoint_methods.rb file looks like this:
 # User.find_by(username: username) instead of querFy_db("SELECT * FROM users WHERE username = ?", username)
 before do
+  @start_time = Time.now
+  Metrics.active_users.increment
+
   @user_id = session[:id]
   @user = @user_id.nil? ? nil : User.find_by(id: @user_id)
-  if request.path.start_with?('/api/')
+  if request.path.start_with?("/api/")
     content_type :json
-    update_latest(params['latest'])
+    update_latest(params["latest"])
     request_body = request.body.read
     @data = request_body.empty? ? "" : try_parse_json(request_body)
   end
 end
 
+after do
+  duration = Time.now - @start_time
+
+  # Increment request count
+  Metrics.http_requests_total.increment(
+    labels: {method: request.request_method, route: request.path, status: response.status}
+  )
+
+  # Track request duration
+  Metrics.http_request_duration_seconds.observe(
+    duration,
+    labels: {method: request.request_method, route: request.path, status: response.status}
+  )
+
+  # Decrease active users
+  Metrics.active_users.decrement
+end
 
 def try_parse_json(json)
   JSON.parse(json)
-rescue JSON::ParserError, TypeError => e
-  halt 400, 'Invalid JSON body'
+rescue JSON::ParserError, TypeError
+  halt 400, "Invalid JSON body"
 end
 
 # Updates 'latest' if it isn't nil or empty.
@@ -51,14 +72,14 @@ def get_user(username)
   User.find_by(username: username)
 end
 
-# Gets a user's ID from their username.
+# Gets   user's ID from their username.
 # Throws a 404 if the user doesn't exist.
 # @param [String] username The username of the user.
 # @return [Integer] The user_id of the user.
 def get_user_id(username)
   user = get_user(username)
   if user.nil?
-    halt 404, '404 User not found'
+    halt 404, "404 User not found"
   else
     user.id
   end
@@ -89,7 +110,7 @@ def get_messages(limit = -1, user_id = -1, offset = -1, flagged = -1)
   messages = messages.order(pub_date: :desc)
   messages = messages.limit(limit) if limit > 0
   messages = messages.offset(offset) if offset > 0
-  messages.select('messages.*, users.*')
+  messages.select("messages.*, users.*")
 end
 
 # Generalized query for getting specific page of messages.
@@ -108,12 +129,12 @@ end
 def personal_timeline(user_id, page = 0)
   followed_ids = Follower.where(whom_id: user_id).pluck(:who_id)
   Message.joins(:author)
-         .where(flagged: 0)
-         .where(author_id: [user_id, *followed_ids])
-         .order(pub_date: :desc)
-         .limit(PER_PAGE)
-         .offset(page * PER_PAGE)
-         .select('messages.*, users.*')
+    .where(flagged: 0)
+    .where(author_id: [user_id, *followed_ids])
+    .order(pub_date: :desc)
+    .limit(PER_PAGE)
+    .offset(page * PER_PAGE)
+    .select("messages.*, users.*")
 end
 
 # The public timeline containing everyone's messages.
@@ -138,15 +159,15 @@ end
 # @return Nil, if user was registered properly. Otherwise, an error message.
 def register_user(username, email, password, password2)
   if username.to_s.empty?
-    'You have to enter a username'
-  elsif email.to_s.empty? || !email.include?('@')
-    'You have to enter a valid email address'
+    "You have to enter a username"
+  elsif email.to_s.empty? || !email.include?("@")
+    "You have to enter a valid email address"
   elsif password.to_s.empty?
-    'You have to enter a password'
+    "You have to enter a password"
   elsif password != password2
-    'The two passwords do not match'
+    "The two passwords do not match"
   elsif User.exists?(username: username)
-    'The username is already taken'
+    "The username is already taken"
   else
     pw_hash = BCrypt::Password.create(password)
     User.create(username: username, email: email, pw_hash: pw_hash)
@@ -159,13 +180,13 @@ end
 # @return The user's user_id if log-in was a success. Otherwise, an error message.
 def login_user(username, password)
   if username.to_s.empty?
-    'You have to enter a username'
+    "You have to enter a username"
   elsif password.to_s.empty?
-    'You have to enter a password'
+    "You have to enter a password"
   else
     user = get_user(username)
     if user.nil? || !(BCrypt::Password.new(user.pw_hash) == password)
-      'Invalid username or Invalid password'
+      "Invalid username or Invalid password"
     else
       user.id
     end
@@ -194,7 +215,7 @@ def follows(follower_id, followee)
   return false if followee_user.nil?
 
   followee_id = followee_user.id
-  Follower.exists?(who_id:followee_id , whom_id:follower_id )
+  Follower.exists?(who_id: followee_id, whom_id: follower_id)
 end
 
 # Makes 'follower' follow 'followee'.
@@ -213,11 +234,11 @@ def follow(follower_id, followee)
   end
 
   # Check if already following
-  if Follower.exists?(who_id:followee_id , whom_id:follower_id)
+  if Follower.exists?(who_id: followee_id, whom_id: follower_id)
     return "You are already following \"#{followee}\""
   end
 
-  Follower.create(who_id: followee_id, whom_id:follower_id )
+  Follower.create(who_id: followee_id, whom_id: follower_id)
   nil
 end
 
@@ -258,6 +279,6 @@ def get_followers(username, limit)
   # This finds users who follow the specified user
   # The users are the 'who_id' in the Follower table where 'whom_id' is our target user
   User.joins("INNER JOIN followers ON users.id = followers.who_id")
-      .where(followers: { whom_id: user_id })
-      .limit(limit)
+    .where(followers: {whom_id: user_id})
+    .limit(limit)
 end
