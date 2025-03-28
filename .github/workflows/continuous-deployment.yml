@@ -69,7 +69,13 @@ jobs:
         # Configure the ~./bash_profile and deploy.sh file on the Vagrantfile
         run: >
           ssh $SSH_USER@$SSH_HOST -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no
-          '/minitwit/deploy.sh'
+          'export POSTGRES_USER="${{ secrets.POSTGRES_USER }}" &&
+           export POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}" &&
+           export POSTGRES_DB="${{ secrets.POSTGRES_DB }}" &&
+           export POSTGRES_HOST="${{ secrets.POSTGRES_HOST }}" &&
+           export POSTGRES_HOST_REMOTE="${{ secrets.POSTGRES_HOST }}" &&
+           export DOCKER_USERNAME="${{ secrets.DOCKER_USERNAME }}" &&
+           /minitwit/deploy.sh'
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
