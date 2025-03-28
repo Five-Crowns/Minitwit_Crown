@@ -44,6 +44,12 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/minitwitimage:latest
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/minitwitimage:webbuildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/minitwitimage:webbuildcache,mode=max
+          build-args: |
+            POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+            POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+            POSTGRES_HOST=${{ secrets.POSTGRES_HOST_REMOTE }}
+            RAILS_ENV=production
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh/
