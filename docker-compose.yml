@@ -15,6 +15,11 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_HOST=${POSTGRES_HOST_REMOTE}
       - POSTGRES_PORT=5432
+    build-args: |
+      POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+      POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+      POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}
     command: >
       bash -c "sleep 10 && bundle exec rake db:create db:migrate && bundle exec ruby minitwit.rb -o 0.0.0.0"
   prometheus:

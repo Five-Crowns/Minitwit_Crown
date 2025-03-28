@@ -13,6 +13,18 @@ RUN gem install bundler && bundle install
 # Expose the port the app will run on
 EXPOSE 5000
 
+# Accept build arguments for environment variables
+ARG POSTGRES_USER
+ARG POSTGRES_PASSWORD
+ARG POSTGRES_DB
+ARG POSTGRES_HOST
+
+# Set environment variables inside the container
+ENV POSTGRES_USER=$POSTGRES_USER
+ENV POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+ENV POSTGRES_DB=$POSTGRES_DB
+ENV POSTGRES_HOST=$POSTGRES_HOST
+
 # Ensures data persistency
 RUN mkdir -p /app/data
 ENV DB_PATH=/app/data
