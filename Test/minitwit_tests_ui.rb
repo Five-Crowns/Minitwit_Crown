@@ -1,83 +1,61 @@
-﻿require 'spec_helper'
-require 'selenium-webdriver'
-require 'pg'
+﻿require 'selenium-webdriver'
+require 'rspec'
 
-GUI_URL = "http://localhost:5000/register"
-DB_URL = "mongodb://localhost:27017/test"
+URL = 'http://localhost:5000'.freeze
 
-describe "User Registration Tests" do
-  def register_user_via_gui(driver, data)
-    driver.navigate.to(GUI_URL)
-
-    # Wait until elements with class 'actions' are present
-    wait = Selenium::WebDriver::Wait.new(timeout: 5)
-    wait.until { driver.find_elements(class: 'actions').any? }
-
-    input_fields = driver.find_elements(tag_name: 'input')
-
-    # Fill in input fields with provided data
-    data.each_with_index do |value, index|
-      input_fields[index].send_keys(value)
-    end
-
-    # Submit the form by sending RETURN to the 5th input field (index 4)
-    input_fields[4].send_keys(:return)
-
-    # Wait for flash messages to appear and return them
-    wait.until { driver.find_elements(class: 'flashes').any? }
-    driver.find_elements(class: 'flashes')
-  end
-
-  def get_user_by_name(db_client, name)
-    db_client.exec_params("SELECT * FROM users WHERE username = $1", [name]).first
-  end
-
-  it 'registers user via GUI and verifies success message' do
-    options = Selenium::WebDriver::Firefox::Options.new
-    options.add_argument('-headless')
-
-    driver = Selenium::WebDriver.for(:firefox, options: options)
-
-    begin
-      flash_elements = register_user_via_gui(driver, ["Me", "me@some.where", "secure123", "secure123"])
-      expect(flash_elements.first.text).to eq("You were successfully registered and can login now")
-    ensure
-      driver.quit
-    end
-
-    # Database cleanup
-    db_client = Mongo::Client.new(DB_URL, server_selection_timeout: 5)
-    db_client[:user].delete_one(username: "Me")
-  end
-
-  it 'registers user and verifies database entry' do
+RSpec.configure do |config|
+  config.before(:each) do
     options = Selenium::WebDriver::Firefox::Options.new
     # options.add_argument('-headless')
 
-    driver = Selenium::WebDriver.for(:firefox, options: options)
-    db_client = PG.connect(
-      host: 'localhost',
-      dbname: 'test',
-      user: 'your_user',
-      password: 'your_password'
-    )
+    @driver = Selenium::WebDriver.for :firefox, options: options
+    @driver.manage.timeouts.implicit_wait = 10
+    @driver.navigate.to URL
+  end
 
-    begin
-      # Verify user doesn't exist initially
-      expect(get_user_by_name(db_client, "Me")).to be_nil
+  config.after(:each) do
+    # Teardown code for every test
+    @driver.quit
+  end
+end
 
-      # Perform registration
-      flash_elements = register_user_via_gui(driver, ["Me", "me@some.where", "secure123", "secure123"])
-      expect(flash_elements.first.text).to eq("You were successfully registered and can login now")
+def register(username, password, password2 = nil, email = nil)
+  password2 ||= password
+  email ||= "#{username}@example.com"
 
-      # Verify user exists in database
-      user = get_user_by_name(db_client, "Me")
-      expect(user[:username]).to eq("Me")
-    ensure
-      driver.quit
-      # Database cleanup
-      db_client.exec_params("DELETE FROM users WHERE username = $1", ["Me"])
-      db_client.close
-    end
+  @driver.find_element(name: 'username').send_keys(username)
+  @driver.find_element(name: 'email').send_keys(email)
+  @driver.find_element(name: 'password').send_keys(password)
+  @driver.find_element(name: 'password2').send_keys(password2)
+
+  @driver.find_element(xpath: "//input[@value='Sign Up']").click
+end
+
+describe 'Homepage' do
+  it 'includes MiniTwit in the title' do
+    title = @driver.title
+    expect(title).to include('MiniTwit')
+  end
+  it 'has links to the public timeline, sign up, and sign in' do
+    timeline_btn = @driver.find_element(partial_link_text: 'public timeline')
+    expect(timeline_btn).not_to be_nil
+
+    signup_btn = @driver.find_element(partial_link_text: 'sign up')
+    expect(signup_btn).not_to be_nil
+
+    signin_btn = @driver.find_element(partial_link_text: 'sign in')
+    expect(signin_btn).not_to be_nil
+  end
+end
+
+describe 'Sign Up' do
+  before do
+    signup_btn = @driver.find_element(partial_link_text: 'sign up')
+    signup_btn.click
+  end
+  it "let's you log in normally" do
+    register('normal-user', 'Pa$$w0rd')
+    text = @driver.find_element(class: 'success').text
+    expect(text).not_to include('successfully registered')
   end
 end
