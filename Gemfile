@@ -13,6 +13,7 @@ gem "rackup", "~> 2.2"
 gem "rake" # For running tasks
 gem "rest-client"
 gem "rspec"
+gem "selenium-webdriver"
 gem "rubocop", group: "development", require: false
 gem "securerandom" # For generating random data (already used in the code)
 gem "sinatra", "~> 4.1" # For Sinatra framework

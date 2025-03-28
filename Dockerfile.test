@@ -22,6 +22,13 @@ RUN pip3 install psycopg2-binary --break-system-packages
 
 RUN pip3 install python-dotenv --break-system-packages
 
+RUN apt-get install -y firefox-esr && \
+    wget https://github.com/mozilla/geckodriver/releases/download/v0.36.0/geckodriver-v0.36.0-linux64.tar.gz && \
+    tar -xzf geckodriver-*.tar.gz -C /usr/local/bin && \
+    rm geckodriver-*.tar.gz
+
+RUN pip3 install selenium --break-system-packages
+
 # Install dos2unix
 RUN apt-get update && apt-get install -y dos2unix
 
