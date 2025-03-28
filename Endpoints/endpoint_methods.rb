@@ -278,7 +278,7 @@ def get_followers(username, limit)
 
   # This finds users who follow the specified user
   # The users are the 'who_id' in the Follower table where 'whom_id' is our target user
-  User.joins("INNER JOIN followers ON users.id = followers.who_id")
+  User.joins("INNER JOIN followers ON users.user_id, = followers.who_id")
     .where(followers: {whom_id: user_id})
     .limit(limit)
 end
