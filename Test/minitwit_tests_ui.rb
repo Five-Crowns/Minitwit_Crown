@@ -133,12 +133,12 @@ end
 
 describe 'User Registration' do
   it 'registers a user successfully' do
-    register("user1", "default")
+    register("user2", "default")
     assert_success('successfully registered')
   end
 
   it 'prevents duplicate usernames' do
-    register("user1", "default")
+    register("user2", "default")
     assert_error('username is already taken')
   end
 
@@ -148,24 +148,24 @@ describe 'User Registration' do
   end
 
   it "requires a password" do
-    register("meh", "")
+    register("meh2", "")
     assert_error("You have to enter a password")
   end
 
   it "requires matching passwords" do
-    register("meh", "x", "y")
+    register("meh2", "x", "y")
     assert_error("The two passwords do not match")
   end
 
   it "requires a valid email" do
-    register("meh", "foo", nil, "broken")
+    register("meh2", "foo", nil, "broken")
     assert_error("You have to enter a valid email address")
   end
 end
 
 describe "User Login & Logout" do
   it "logs in and logs out successfully" do
-    login("user1", "default")
+    login("user2", "default")
     assert_success("You were logged in")
 
     logout
@@ -173,19 +173,19 @@ describe "User Login & Logout" do
   end
 
   it "fails with wrong password" do
-    login("user1", "wrongpassword")
+    login("user2", "wrongpassword")
     assert_error("Invalid password")
   end
 
   it "fails with non-existent username" do
-    login("user2", "wrongpassword")
+    login("user3", "wrongpassword")
     assert_error("Invalid username")
   end
 end
 
 describe "Message Posting" do
   it "adds messages successfully" do
-    register_and_login("foo", "default")
+    register_and_login("foo2", "default")
     add_message("test message 1")
     add_message("<test message 2>")
 
@@ -196,7 +196,7 @@ end
 
 describe "Login and register" do
   it "logs in and logs out successfully" do
-    register_and_login("foo", "default")
+    register_and_login("foo2", "default")
     assert_success("You were logged in")
 
     logout
@@ -206,56 +206,56 @@ end
 
 describe "Follow and unfollow" do
   it "follow works" do
-    register("bar", "default")
-    register_and_login("foo", "default")
-    follow_user("bar")
-    assert_success('You are now following "bar"')
+    register("bar2", "default")
+    register_and_login("foo2", "default")
+    follow_user("bar2")
+    assert_success('You are now following "bar2"')
   end
 
   it "unfollow works" do
-    register("bar", "default")
-    register_and_login("foo", "default")
-    follow_user("bar")
-    unfollow_user("bar")
-    assert_success('You are no longer following "bar"')
+    register("bar2", "default")
+    register_and_login("foo2", "default")
+    follow_user("bar2")
+    unfollow_user("bar2")
+    assert_success('You are no longer following "bar2"')
   end
 end
 
 describe "Timeline" do
   it "tests timelines" do
-    register_and_login("foo2", "default")
-    add_message("the message by foo2")
+    register_and_login("foo3", "default")
+    add_message("the message by foo3")
 
     logout
 
-    register_and_login("bar2", "default")
-    add_message("the message by bar2")
+    register_and_login("bar3", "default")
+    add_message("the message by bar3")
 
     sleep 2
 
     goto_public
 
-    assert_message("the message by foo2")
-    assert_message("the message by bar2")
+    assert_message("the message by foo3")
+    assert_message("the message by bar3")
 
-    follow_user("foo2")
-
-    goto_home
-    assert_message("the message by foo2")
-    assert_message("the message by bar2")
-
-    goto_timeline("bar2")
-    assert_message("the message by bar2")
-    assert_no_message("the message by foo2")
-
-    goto_timeline("foo2")
-    assert_message("the message by foo2")
-    assert_no_message("the message by bar2")
-
-    unfollow_user("foo2")
+    follow_user("foo3")
 
     goto_home
-    assert_message("the message by bar2")
-    assert_no_message("the message by foo2")
+    assert_message("the message by foo3")
+    assert_message("the message by bar3")
+
+    goto_timeline("bar3")
+    assert_message("the message by bar3")
+    assert_no_message("the message by foo3")
+
+    goto_timeline("foo3")
+    assert_message("the message by foo3")
+    assert_no_message("the message by bar3")
+
+    unfollow_user("foo3")
+
+    goto_home
+    assert_message("the message by bar3")
+    assert_no_message("the message by foo3")
   end
 end

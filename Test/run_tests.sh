@@ -17,10 +17,6 @@ sleep 5
 rspec Test/minitwit_tests_spec.rb
 RSPEC_EXIT=$?
 
-rake db:reset
-
-sleep 5
-
 rspec Test/minitwit_tests_ui.rb
 UI_EXIT=$?
 
