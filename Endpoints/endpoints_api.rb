@@ -20,14 +20,14 @@ post "/api/register" do
   duration = Time.now - start_time
   Metrics.db_register_user_duration.observe(
     duration,
-    labels: { endpoint: "/api/register"}
+    labels: {endpoint: "/api/register"}
   )
   if error.nil?
     status 204
   else
     halt 400, {status: 400, error_msg: error}.to_json
   end
-end 
+end
 
 get "/api/msgs" do
   limit = get_param_or_default("no", 100)
@@ -36,7 +36,7 @@ get "/api/msgs" do
   duration = Time.now - start_time
   Metrics.db_get_msgs_duration.observe(
     duration,
-    labels: { endpoint: "/api/msgs" }
+    labels: {endpoint: "/api/msgs"}
   )
   filter_messages(messages).to_json
 end
@@ -49,7 +49,7 @@ get "/api/msgs/:username" do
   duration = Time.now - start_time
   Metrics.db_get_msgs_by_user_duration.observe(
     duration,
-    labels: { endpoint: "/api/msgs/:username"}
+    labels: {endpoint: "/api/msgs/:username"}
   )
   filter_messages(messages).to_json
 end
@@ -62,7 +62,7 @@ post "/api/msgs/:username" do
   duration = Time.now - start_time
   Metrics.db_create_msg_duration.observe(
     duration,
-    labels: { endpoint: "/api/msgs/:username"}
+    labels: {endpoint: "/api/msgs/:username"}
   )
   if error.nil?
     status 204
@@ -78,7 +78,7 @@ get "/api/fllws/:username" do
   duration = Time.now - start_time
   Metrics.db_get_followers_by_user_duration.observe(
     duration,
-    labels: { endpoint: "/api/fllws/:username"}
+    labels: {endpoint: "/api/fllws/:username"}
   )
   usernames = followers.map { |f| f["username"] }
   return {follows: usernames}.to_json
@@ -93,7 +93,7 @@ post "/api/fllws/:username" do
     duration = Time.now - start_time
     Metrics.db_follow_user_duration.observe(
       duration,
-      labels: { endpoint: "/api/fllws/:username"}
+      labels: {endpoint: "/api/fllws/:username"}
     )
     if error.nil?
       return status 204
@@ -110,7 +110,7 @@ post "/api/fllws/:username" do
     duration = Time.now - start_time
     Metrics.db_unfollow_user_duration.observe(
       duration,
-      labels: { endpoint: "/api/fllws/:username"}
+      labels: {endpoint: "/api/fllws/:username"}
     )
     if error.nil?
       return status 204
