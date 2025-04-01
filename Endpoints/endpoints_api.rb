@@ -9,6 +9,10 @@ end
 
 # API Endpoints
 
+before do
+  env['sinatra.route'] = nil
+end
+
 get "/api/latest" do
   latest = get_latest.to_i
   return {latest: latest}.to_json
@@ -42,6 +46,7 @@ get "/api/msgs" do
 end
 
 get "/api/msgs/:username" do
+  env['sinatra.route'] = '/api/msgs/:username'
   user_id = get_user_id(params[:username])
   limit = get_param_or_default("no", 100)
   start_time = Time.now
@@ -55,6 +60,7 @@ get "/api/msgs/:username" do
 end
 
 post "/api/msgs/:username" do
+  env['sinatra.route'] = '/api/msgs/:username'
   user_id = get_user_id(params[:username])
   message = @data["content"]
   start_time = Time.now
@@ -72,6 +78,7 @@ post "/api/msgs/:username" do
 end
 
 get "/api/fllws/:username" do
+  env['sinatra.route'] = '/api/fllws/:username'
   limit = get_param_or_default("no", 100)
   start_time = Time.now
   followers = get_followers(params[:username], limit)
@@ -85,6 +92,7 @@ get "/api/fllws/:username" do
 end
 
 post "/api/fllws/:username" do
+  env['sinatra.route'] = '/api/fllws/:username'
   follow = @data["follow"].to_s
   unless follow.empty?
     follower_id = get_user_id(params[:username])
