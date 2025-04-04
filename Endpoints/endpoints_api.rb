@@ -1,6 +1,8 @@
 require_relative "endpoint_methods"
 require_relative "../metrics"
 
+SINATRA_ROUTE = "sinatra.route"
+
 # Filters messages to contain only necessary information, that being user (username), content (text), and timestamp (pub_date).
 # @param messages The list of messages to filter.
 def filter_messages(messages)
@@ -10,7 +12,7 @@ end
 # API Endpoints
 
 before do
-  env["sinatra.route"] = nil
+  env[SINATRA_ROUTE] = nil
 end
 
 get "/api/latest" do
@@ -42,11 +44,11 @@ get "/api/msgs" do
     duration,
     labels: {endpoint: "/api/msgs"}
   )
-  filter_messages(messages).to_json
+  filter_messages(messages).to_json 
 end
 
 get "/api/msgs/:username" do
-  env["sinatra.route"] = "/api/msgs/:username"
+  env[SINATRA_ROUTE] = "/api/msgs/:username"
   user_id = get_user_id(params[:username])
   limit = get_param_or_default("no", 100)
   start_time = Time.now
@@ -60,7 +62,7 @@ get "/api/msgs/:username" do
 end
 
 post "/api/msgs/:username" do
-  env["sinatra.route"] = "/api/msgs/:username"
+  env[SINATRA_ROUTE] = "/api/msgs/:username"
   user_id = get_user_id(params[:username])
   message = @data["content"]
   start_time = Time.now
@@ -78,7 +80,7 @@ post "/api/msgs/:username" do
 end
 
 get "/api/fllws/:username" do
-  env["sinatra.route"] = "/api/fllws/:username"
+  env[SINATRA_ROUTE] = "/api/fllws/:username"
   limit = get_param_or_default("no", 100)
   start_time = Time.now
   followers = get_followers(params[:username], limit)
@@ -92,7 +94,7 @@ get "/api/fllws/:username" do
 end
 
 post "/api/fllws/:username" do
-  env["sinatra.route"] = "/api/fllws/:username"
+  env[SINATRA_ROUTE] = "/api/fllws/:username"
   follow = @data["follow"].to_s
   unless follow.empty?
     follower_id = get_user_id(params[:username])
