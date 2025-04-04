@@ -1,6 +1,8 @@
 require_relative "endpoint_methods"
 require_relative "../metrics"
 
+SINATRA_ROUTE = "sinatra.route"
+
 # Filters messages to contain only necessary information, that being user (username), content (text), and timestamp (pub_date).
 # @param messages The list of messages to filter.
 def filter_messages(messages)
@@ -8,6 +10,10 @@ def filter_messages(messages)
 end
 
 # API Endpoints
+
+before do
+  env[SINATRA_ROUTE] = nil
+end
 
 get "/api/latest" do
   latest = get_latest.to_i
@@ -42,6 +48,7 @@ get "/api/msgs" do
 end
 
 get "/api/msgs/:username" do
+  env[SINATRA_ROUTE] = "/api/msgs/:username"
   user_id = get_user_id(params[:username])
   limit = get_param_or_default("no", 100)
   start_time = Time.now
@@ -49,12 +56,13 @@ get "/api/msgs/:username" do
   duration = Time.now - start_time
   Metrics.db_get_msgs_by_user_duration.observe(
     duration,
-    labels: {endpoint: "/api/msgs/:username"}
+    labels: {endpoint: "/api/msgs"}
   )
   filter_messages(messages).to_json
 end
 
 post "/api/msgs/:username" do
+  env[SINATRA_ROUTE] = "/api/msgs/:username"
   user_id = get_user_id(params[:username])
   message = @data["content"]
   start_time = Time.now
@@ -62,7 +70,7 @@ post "/api/msgs/:username" do
   duration = Time.now - start_time
   Metrics.db_create_msg_duration.observe(
     duration,
-    labels: {endpoint: "/api/msgs/:username"}
+    labels: {endpoint: "/api/msgs"}
   )
   if error.nil?
     status 204
@@ -72,19 +80,21 @@ post "/api/msgs/:username" do
 end
 
 get "/api/fllws/:username" do
+  env[SINATRA_ROUTE] = "/api/fllws/:username"
   limit = get_param_or_default("no", 100)
   start_time = Time.now
   followers = get_followers(params[:username], limit)
   duration = Time.now - start_time
   Metrics.db_get_followers_by_user_duration.observe(
     duration,
-    labels: {endpoint: "/api/fllws/:username"}
+    labels: {endpoint: "/api/fllws"}
   )
   usernames = followers.map { |f| f["username"] }
   return {follows: usernames}.to_json
 end
 
 post "/api/fllws/:username" do
+  env[SINATRA_ROUTE] = "/api/fllws/:username"
   follow = @data["follow"].to_s
   unless follow.empty?
     follower_id = get_user_id(params[:username])
@@ -93,7 +103,7 @@ post "/api/fllws/:username" do
     duration = Time.now - start_time
     Metrics.db_follow_user_duration.observe(
       duration,
-      labels: {endpoint: "/api/fllws/:username"}
+      labels: {endpoint: "/api/fllws"}
     )
     if error.nil?
       return status 204
@@ -110,7 +120,7 @@ post "/api/fllws/:username" do
     duration = Time.now - start_time
     Metrics.db_unfollow_user_duration.observe(
       duration,
-      labels: {endpoint: "/api/fllws/:username"}
+      labels: {endpoint: "/api/fllws"}
     )
     if error.nil?
       return status 204
