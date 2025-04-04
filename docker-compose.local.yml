@@ -1,6 +1,8 @@
 networks:
   main:
     name: itu-minitwit-network
+  elk:
+    driver: bridge
 
 services:
   app:
@@ -74,6 +76,58 @@ services:
     depends_on:
       - prometheus
 
+  elasticsearch:
+    build:
+      context: elasticsearch/
+      args:
+        ELASTIC_VERSION: ${ELASTIC_VERSION}
+    volumes:
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro,Z
+      - elasticsearch:/usr/share/elasticsearch/data:Z
+    ports:
+      - '9200:9200' # Main Elasticsearch input
+    environment:
+      node.name: elasticsearch
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+      # Bootstrap password.
+      # Used to initialize the keystore during the initial startup of
+      # Elasticsearch. Ignored on subsequent runs.
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-}
+      # Use single node discovery in order to disable production mode and avoid bootstrap checks.
+      # see: https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
+      discovery.type: single-node
+    networks:
+      - elk
+    restart: unless-stopped
+
+  filebeat:
+    extends:
+      file: ./filebeat/filebeat-compose.yml
+      service: filebeat
+
+  kibana:
+    build:
+      context: kibana/
+      args:
+        ELASTIC_VERSION: ${ELASTIC_VERSION}
+    volumes:
+      - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro,Z
+    ports:
+      - '5601:5601' # Kibana UI Dashboard
+    environment:
+      ELASTICSEARCH_HOSTS: "http://elasticsearch:9200"
+      ELASTICSEARCH_USERNAME: "kibana_system"
+      ELASTICSEARCH_PASSWORD: "ZGDS4RgXnCdZJLxVRM1*"
+      KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:-}
+      ELASTICSEARCH_SSL_VERIFICATIONMODE: "none"  # For dev only
+      SERVER_HOST: "0.0.0.0"
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+
 volumes:
   postgresql_data:
   grafana_data:
+  elasticsearch:
