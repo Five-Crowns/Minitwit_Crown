@@ -30,13 +30,13 @@ after do
 
   # Increment request count
   Metrics.http_requests_total.increment(
-    labels: {method: request.request_method, route: env['sinatra.route'] || 'unknown', status: response.status}
+    labels: {method: request.request_method, route: env["sinatra.route"] || "unknown", status: response.status}
   )
 
   # Track request duration
   Metrics.http_request_duration_seconds.observe(
     duration,
-    labels: {method: request.request_method, route: env['sinatra.route'] || 'unknown', status: response.status}
+    labels: {method: request.request_method, route: env["sinatra.route"] || "unknown", status: response.status}
   )
 
   # Decrease active users
