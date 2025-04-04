@@ -8,10 +8,8 @@ class JSONLogger < Logger
       timestamp: timestamp,
       level: severity,
       message: msg
-    }
+    }.to_json + "\n"
 
-    #This converts to JSON for elasticSearch
-    "#{log_entry[:timestamp]}:#{log_entry[:level]}: #{msg}\n".to_json
   end
 end
 

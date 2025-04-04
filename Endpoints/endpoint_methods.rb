@@ -1,4 +1,5 @@
 require_relative "../metrics"
+require_relative '../logger'
 
 # NOTE FOR DEVELOPERS!
 # PostgreSQL does not use ? for parameterized queries instead use $1, $2.....$n and so on
@@ -12,6 +13,7 @@ LATEST_FILENAME = "latest_processed_sim_action_id.txt"
 # such that the endpoint_methods.rb file looks like this:
 # User.find_by(username: username) instead of querFy_db("SELECT * FROM users WHERE username = ?", username)
 before do
+  MinitwitLogger.logger.info({ request: request.request_method, path: request.path_info, params: params }.to_json)
   @start_time = Time.now
   Metrics.active_users.increment
 

@@ -10,11 +10,13 @@ end
 # API Endpoints
 
 get "/api/latest" do
+  MinitwitLogger.logger.info('Got latest request')
   latest = get_latest.to_i
   return {latest: latest}.to_json
 end
 
 post "/api/register" do
+  MinitwitLogger.logger.info('Registered user')
   start_time = Time.now
   error = register_user(@data["username"], @data["email"], @data["pwd"], @data["pwd"])
   duration = Time.now - start_time
@@ -30,6 +32,7 @@ post "/api/register" do
 end
 
 get "/api/msgs" do
+  MinitwitLogger.logger.info('Getting messages')
   limit = get_param_or_default("no", 100)
   start_time = Time.now
   messages = get_messages(limit)
@@ -42,6 +45,7 @@ get "/api/msgs" do
 end
 
 get "/api/msgs/:username" do
+  MinitwitLogger.logger.info('Getting messages for user' + params[:username])
   user_id = get_user_id(params[:username])
   limit = get_param_or_default("no", 100)
   start_time = Time.now
@@ -55,6 +59,7 @@ get "/api/msgs/:username" do
 end
 
 post "/api/msgs/:username" do
+  MinitwitLogger.logger.info('Posting' + @data["content"] + 'for user' + params[:username])
   user_id = get_user_id(params[:username])
   message = @data["content"]
   start_time = Time.now
@@ -72,6 +77,7 @@ post "/api/msgs/:username" do
 end
 
 get "/api/fllws/:username" do
+  MinitwitLogger.logger.info('Getting messages for follow user' + params[:username])
   limit = get_param_or_default("no", 100)
   start_time = Time.now
   followers = get_followers(params[:username], limit)
@@ -85,6 +91,7 @@ get "/api/fllws/:username" do
 end
 
 post "/api/fllws/:username" do
+  MinitwitLogger.logger.info('Posting messages for follow user' + params[:username])
   follow = @data["follow"].to_s
   unless follow.empty?
     follower_id = get_user_id(params[:username])
@@ -102,6 +109,8 @@ post "/api/fllws/:username" do
     end
   end
 
+  #What to write here
+  MinitwitLogger.logger.info(' messages for' + params[:username])
   unfollow = @data["unfollow"].to_s
   unless unfollow.empty?
     follower_id = get_user_id(params[:username])
