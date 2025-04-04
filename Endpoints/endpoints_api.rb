@@ -91,9 +91,9 @@ get "/api/fllws/:username" do
 end
 
 post "/api/fllws/:username" do
-  MinitwitLogger.logger.info('Posting messages for follow user' + params[:username])
   follow = @data["follow"].to_s
   unless follow.empty?
+    MinitwitLogger.logger.info("Making #{params[:username]} follow #{follow}")
     follower_id = get_user_id(params[:username])
     start_time = Time.now
     error = follow(follower_id, follow)
@@ -110,9 +110,9 @@ post "/api/fllws/:username" do
   end
 
   #What to write here
-  MinitwitLogger.logger.info(' messages for' + params[:username])
   unfollow = @data["unfollow"].to_s
   unless unfollow.empty?
+    MinitwitLogger.logger.info("Making #{params[:username]} unfollow #{unfollow}")
     follower_id = get_user_id(params[:username])
     start_time = Time.now
     error = unfollow(follower_id, unfollow)
