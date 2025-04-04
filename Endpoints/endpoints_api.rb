@@ -44,7 +44,7 @@ get "/api/msgs" do
     duration,
     labels: {endpoint: "/api/msgs"}
   )
-  filter_messages(messages).to_json 
+  filter_messages(messages).to_json
 end
 
 get "/api/msgs/:username" do
