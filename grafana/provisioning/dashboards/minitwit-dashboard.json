@@ -19,7 +19,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 2,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -130,7 +130,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
           },
           "custom": {
             "fillOpacity": 80,
@@ -223,7 +223,7 @@
               "viz": false
             },
             "insertNulls": false,
-            "lineInterpolation": "linear",
+            "lineInterpolation": "smooth",
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
@@ -254,32 +254,7 @@
             ]
           }
         },
-        "overrides": [
-          {
-            "__systemRef": "hideSeriesFrom",
-            "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "{__name__=\"http_requests_total\", group=\"production\", instance=\"app:5000\", job=\"itu-minittwit-app\", method=\"POST\", route=\"/register\", status=\"303\"}"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
-            },
-            "properties": [
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": true
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 10,
@@ -287,7 +262,7 @@
         "x": 0,
         "y": 8
       },
-      "id": 1,
+      "id": 8,
       "options": {
         "legend": {
           "calcs": [],
@@ -307,10 +282,10 @@
             "uid": "PBFA97CFB590B2093"
           },
           "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "http_requests_total",
+          "editorMode": "code",
+          "expr": "4 * rate(http_requests_total[$__rate_interval])",
           "fullMetaSearch": false,
-          "includeNullMetadata": true,
+          "includeNullMetadata": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -318,7 +293,7 @@
           "useBackend": false
         }
       ],
-      "title": "Total HTTP Requests by Endpoint, Response",
+      "title": "HTTP requests per min. by endpoint, response",
       "type": "timeseries"
     },
     {
@@ -578,6 +553,8 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": 1,
+            "axisSoftMin": 0,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -588,7 +565,7 @@
               "viz": false
             },
             "insertNulls": false,
-            "lineInterpolation": "linear",
+            "lineInterpolation": "smooth",
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
@@ -627,7 +604,7 @@
         "x": 16,
         "y": 13
       },
-      "id": 4,
+      "id": 9,
       "options": {
         "legend": {
           "calcs": [],
@@ -640,6 +617,7 @@
           "sort": "none"
         }
       },
+      "pluginVersion": "10.2.4",
       "targets": [
         {
           "datasource": {
@@ -647,10 +625,10 @@
             "uid": "PBFA97CFB590B2093"
           },
           "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "container_cpu_load_average_10s",
+          "editorMode": "code",
+          "expr": "rate(container_cpu_usage_seconds_total[$__rate_interval]) * 100",
           "fullMetaSearch": false,
-          "includeNullMetadata": true,
+          "includeNullMetadata": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -658,7 +636,7 @@
           "useBackend": false
         }
       ],
-      "title": "10 sec avg CPU load",
+      "title": "CPU usage %",
       "type": "timeseries"
     }
   ],
@@ -669,13 +647,13 @@
     "list": []
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-30m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Essentials",
   "uid": "c08d8004-f0b2-43fd-a83d-e1b9b5843a7f",
-  "version": 2,
+  "version": 1,
   "weekStart": ""
 }
