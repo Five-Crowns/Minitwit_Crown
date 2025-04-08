@@ -17,6 +17,12 @@ services:
     #   - POSTGRES_PORT=5432
     command: >
       bash -c "sleep 10 && bundle exec rake db:create db:migrate && bundle exec ruby minitwit.rb -o 0.0.0.0"
+    deploy:
+      replicas: 2
+      update_config:
+        delay: 10s
+        order: start-first
+
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
@@ -26,15 +32,30 @@ services:
       - main
     ports:
       - "9090:9090"
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - "node.role==manager"
+      update_config:
+        delay: 10s
+        order: start-first
     depends_on:
       - app
-
   cadvisor:
     image: gcr.io/cadvisor/cadvisor
     ports:
       - "8080:8080"
     networks:
       - main
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - "node.role==worker"  # Runs on worker nodes
+      update_config:
+        delay: 10s
+        order: start-first
 
   grafana:
     image: grafana/grafana:10.2.4
@@ -46,6 +67,14 @@ services:
       - grafana_data:/var/lib/grafana  # Persist dashboards & settings
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
       - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+    deploy:
+      replicas: 1  # Single replica of Grafana
+      placement:
+        constraints:
+          - "node.role==manager"  # Grafana runs on manager nodes
+      update_config:
+        delay: 10s
+        order: start-first
     depends_on:
       - prometheus
 
