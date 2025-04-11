@@ -8,7 +8,7 @@ module MiniTwit
       # Load database configuration
       db_yaml = ERB.new(File.read(File.join(__dir__, "config", "database.yml"))).result
       db_config = YAML.load(db_yaml)
-      env = ENV["RACK_ENV"] || "development"
+      env = "default"
 
       # Establish connection
       ActiveRecord::Base.configurations = db_config
