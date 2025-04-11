@@ -11,7 +11,7 @@ COPY . .
 RUN gem install bundler && bundle install
 
 # Expose the port the app will run on
-EXPOSE 5000
+# EXPOSE 5000
 
 # Ensures data persistency
 RUN mkdir -p /app/data
