@@ -1,44 +1,43 @@
-networks:
-  main:
-    name: itu-minitwit-network
 
 services:
   app:
-    # image: minitwitimage
     build:
       context: .
       dockerfile: Dockerfile.test
     container_name: minitwit_local_test
-    networks:
-      - main
     depends_on:
       - itusqlimage
-    ports:
-      - "5000:5000"
+    volumes:
+      - ./coverage:/app/coverage # Mounts local `./coverage` to `/app/coverage` inside the container
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_HOST=${POSTGRES_HOST_TEST}
       - POSTGRES_PORT=${POSTGRES_PORT}
+    ports:
+      - '5000:5000'
+    networks:
+      - main
     command: >
-      bash -c "sleep 10 && bundle exec rake db:create db:migrate && cd Test && ls && ./run_tests.sh"
-    volumes:
-      - ./coverage:/app/coverage  # Mounts local `./coverage` to `/app/coverage` inside the container
+      bash -c "sleep 10 && bundle exec rake db:create db:migrate && cd Test &&
+      ls && ./run_tests.sh"
 
   itusqlimage:
-    # image: postgresqlimage
     build:
       context: .
       dockerfile: Dockerfile.postgresql
     container_name: minitwit_postgresql_test
-    networks:
-      - main
-    ports:
-      - '5432:5432' # Default port for PostgreSQL
+    volumes:
+      - /var/lib/postgresql/data # Empty mount point makes this ephemeral
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-    volumes:
-      - /var/lib/postgresql/data  # Empty mount point makes this ephemeral
+    ports:
+      - '5432:5432' # Default port for PostgreSQL
+    networks:
+      - main
+networks:
+  main:
+    name: itu-minitwit-network

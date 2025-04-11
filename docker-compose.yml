@@ -1,34 +1,70 @@
-networks:
-  main:
 services:
   app:
     image: ${DOCKER_USERNAME}/minitwitimage
-    networks:
-      - main
-    ports:
-      - "5000:5000"
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_HOST=${POSTGRES_HOST_REMOTE}
       - POSTGRES_PORT=5432
+    ports:
+      - '5000:5000'
+    networks:
+      - main
     command: >
-      bash -c "sleep 10 && bundle exec rake db:create db:migrate && bundle exec ruby minitwit.rb -o 0.0.0.0"
+      bash -c "sleep 10 && bundle exec rake db:create db:migrate && bundle exec
+      ruby minitwit.rb -o 0.0.0.0"
     deploy:
       replicas: 1
+      update_config:
+        delay: 10s
+        order: start-first
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor
+    ports:
+      - '8080:8080'
+    networks:
+      - main
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - "node.role==worker" # Runs on worker nodes
+      update_config:
+        delay: 10s
+        order: start-first
+
+  grafana:
+    image: grafana/grafana:10.2.4
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana_data:/var/lib/grafana # Persist dashboards & settings
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+    ports:
+      - '3000:3000'
+    networks:
+      - main
+    deploy:
+      replicas: 1 # Single replica of Grafana
+      placement:
+        constraints:
+          - "node.role==manager" # Grafana runs on manager nodes
       update_config:
         delay: 10s
         order: start-first
 
   prometheus:
     image: prom/prometheus:latest
+    depends_on:
+      - app
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - '9090:9090'
     networks:
       - main
-    ports:
-      - "9090:9090"
     deploy:
       replicas: 1
       placement:
@@ -37,43 +73,8 @@ services:
       update_config:
         delay: 10s
         order: start-first
-    depends_on:
-      - app
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor
-    ports:
-      - "8080:8080"
-    networks:
-      - main
-    deploy:
-      replicas: 1
-      placement:
-        constraints:
-          - "node.role==worker"  # Runs on worker nodes
-      update_config:
-        delay: 10s
-        order: start-first
-
-  grafana:
-    image: grafana/grafana:10.2.4
-    ports:
-      - "3000:3000"
-    networks:
-      - main
-    volumes:
-      - grafana_data:/var/lib/grafana  # Persist dashboards & settings
-      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
-      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
-    deploy:
-      replicas: 1  # Single replica of Grafana
-      placement:
-        constraints:
-          - "node.role==manager"  # Grafana runs on manager nodes
-      update_config:
-        delay: 10s
-        order: start-first
-    depends_on:
-      - prometheus
+networks:
+  main:
 
 volumes:
   grafana_data:
