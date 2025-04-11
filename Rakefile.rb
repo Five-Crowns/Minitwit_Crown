@@ -15,7 +15,7 @@ namespace :db do
       config.db_dir = "db"
       config.migrations_paths = ["db/migrate"]
       config.seed_loader = nil
-      config.env = ENV["RACK_ENV"] || "development"
+      config.env = "default"
       config.database_configuration = ActiveRecord::Base.configurations
       config.root = File.expand_path("..", __FILE__)
     end
