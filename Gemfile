@@ -20,8 +20,6 @@ gem "sinatra", "~> 4.1" # For Sinatra framework
 gem "sinatra-activerecord" # For ActiveRecord ORM
 gem "sinatra-content-for" # For managing content-for (layouts)
 gem "sinatra-contrib" # For Sinatra contributions (helpers, sessions, etc.)
-gem "sqlite3" # For SQLite database connection
-# add the following gems to the Gemfile
 gem "dawnscanner"
 gem "standard"
 gem "rubycritic", require: false # For Ruby code quality analysis
