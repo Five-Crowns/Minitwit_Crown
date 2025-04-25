@@ -1,13 +1,15 @@
 require "prometheus/client"
 
 module Metrics
+  module_function
+
   PROMETHEUS = Prometheus::Client.registry
 
   def self.http_requests_total
     @http_requests_total ||= Prometheus::Client::Counter.new(
       :http_requests_total,
       docstring: "Total number of HTTP requests received",
-      labels: [:method, :route, :status]
+      labels: %i[method route status]
     )
   end
 
@@ -15,7 +17,7 @@ module Metrics
     @http_request_duration_seconds ||= Prometheus::Client::Histogram.new(
       :http_request_duration_seconds,
       docstring: "Histogram for tracking request duration",
-      labels: [:method, :route, :status]
+      labels: %i[method route status]
     )
   end
 
@@ -93,4 +95,31 @@ module Metrics
   PROMETHEUS.register(db_follow_user_duration)
   PROMETHEUS.register(db_unfollow_user_duration)
   PROMETHEUS.register(db_register_user_duration)
+
+  # Track active users
+  @active_user_ids = Set.new
+  @mutex = Mutex.new
+
+  def track_user(user_id)
+    return if user_id.nil?
+
+    @mutex.synchronize do
+      @active_user_ids.add(user_id)
+    end
+  end
+
+  # Background thread to update gauge every 15 seconds
+  Thread.new do
+    loop do
+      sleep 15
+      current_count = 0
+
+      @mutex.synchronize do
+        current_count = @active_user_ids.size
+        @active_user_ids.clear
+      end
+
+      @active_users.set(current_count)
+    end
+  end
 end
