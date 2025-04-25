@@ -13,10 +13,12 @@ LATEST_FILENAME = "latest_processed_sim_action_id.txt"
 # User.find_by(username: username) instead of querFy_db("SELECT * FROM users WHERE username = ?", username)
 before do
   @start_time = Time.now
-  Metrics.active_users.increment
 
   @user_id = session[:user_id]
   @user = @user_id.nil? ? nil : User.find_by(user_id: @user_id)
+
+  Metrics.track_user(@user_id)
+
   if request.path.start_with?("/api/")
     content_type :json
     update_latest(params["latest"])
@@ -38,9 +40,6 @@ after do
     duration,
     labels: {method: request.request_method, route: env["sinatra.route"] || "unknown", status: response.status}
   )
-
-  # Decrease active users
-  Metrics.active_users.decrement
 end
 
 def try_parse_json(json)
