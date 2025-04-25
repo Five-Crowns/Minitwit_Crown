@@ -51,6 +51,24 @@ jobs:
           chmod 600 ~/.ssh/do_ssh_key
         env:
           SSH_KEY: ${{ secrets.SSH_KEY }}
+          
+      - name: Sync Grafana Dashboards to Hot Server
+        run: |
+          rsync -avz -e "ssh -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no" 
+          /minitwit/grafana/provisioning/dashboards/ 
+          $SSH_USER@$SSH_HOST:/minitwit/grafana/provisioning/dashboards/
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          
+      - name: Sync Grafana Dashboards to Standby Server
+        run: |
+          rsync -avz -e "ssh -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no" 
+          /minitwit/grafana/provisioning/dashboards/ 
+          $SSH_USER@$SSH_HOST2:/minitwit/grafana/provisioning/dashboards/
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST2: ${{ secrets.SSH_HOST2 }}
 
       - name: Deploy to hot server
         # Configure the ~./bash_profile and deploy.sh file on the Vagrantfile
