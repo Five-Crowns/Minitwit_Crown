@@ -97,9 +97,30 @@ services:
     volumes:
       - kibana_data:/usr/share/kibana/data
     environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_HOSTS=${ELASTIC_HOSTS}
       - ELASTICSEARCH_USERNAME=kibana_system
       - ELASTICSEARCH_PASSWORD=${KIBANA_SYSTEM_PASSWORD}
+
+  filebeat:
+    container_name: filebeat
+    image: docker.elastic.co/beats/filebeat:${STACK_VERSION}
+    depends_on:
+      - elasticsearch
+    networks:
+      - elastic
+    user: root
+    volumes:
+      - filebeat_data:/usr/share/filebeat/data
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./log/minitwit.log:/Minitwit_crown/log/minitwit.log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - ELASTIC_USER=${ELASTIC_USER}
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - ELASTIC_HOSTS=${ELASTIC_HOSTS}
+      - KIBANA_HOSTS=${KIBANA_HOSTS}
+    command: [ "--strict.perms=false" ]
 
 networks:
   main:
@@ -112,3 +133,4 @@ volumes:
   grafana_data:
   elasticsearch_data:
   kibana_data:
+  filebeat_data:

@@ -1,0 +1,29 @@
+filebeat.inputs:
+  - type: filestream
+    id: default-filestream
+    paths:
+      - ingest_data/*.log
+      - ./log/*.log
+    json.keys_under_root: true
+    json.add_error_key: true
+  - type: container
+    paths:
+      - '/var/lib/docker/containers/*/*.log'
+
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      hints.enable: true
+
+processors:
+  - add_docker_metadata: ~
+
+setup.kibana:
+  host: ${KIBANA_HOSTS}
+  username: ${ELASTIC_USER}
+  password: ${ELASTIC_PASSWORD}
+
+output.elasticsearch:
+  hosts: ${ELASTIC_HOSTS}
+  username: ${ELASTIC_USER}
+  password: ${ELASTIC_PASSWORD}
