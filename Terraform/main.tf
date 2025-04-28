@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    digitalocean = {
+      source = "digitalocean/digitalocean"
+      version = "~> 2.0"
+    }
+  }
+}
+
 provider "digitalocean" {
   token = var.digitalocean_token
 }
@@ -62,4 +71,16 @@ output "app_droplet_ip" {
 
 output "db_droplet_ip" {
   value = digitalocean_droplet.db.ipv4_address
+}
+
+data "digitalocean_project" "project" {
+  name = var.digitalocean_project
+}
+
+resource "digitalocean_project_resources" "project_resources" {
+  project = data.digitalocean_project.project.id
+  resources = [
+    digitalocean_droplet.app.urn,
+    digitalocean_droplet.db.urn
+  ]
 }
