@@ -29,6 +29,14 @@ variable "ssh_key_name" {
   default = "do_ssh_key" 
 }
 
+variable "digitalocean_project" {
+  description = "Digital Ocean project to assign resources to"
+}
+
+variable "db_password" {
+  description = "Postgres db password set in tfvars"
+}
+
 resource "digitalocean_droplet" "app" {
   name   = var.app_droplet_name
   region = var.region
@@ -40,11 +48,30 @@ resource "digitalocean_droplet" "app" {
   user_data = <<-EOT
     #!/bin/bash
     apt-get update
-    apt-get install -y docker.io
+
+    # Install Docker and Docker Compose
+    sudo apt-get install -y docker.io docker-compose
+
+    # Create minitwit directory structure
+    mkdir -p /minitwit
+
+    # Make minitwit the default directory
+    echo "cd /minitwit" >> ~/.bash_profile
+
     docker pull niko391a/minitwitimage:latest
-    docker run -d -p 80:80 niko391a/minitwitimage:latest
-    echo "App container deployed"
+    
+    # Allow required ports
+    ufw allow 5000
+    ufw allow 22/tcp
+    ufw allow 80/tcp
+
+    echo "App container finished setup"
   EOT
+  
+  # Sync remote_files to the server
+  provisioner "local-exec" {
+    command = "rsync -avz -e 'ssh -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no' ../remote_files/ root@${self.ipv4_address}:/minitwit/"
+  }
 }
 
 resource "digitalocean_droplet" "db" {
@@ -58,11 +85,30 @@ resource "digitalocean_droplet" "db" {
   user_data = <<-EOT
     #!/bin/bash
     apt-get update
-    apt-get install -y docker.io
+
+    # Install Docker and Docker Compose
+    sudo apt-get install -y docker.io docker-compose
     docker pull niko391a/postgresqlimage
-    docker run -d -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=placeholder -e POSTGRES_DB=minitwit postgres:latest
-    echo "PostgreSQL container deployed"
+
+    # Create minitwit directory for consistency
+    mkdir -p /minitwit
+    
+    # Make minitwit the default directory
+    echo "cd /minitwit" >> /root/.bash_profile
+
+    # Allow required ports
+    ufw allow 22/tcp
+    ufw allow 5432/tcp
+
+    docker run -d -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=${var.db_password} -e POSTGRES_DB=minitwit --name minitwit-db niko391a/postgresqlimage
+
+    echo "PostgreSQL container finished setup"
   EOT
+
+  # Sync remote_files to the server
+  provisioner "local-exec" {
+    command = "rsync -avz -e 'ssh -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no' ../remote_files/ root@${self.ipv4_address}:/minitwit/"
+  }
 }
 
 output "app_droplet_ip" {
