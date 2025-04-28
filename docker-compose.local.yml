@@ -1,20 +1,14 @@
-networks:
-  main:
-    name: itu-minitwit-network
-  elastic:
-    driver: bridge
-
 services:
   app:
     # image: minitwitimage
+    container_name: minitwit
     build:
       context: .
       dockerfile: Dockerfile.app
-    container_name: minitwit
-    networks:
-      - main
     depends_on:
       - itusqlimage
+    networks:
+      - main
     ports:
       - "5000:5000"
     environment:
@@ -24,90 +18,94 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_HOST=itusqlimage
       - POSTGRES_PORT=5432
-    command: >
-      bash -c "sleep 10 && bundle exec rake db:create db:migrate && bundle exec ruby minitwit.rb -o 0.0.0.0"
-      
+    command: bash -c "sleep 10 && bundle exec rake db:create db:migrate && bundle exec ruby minitwit.rb -o 0.0.0.0"
+
   itusqlimage:
     # image: postgresqlimage
+    container_name: database
     build:
       context: .
       dockerfile: Dockerfile.postgresql
-    container_name: database
     networks:
       - main
     ports:
-      - '5432:5432'
+      - "5432:5432"
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data  # Persistent Postgres database
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-    volumes:
-      - postgresql_data:/var/lib/postgresql/data  # Persistent Postgres database
 
   prometheus:
-    image: prom/prometheus:latest
     container_name: prometheus
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    image: prom/prometheus:latest
+    depends_on:
+      - app
     networks:
       - main
     ports:
       - "9090:9090"
-    depends_on:
-      - app
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor
     container_name: cadvisor
+    image: gcr.io/cadvisor/cadvisor
+    networks:
+      - main
     ports:
       - "8080:8080"
-    networks:
-      - main
 
   grafana:
-    image: grafana/grafana:10.2.4
     container_name: grafana
-    ports:
-      - "3000:3000"
+    image: grafana/grafana:10.2.4
+    depends_on:
+      - prometheus
     networks:
       - main
+    ports:
+      - "3000:3000"
     volumes:
       - grafana_data:/var/lib/grafana  # Persist dashboards & settings
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
       - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
-    depends_on:
-      - prometheus
 
   elasticsearch:
     container_name: elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=true
-      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+    networks:
+      - elastic
     ports:
       - ${ES_PORT}:9200
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
-    networks:
-      - elastic
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
 
   kibana:
     container_name: kibana
     image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
+    depends_on:
+      - elasticsearch
+    networks:
+      - elastic
     ports:
       - ${KIBANA_PORT}:5601
+    volumes:
+      - kibana_data:/usr/share/kibana/data
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
       - ELASTICSEARCH_USERNAME=kibana_system
       - ELASTICSEARCH_PASSWORD=${KIBANA_SYSTEM_PASSWORD}
-    volumes:
-      - kibana_data:/usr/share/kibana/data
-    depends_on:
-      - elasticsearch
-    command: ["--strict.perms=false"]
-    networks:
-      - elastic
+
+networks:
+  main:
+    name: itu-minitwit-network
+  elastic:
+    driver: bridge
 
 volumes:
   postgresql_data:
