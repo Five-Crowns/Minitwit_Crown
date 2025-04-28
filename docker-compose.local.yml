@@ -1,6 +1,8 @@
 networks:
   main:
     name: itu-minitwit-network
+  elastic:
+    driver: bridge
 
 services:
   app:
@@ -8,7 +10,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.app
-    container_name: minitwit_local
+    container_name: minitwit
     networks:
       - main
     depends_on:
@@ -30,7 +32,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.postgresql
-    container_name: minitwit_postgresql
+    container_name: database
     networks:
       - main
     ports:
@@ -56,6 +58,7 @@ services:
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor
+    container_name: cadvisor
     ports:
       - "8080:8080"
     networks:
@@ -63,6 +66,7 @@ services:
 
   grafana:
     image: grafana/grafana:10.2.4
+    container_name: grafana
     ports:
       - "3000:3000"
     networks:
@@ -75,42 +79,38 @@ services:
       - prometheus
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.0
+    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=true
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-
     ports:
-      - "9200:9200"
+      - ${ES_PORT}:9200
     volumes:
-      - ./elasticsearch_data:/usr/share/elasticsearch/data
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - elastic
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:8.6.0
+    container_name: kibana
+    image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
     ports:
-      - "5601:5601"
+      - ${KIBANA_PORT}:5601
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - ELASTICSEARCH_USERNAME=${ELASTICSEARCH_USERNAME}
-      - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
-
-    depends_on:
-      - elasticsearch
-
-  filebeat:
-    image: docker.elastic.co/beats/filebeat:8.6.0
-    user: root
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=${KIBANA_SYSTEM_PASSWORD}
     volumes:
-      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      - ./log/minitwit.log:/Minitwit_crown/log/minitwit.log:ro
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - kibana_data:/usr/share/kibana/data
     depends_on:
       - elasticsearch
     command: ["--strict.perms=false"]
+    networks:
+      - elastic
 
 volumes:
   postgresql_data:
   grafana_data:
   elasticsearch_data:
+  kibana_data:
