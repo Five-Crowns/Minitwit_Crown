@@ -101,6 +101,34 @@ services:
       - ELASTICSEARCH_HOSTS=${ELASTIC_HOSTS}
       - ELASTICSEARCH_USERNAME=kibana_system
       - ELASTICSEARCH_PASSWORD=${KIBANA_SYSTEM_PASSWORD}
+    healthcheck:
+      test: curl -f http://localhost:5601/api/status || exit 1
+      interval: 10s
+      retries: 20
+
+  kibana-importer:
+    container_name: kibana-importer
+    image: curlimages/curl:8.6.0
+    depends_on:
+      kibana:
+        condition: service_healthy
+    environment:
+      ELASTIC_USER: ${ELASTIC_USER}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+    volumes:
+      - ./kibana/kibana_dashboards.ndjson:/import.ndjson
+    command: >
+      sh -c '
+      echo "Waiting 10s for Kibana to stabilize...";
+      sleep 10;
+      curl -u "$${ELASTIC_USER}:$${ELASTIC_PASSWORD}" -X POST \
+        "http://kibana:5601/api/saved_objects/_import?overwrite=true" \
+        -H "kbn-xsrf: true" \
+        --form file=@/import.ndjson;
+      echo "Import completed!"
+      '
+    networks:
+      - elastic
 
   filebeat:
     container_name: filebeat
