@@ -20,6 +20,6 @@ class MinitwitLogger
       log_data[:message] = message.to_s
     end
 
-    STDOUT.puts log_data.to_json
+    $stdout.puts log_data.to_json
   end
 end
