@@ -11,7 +11,7 @@ require "yaml"
 require "./models/user"
 require "prometheus/middleware/exporter"
 require_relative "db_config"
-require 'logger'
+require "logger"
 
 # Initialize database connection
 MiniTwit::DbConfig.setup

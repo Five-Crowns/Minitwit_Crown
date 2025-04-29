@@ -16,7 +16,7 @@ before do
 end
 
 get "/api/latest" do
-  log_event('Got latest request')
+  log_event("Got latest request")
   latest = get_latest.to_i
   return {latest: latest}.to_json
 end
