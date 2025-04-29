@@ -1,9 +1,9 @@
 filebeat.inputs:
   - type: filestream
-    id: default-filestream
+    id: minitwit-logs
     paths:
       - ingest_data/*.log
-      - ./log/*.log
+      - /Minitwit_crown/log/minitwit.log
     json.keys_under_root: true
     json.add_error_key: true
   - type: container
@@ -17,6 +17,10 @@ filebeat.autodiscover:
 
 processors:
   - add_docker_metadata: ~
+  - decode_json_fields:
+      fields: [ "message" ]
+      target: "json"
+      overwrite_keys: true
 
 setup.kibana:
   host: ${KIBANA_HOSTS}
