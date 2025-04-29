@@ -15,10 +15,12 @@ LATEST_FILENAME = "latest_processed_sim_action_id.txt"
 before do
   MinitwitLogger.logger.info({ request: request.request_method, path: request.path_info, params: params }.to_json)
   @start_time = Time.now
-  Metrics.active_users.increment
 
   @user_id = session[:user_id]
   @user = @user_id.nil? ? nil : User.find_by(user_id: @user_id)
+
+  Metrics.track_user(@user_id)
+
   if request.path.start_with?("/api/")
     content_type :json
     update_latest(params["latest"])
@@ -32,17 +34,14 @@ after do
 
   # Increment request count
   Metrics.http_requests_total.increment(
-    labels: {method: request.request_method, route: request.path, status: response.status}
+    labels: {method: request.request_method, route: env["sinatra.route"] || "unknown", status: response.status}
   )
 
   # Track request duration
   Metrics.http_request_duration_seconds.observe(
     duration,
-    labels: {method: request.request_method, route: request.path, status: response.status}
+    labels: {method: request.request_method, route: env["sinatra.route"] || "unknown", status: response.status}
   )
-
-  # Decrease active users
-  Metrics.active_users.decrement
 end
 
 def try_parse_json(json)
