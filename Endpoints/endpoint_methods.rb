@@ -13,7 +13,7 @@ LATEST_FILENAME = "latest_processed_sim_action_id.txt"
 # such that the endpoint_methods.rb file looks like this:
 # User.find_by(username: username) instead of querFy_db("SELECT * FROM users WHERE username = ?", username)
 before do
-  MinitwitLogger.logger.info({request: request.request_method, path: request.path_info}.to_json)
+  MinitwitLogger.logger.info({request: request.request_method, path: request.path_info})
   @start_time = Time.now
 
   @user_id = session[:user_id]
@@ -50,15 +50,12 @@ rescue JSON::ParserError, TypeError
 end
 
 def log_event(event_message)
-  log_data =
-  {
+  MinitwitLogger.logger.info({
+    ip: request.ip,
     user: @user_id || (-1),
     endpoint: "#{request.request_method} #{request.path_info}",
-    event: event_message,
-    ip: request.ip
-  }.compact
-
-  MinitwitLogger.logger.info(log_data.to_json)
+    event: event_message
+  })
 end
 
 # Updates 'latest' if it isn't nil or empty.

@@ -136,12 +136,13 @@ services:
     depends_on:
       - elasticsearch
     networks:
+      - main
       - elastic
     user: root
     volumes:
       - filebeat_data:/usr/share/filebeat/data
       - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      - minitwit_logs:/Minitwit_crown/log:ro
+      - minitwit_logs:/app/log:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
