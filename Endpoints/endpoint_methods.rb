@@ -49,7 +49,7 @@ after do
     labels: {method: request.request_method, route: env["sinatra.route"] || "unknown", status: response.status}
   )
 
-  log(:info, {message: "Response end", status_code: response.status})
+  log(:info, {message: "Request end", status_code: response.status})
 end
 
 def try_parse_json(json)
