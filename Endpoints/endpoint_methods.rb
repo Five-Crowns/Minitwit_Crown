@@ -7,16 +7,23 @@ require_relative "../logger"
 PER_PAGE = 30
 LATEST_FILENAME = "latest_processed_sim_action_id.txt"
 
+helpers do
+  def log(severity, message)
+    MinitwitLogger.log(severity, message, request, @user_id)
+  end
+end
+
 # Sinatra routes
 
 # Now need to remove the query_db method from the endpoint_methods.rb file.
 # such that the endpoint_methods.rb file looks like this:
 # User.find_by(username: username) instead of querFy_db("SELECT * FROM users WHERE username = ?", username)
 before do
-  MinitwitLogger.logger.info({request: request.request_method, path: request.path_info})
   @start_time = Time.now
 
   @user_id = session[:user_id]
+  log(:info,"Request start")
+
   @user = @user_id.nil? ? nil : User.find_by(user_id: @user_id)
 
   Metrics.track_user(@user_id)
@@ -41,21 +48,15 @@ after do
     duration,
     labels: {method: request.request_method, route: env["sinatra.route"] || "unknown", status: response.status}
   )
+  
+  log(:info, {message: "Response end", status_code: response.status})
 end
 
 def try_parse_json(json)
   JSON.parse(json)
 rescue JSON::ParserError, TypeError
+  log(:warn,"Failed to parse JSON")
   halt 400, "Invalid JSON body"
-end
-
-def log_event(event_message)
-  MinitwitLogger.logger.info({
-    ip: request.ip,
-    user: @user_id || (-1),
-    endpoint: "#{request.request_method} #{request.path_info}",
-    event: event_message
-  })
 end
 
 # Updates 'latest' if it isn't nil or empty.
@@ -78,6 +79,7 @@ end
 # @param [String] username The username of the user.
 # @return Nil, if the user wasn't found. Otherwise, the user object.
 def get_user(username)
+  log(:debug,"Getting user info for username '#{username}'")
   User.find_by(username: username)
 end
 
@@ -86,8 +88,10 @@ end
 # @param [String] username The username of the user.
 # @return [Integer] The user_id of the user.
 def get_user_id(username)
+  log(:debug,"Getting user id for username '#{username}'")
   user = get_user(username)
   if user.nil?
+    log(:warn, "User '#{username}' not found")
     halt 404, "404 User not found"
   else
     user.user_id
@@ -113,6 +117,7 @@ end
 # @param [Integer] offset The 'index' at which you start getting messages.
 # @param [Integer] flagged For if you want to fetch only flagged (or non-flagged) messages.
 def get_messages(limit = -1, user_id = -1, offset = -1, flagged = -1)
+  log(:debug, "Getting messages: limit=#{limit}, user_id=#{user_id}, offset=#{offset}, flagged=#{flagged}")
   messages = Message.joins(:author)
   messages = messages.where(flagged: flagged) if flagged >= 0
   messages = messages.where(author_id: user_id) if user_id >= 0
@@ -127,6 +132,7 @@ end
 # @param [Integer] user_id The user_id of the user whose messages you wish to get. (<0 means all users)
 # @param [Integer] flagged For if you want to fetch only flagged (or non-flagged) messages.
 def get_message_page(page = 0, user_id = -1, flagged = -1)
+  log(:debug, "Getting message page #{page}: user_id=#{user_id}, flagged=#{flagged}")
   get_messages(PER_PAGE, user_id, page * PER_PAGE, flagged)
 end
 
@@ -156,6 +162,7 @@ end
 # @param [String] username The username of that specific.
 # @param [Integer] page What page of messages you want to see.
 def user_timeline(username, page = 0)
+  log(:debug, "Getting timeline for user '#{username}'")
   user_id = get_user_id(username)
   get_message_page(page, user_id)
 end
@@ -167,7 +174,7 @@ end
 # @param [String] password2
 # @return Nil, if user was registered properly. Otherwise, an error message.
 def register_user(username, email, password, password2)
-  log_event("Attempting to register user #{username}")
+  log(:info,"Attempting to register user '#{username}'")
   if username.to_s.empty?
     "You have to enter a username"
   elsif email.to_s.empty? || !email.include?("@")
@@ -189,7 +196,7 @@ end
 # @param [String] password
 # @return The user's user_id if log-in was a success. Otherwise, an error message.
 def login_user(username, password)
-  log_event("User #{username} attempting to login")
+  log(:info,"User '#{username}' attempting to login")
   if username.to_s.empty?
     "You have to enter a username"
   elsif password.to_s.empty?
@@ -197,6 +204,7 @@ def login_user(username, password)
   else
     user = get_user(username)
     if user.nil? || !(BCrypt::Password.new(user.pw_hash) == password)
+      log(:warn, "User '#{username}' failed login attempt")
       "Invalid username or Invalid password"
     else
       user.user_id
@@ -209,7 +217,7 @@ end
 # @param [Integer] user_id The user_id of the author of the message.
 # @return Nil, if message was posted properly. Otherwise, an error message.
 def post_message(text, user_id)
-  log_event("Attempting to post a message for user #{user_id}")
+  log(:info,"Attempting to post a message for user with id '#{user_id}'")
   if text.to_s.empty?
     return "You can't post an empty message."
   end
@@ -235,7 +243,7 @@ end
 # @param [String] followee The username of the followee.
 # @return Nil, if user was followed properly. Otherwise, an error message.
 def follow(follower_id, followee)
-  log_event("Attempting to follow user #{followee}")
+  log(:info,"Attempting to follow user '#{followee}'")
   followee_user = get_user(followee)
   return "User #{followee} not found" if followee_user.nil?
 
@@ -260,7 +268,7 @@ end
 # @param [String] followee The username of the followee.
 # # @return Nil, if user was unfollowed properly. Otherwise, an error message.
 def unfollow(follower_id, followee)
-  log_event("Attempting to unfollow user #{followee}")
+  log(:info,"Attempting to unfollow user '#{followee}'")
   followee_user = get_user(followee)
   return "User #{followee} not found" if followee_user.nil?
 
@@ -288,7 +296,7 @@ end
 # @param [String] username The username of the user whose follows you wish to see.
 # @param [Integer] limit The max number of follows you wish to see.
 def get_follows(username, limit)
-  log_event("Getting the users that #{params[:username]} follows")
+  log(:info,"Getting the users that user '#{params[:username]}' follows")
   user_id = get_user_id(username)
 
   # This finds who the user follows

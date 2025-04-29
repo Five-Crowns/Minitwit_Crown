@@ -1,11 +1,4 @@
 filebeat.inputs:
-  - type: filestream
-    id: minitwit-logs
-    paths:
-      - ingest_data/*.log
-      - /app/log/minitwit.log
-    json.keys_under_root: true
-    json.add_error_key: true
   - type: container
     paths:
       - '/var/lib/docker/containers/*/*.log'
@@ -17,15 +10,10 @@ filebeat.autodiscover:
 
 processors:
   - add_docker_metadata: ~
-  - drop_event:
-      when:
-        contains:
-          message: "# Logfile created on"
   - decode_json_fields:
       fields: [ "message" ]
       target: "json"
       overwrite_keys: true
-      add_error_key: true
 
 setup.kibana:
   host: ${KIBANA_HOSTS}
@@ -36,3 +24,6 @@ output.elasticsearch:
   hosts: ${ELASTIC_HOSTS}
   username: ${ELASTIC_USER}
   password: ${ELASTIC_PASSWORD}
+
+logging.json: true
+logging.metrics.enabled: false
