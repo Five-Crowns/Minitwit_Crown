@@ -9,7 +9,7 @@ LATEST_FILENAME = "latest_processed_sim_action_id.txt"
 
 helpers do
   def log(severity, message)
-    MinitwitLogger.log(severity, message, request, @user_id)
+    MinitwitLogger.log(severity, message)
   end
 end
 
@@ -22,8 +22,6 @@ before do
   @start_time = Time.now
 
   @user_id = session[:user_id]
-  log(:info, "Request start")
-
   @user = @user_id.nil? ? nil : User.find_by(user_id: @user_id)
 
   Metrics.track_user(@user_id)
@@ -49,7 +47,14 @@ after do
     labels: {method: request.request_method, route: env["sinatra.route"] || "unknown", status: response.status}
   )
 
-  log(:info, {message: "Response end", status_code: response.status})
+  log(:info, {
+    message: "Request completed",
+    user_ip: request.ip,
+    user_id: @user_id || "Anonymous User",
+    request_type: request.request_method,
+    endpoint: request.path_info,
+    status_code: response.status
+  })
 end
 
 def try_parse_json(json)

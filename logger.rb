@@ -3,14 +3,10 @@
 require "json"
 
 class MinitwitLogger
-  def self.log(severity, message, request, user_id)
+  def self.log(severity, message)
     log_data = {
       timestamp: Time.now.utc.iso8601(3),  # ISO8601 with milliseconds
-      severity: severity.to_s.upcase,
-      user_ip: request.ip,
-      user_id: user_id || "Anonymous User",
-      request_type: request.request_method,
-      endpoint: request.path_info
+      severity: severity.to_s.upcase
     }
 
     # Handle both string messages and structured data
