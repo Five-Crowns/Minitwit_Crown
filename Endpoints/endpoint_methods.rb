@@ -22,7 +22,7 @@ before do
   @start_time = Time.now
 
   @user_id = session[:user_id]
-  log(:info,"Request start")
+  log(:info, "Request start")
 
   @user = @user_id.nil? ? nil : User.find_by(user_id: @user_id)
 
@@ -48,14 +48,14 @@ after do
     duration,
     labels: {method: request.request_method, route: env["sinatra.route"] || "unknown", status: response.status}
   )
-  
+
   log(:info, {message: "Response end", status_code: response.status})
 end
 
 def try_parse_json(json)
   JSON.parse(json)
 rescue JSON::ParserError, TypeError
-  log(:warn,"Failed to parse JSON")
+  log(:warn, "Failed to parse JSON")
   halt 400, "Invalid JSON body"
 end
 
@@ -79,7 +79,7 @@ end
 # @param [String] username The username of the user.
 # @return Nil, if the user wasn't found. Otherwise, the user object.
 def get_user(username)
-  log(:debug,"Getting user info for username '#{username}'")
+  log(:debug, "Getting user info for username '#{username}'")
   User.find_by(username: username)
 end
 
@@ -88,7 +88,7 @@ end
 # @param [String] username The username of the user.
 # @return [Integer] The user_id of the user.
 def get_user_id(username)
-  log(:debug,"Getting user id for username '#{username}'")
+  log(:debug, "Getting user id for username '#{username}'")
   user = get_user(username)
   if user.nil?
     log(:warn, "User '#{username}' not found")
@@ -174,7 +174,7 @@ end
 # @param [String] password2
 # @return Nil, if user was registered properly. Otherwise, an error message.
 def register_user(username, email, password, password2)
-  log(:info,"Attempting to register user '#{username}'")
+  log(:info, "Attempting to register user '#{username}'")
   if username.to_s.empty?
     "You have to enter a username"
   elsif email.to_s.empty? || !email.include?("@")
@@ -196,7 +196,7 @@ end
 # @param [String] password
 # @return The user's user_id if log-in was a success. Otherwise, an error message.
 def login_user(username, password)
-  log(:info,"User '#{username}' attempting to login")
+  log(:info, "User '#{username}' attempting to login")
   if username.to_s.empty?
     "You have to enter a username"
   elsif password.to_s.empty?
@@ -217,7 +217,7 @@ end
 # @param [Integer] user_id The user_id of the author of the message.
 # @return Nil, if message was posted properly. Otherwise, an error message.
 def post_message(text, user_id)
-  log(:info,"Attempting to post a message for user with id '#{user_id}'")
+  log(:info, "Attempting to post a message for user with id '#{user_id}'")
   if text.to_s.empty?
     return "You can't post an empty message."
   end
@@ -243,7 +243,7 @@ end
 # @param [String] followee The username of the followee.
 # @return Nil, if user was followed properly. Otherwise, an error message.
 def follow(follower_id, followee)
-  log(:info,"Attempting to follow user '#{followee}'")
+  log(:info, "Attempting to follow user '#{followee}'")
   followee_user = get_user(followee)
   return "User #{followee} not found" if followee_user.nil?
 
@@ -268,7 +268,7 @@ end
 # @param [String] followee The username of the followee.
 # # @return Nil, if user was unfollowed properly. Otherwise, an error message.
 def unfollow(follower_id, followee)
-  log(:info,"Attempting to unfollow user '#{followee}'")
+  log(:info, "Attempting to unfollow user '#{followee}'")
   followee_user = get_user(followee)
   return "User #{followee} not found" if followee_user.nil?
 
@@ -296,7 +296,7 @@ end
 # @param [String] username The username of the user whose follows you wish to see.
 # @param [Integer] limit The max number of follows you wish to see.
 def get_follows(username, limit)
-  log(:info,"Getting the users that user '#{params[:username]}' follows")
+  log(:info, "Getting the users that user '#{params[:username]}' follows")
   user_id = get_user_id(username)
 
   # This finds who the user follows

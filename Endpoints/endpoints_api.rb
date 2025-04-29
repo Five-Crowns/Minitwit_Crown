@@ -30,16 +30,16 @@ post "/api/register" do
     labels: {endpoint: "/api/register"}
   )
   if error.nil?
-    log(:info,"Successfully registered user '#{@data["username"]}'")
+    log(:info, "Successfully registered user '#{@data["username"]}'")
     status 204
   else
-    log(:info,"Registering user '#{@data["username"]}' failed with error '#{error}'")
+    log(:info, "Registering user '#{@data["username"]}' failed with error '#{error}'")
     halt 400, {status: 400, error_msg: error}.to_json
   end
 end
 
 get "/api/msgs" do
-  log(:info,"Getting all message")
+  log(:info, "Getting all message")
   limit = get_param_or_default("no", 100)
   start_time = Time.now
   messages = get_messages(limit)
@@ -52,7 +52,7 @@ get "/api/msgs" do
 end
 
 get "/api/msgs/:username" do
-  log(:info,"Getting messages for user '#{params[:username]}'")
+  log(:info, "Getting messages for user '#{params[:username]}'")
   env[SINATRA_ROUTE] = "/api/msgs/:username"
   user_id = get_user_id(params[:username])
   limit = get_param_or_default("no", 100)
@@ -78,10 +78,10 @@ post "/api/msgs/:username" do
     labels: {endpoint: "/api/msgs"}
   )
   if error.nil?
-    log(:info,"Successfully posted a message on behalf of user '#{params[:username]}'")
+    log(:info, "Successfully posted a message on behalf of user '#{params[:username]}'")
     status 204
   else
-    log(:info,"Failed to post a message on behalf of user '#{params[:username]}' with error '#{error}'")
+    log(:info, "Failed to post a message on behalf of user '#{params[:username]}' with error '#{error}'")
     halt 400, error
   end
 end
@@ -113,10 +113,10 @@ post "/api/fllws/:username" do
       labels: {endpoint: "/api/fllws"}
     )
     if error.nil?
-      log(:info,"Successfully followed user '#{follow}'")
+      log(:info, "Successfully followed user '#{follow}'")
       return status 204
     else
-      log(:info,"Failed to follow user '#{follow}' with error '#{error}'")
+      log(:info, "Failed to follow user '#{follow}' with error '#{error}'")
       return halt 400, error
     end
   end
@@ -132,10 +132,10 @@ post "/api/fllws/:username" do
       labels: {endpoint: "/api/fllws"}
     )
     if error.nil?
-      log(:info,"Successfully unfollowed user '#{unfollow}'")
+      log(:info, "Successfully unfollowed user '#{unfollow}'")
       return status 204
     else
-      log(:info,"Failed to unfollow user '#{unfollow}' with error '#{error}'")
+      log(:info, "Failed to unfollow user '#{unfollow}' with error '#{error}'")
       return halt 400, error
     end
   end
