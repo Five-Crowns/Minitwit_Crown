@@ -13,14 +13,13 @@ LATEST_FILENAME = "latest_processed_sim_action_id.txt"
 # such that the endpoint_methods.rb file looks like this:
 # User.find_by(username: username) instead of querFy_db("SELECT * FROM users WHERE username = ?", username)
 before do
-  MinitwitLogger.logger.info({ request: request.request_method, path: request.path_info, params: params }.to_json)
+  MinitwitLogger.logger.info({ request: request.request_method, path: request.path_info }.to_json)
   @start_time = Time.now
 
   @user_id = session[:user_id]
   @user = @user_id.nil? ? nil : User.find_by(user_id: @user_id)
 
   Metrics.track_user(@user_id)
-
   if request.path.start_with?("/api/")
     content_type :json
     update_latest(params["latest"])
@@ -48,6 +47,14 @@ def try_parse_json(json)
   JSON.parse(json)
 rescue JSON::ParserError, TypeError
   halt 400, "Invalid JSON body"
+end
+
+def log_event(event_message)
+  MinitwitLogger.logger.info({
+   user: @user_id,
+   endpoint: "#{request.request_method} #{request.path_info}",
+   event: event_message
+  }.to_json)
 end
 
 # Updates 'latest' if it isn't nil or empty.
@@ -159,6 +166,7 @@ end
 # @param [String] password2
 # @return Nil, if user was registered properly. Otherwise, an error message.
 def register_user(username, email, password, password2)
+  log_event("Attempting to register user #{username}")
   if username.to_s.empty?
     "You have to enter a username"
   elsif email.to_s.empty? || !email.include?("@")
@@ -180,6 +188,7 @@ end
 # @param [String] password
 # @return The user's user_id if log-in was a success. Otherwise, an error message.
 def login_user(username, password)
+  log_event("User #{username} attempting to login")
   if username.to_s.empty?
     "You have to enter a username"
   elsif password.to_s.empty?
@@ -199,6 +208,7 @@ end
 # @param [Integer] user_id The user_id of the author of the message.
 # @return Nil, if message was posted properly. Otherwise, an error message.
 def post_message(text, user_id)
+  log_event("Attempting to post a message for user #{user_id}")
   if text.to_s.empty?
     return "You can't post an empty message."
   end
@@ -224,6 +234,7 @@ end
 # @param [String] followee The username of the followee.
 # @return Nil, if user was followed properly. Otherwise, an error message.
 def follow(follower_id, followee)
+  log_event("Attempting to follow user #{followee}")
   followee_user = get_user(followee)
   return "User #{followee} not found" if followee_user.nil?
 
@@ -248,6 +259,7 @@ end
 # @param [String] followee The username of the followee.
 # # @return Nil, if user was unfollowed properly. Otherwise, an error message.
 def unfollow(follower_id, followee)
+  log_event("Attempting to unfollow user #{followee}")
   followee_user = get_user(followee)
   return "User #{followee} not found" if followee_user.nil?
 
@@ -271,14 +283,14 @@ def unfollow(follower_id, followee)
   end
 end
 
-# Gets a list of a given user's followers.
-# @param [String] username The username of the user whose list of foFllowers you wish to see.
-# @param [Integer] limit The max number of followers you wish to see.
-def get_followers(username, limit)
+# Gets a list of whom a given user follows.
+# @param [String] username The username of the user whose follows you wish to see.
+# @param [Integer] limit The max number of follows you wish to see.
+def get_follows(username, limit)
+  log_event("Getting the users that #{params[:username]} follows")
   user_id = get_user_id(username)
 
-  # This finds users who follow the specified user
-  # The users are the 'who_id' in the Follower table where 'whom_id' is our target user
+  # This finds who the user follows
   User.joins("INNER JOIN followers ON users.user_id = followers.who_id")
     .where(followers: {whom_id: user_id})
     .limit(limit)
