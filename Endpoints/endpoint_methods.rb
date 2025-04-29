@@ -51,7 +51,8 @@ end
 
 def log_event(event_message)
   MinitwitLogger.logger.info({
-   user: @user_id,
+   user: if @user_id.nil? -1
+         else @user_id end,
    endpoint: "#{request.request_method} #{request.path_info}",
    event: event_message
   }.to_json)
