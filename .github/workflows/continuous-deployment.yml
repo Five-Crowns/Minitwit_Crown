@@ -66,6 +66,20 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST2: ${{ secrets.SSH_HOST2 }}
 
+      - name: Sync docker-compose.yml to Hot Server
+        run: |
+          rsync -avz -e "ssh -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no" ./docker-compose.yml $SSH_USER@$SSH_HOST2:/minitwit/
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST2: ${{ secrets.SSH_HOST }}
+
+      - name: Sync docker-compose.yml to Standby Server
+        run: |
+          rsync -avz -e "ssh -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no" ./docker-compose.yml $SSH_USER@$SSH_HOST2:/minitwit/
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST2: ${{ secrets.SSH_HOST2 }}
+
       - name: Deploy to hot server
         # Configure the ~./bash_profile and deploy.sh file on the Vagrantfile
         run: >
