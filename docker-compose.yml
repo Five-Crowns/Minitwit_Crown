@@ -1,5 +1,3 @@
-networks:
-  main:
 services:
   app:
     image: ${DOCKER_USERNAME}/minitwitimage
@@ -30,6 +28,7 @@ services:
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor
+    container_name: cadvisor
     ports:
       - "8080:8080"
     networks:
@@ -37,6 +36,7 @@ services:
 
   grafana:
     image: grafana/grafana:10.2.4
+    container_name: grafana
     ports:
       - "3000:3000"
     networks:
@@ -48,5 +48,92 @@ services:
     depends_on:
       - prometheus
 
+  elasticsearch:
+    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    networks:
+      - elastic
+    ports:
+      - ${ES_PORT}:9200
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+
+  kibana:
+    container_name: kibana
+    image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
+    depends_on:
+      - elasticsearch
+    networks:
+      - elastic
+    ports:
+      - ${KIBANA_PORT}:5601
+    volumes:
+      - kibana_data:/usr/share/kibana/data
+    environment:
+      - ELASTICSEARCH_HOSTS=${ELASTIC_HOSTS}
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=${KIBANA_SYSTEM_PASSWORD}
+    healthcheck:
+      test: curl -f http://localhost:5601/api/status || exit 1
+      interval: 10s
+      retries: 20
+
+  kibana-importer:
+    container_name: kibana-importer
+    image: curlimages/curl:8.6.0
+    depends_on:
+      kibana:
+        condition: service_healthy
+    environment:
+      ELASTIC_USER: ${ELASTIC_USER}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+    volumes:
+      - ./kibana/kibana_dashboards.ndjson:/import.ndjson
+    command: >
+      sh -c '
+      echo "Waiting 10s for Kibana to stabilize...";
+      sleep 10;
+      curl -u "$${ELASTIC_USER}:$${ELASTIC_PASSWORD}" -X POST \
+        "http://kibana:5601/api/saved_objects/_import?overwrite=true" \
+        -H "kbn-xsrf: true" \
+        --form file=@/import.ndjson;
+      echo "Import completed!"
+      '
+    networks:
+      - elastic
+
+  filebeat:
+    container_name: filebeat
+    image: docker.elastic.co/beats/filebeat:${STACK_VERSION}
+    depends_on:
+      - elasticsearch
+    networks:
+      - main
+      - elastic
+    user: root
+    volumes:
+      - filebeat_data:/usr/share/filebeat/data
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - ELASTIC_USER=${ELASTIC_USER}
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - ELASTIC_HOSTS=${ELASTIC_HOSTS}
+      - KIBANA_HOSTS=${KIBANA_HOSTS}
+    command: [ "--strict.perms=false" ]
+
+networks:
+  main:
+  elastic:
+    driver: bridge
+
 volumes:
   grafana_data:
+  elasticsearch_data:
+  kibana_data:
+  filebeat_data:

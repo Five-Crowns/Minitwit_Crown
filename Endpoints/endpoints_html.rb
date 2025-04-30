@@ -34,9 +34,11 @@ post "/login" do
   if response.is_a?(Integer)
     session[:user_id] = response.to_i
     session[:success_message] = "You were logged in"
+    log(:info, "User '#{@username}' successfully logged in")
     redirect to("/")
   else
     @error = response
+    log(:info, "User '#{@username}' failed to log in with error '#{@error}'")
     erb :login, layout: :layout
   end
 end
@@ -54,8 +56,10 @@ post "/register" do
   @error = register_user(@username, @email, params["password"], params["password2"])
   if @error.nil?
     session[:success_message] = "You were successfully registered and can login now"
+    log(:info, "User '#{@username}' successfully registered")
     redirect to("/login")
   else
+    log(:info, "User '#{@username}' failed to register with error '#{@error}'")
     erb :register, layout: :layout
   end
 end
@@ -69,9 +73,11 @@ end
 post "/add_message" do
   halt 401 unless @user
   @error = post_message(params["text"], @user_id)
-  session[:success_message] = if @error.nil?
-    "Your message was recorded"
+  if @error.nil?
+    log(:info, "Posting message")
+    session[:success_message] = "Your message was recorded"
   else
+    log(:info, "Failed to add message with error '#{@error}'")
     @error
   end
   redirect to("/")

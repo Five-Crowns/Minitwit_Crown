@@ -1,0 +1,29 @@
+filebeat.inputs:
+  - type: container
+    paths:
+      - '/var/lib/docker/containers/*/*.log'
+
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      hints.enable: true
+
+processors:
+  - add_docker_metadata: ~
+  - decode_json_fields:
+      fields: [ "message" ]
+      target: "json"
+      overwrite_keys: true
+
+setup.kibana:
+  host: ${KIBANA_HOSTS}
+  username: ${ELASTIC_USER}
+  password: ${ELASTIC_PASSWORD}
+
+output.elasticsearch:
+  hosts: ${ELASTIC_HOSTS}
+  username: ${ELASTIC_USER}
+  password: ${ELASTIC_PASSWORD}
+
+logging.json: true
+logging.metrics.enabled: false

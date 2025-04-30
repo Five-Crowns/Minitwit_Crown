@@ -1,18 +1,13 @@
-networks:
-  main:
-    name: itu-minitwit-network
-
 services:
   app:
-    # image: minitwitimage
+    container_name: minitwit
     build:
       context: .
       dockerfile: Dockerfile.app
-    container_name: minitwit_local
-    networks:
-      - main
     depends_on:
       - itusqlimage
+    networks:
+      - main
     ports:
       - "5000:5000"
     environment:
@@ -21,58 +16,147 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_HOST=itusqlimage
       - POSTGRES_PORT=5432
-    command: >
-      bash -c "sleep 10 && bundle exec rake db:create db:migrate && bundle exec ruby minitwit.rb -o 0.0.0.0"
-      
+    command: bash -c "sleep 10 && bundle exec rake db:create db:migrate && bundle exec ruby minitwit.rb -o 0.0.0.0"
+
   itusqlimage:
     # image: postgresqlimage
+    container_name: database
     build:
       context: .
       dockerfile: Dockerfile.postgresql
-    container_name: minitwit_postgresql
     networks:
       - main
     ports:
-      - '5432:5432'
+      - "5432:5432"
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data  # Persistent Postgres database
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-    volumes:
-      - postgresql_data:/var/lib/postgresql/data  # Persistent Postgres database
 
   prometheus:
-    image: prom/prometheus:latest
     container_name: prometheus
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    image: prom/prometheus:latest
+    depends_on:
+      - app
     networks:
       - main
     ports:
       - "9090:9090"
-    depends_on:
-      - app
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
 
   cadvisor:
+    container_name: cadvisor
     image: gcr.io/cadvisor/cadvisor
+    networks:
+      - main
     ports:
       - "8080:8080"
-    networks:
-      - main
 
   grafana:
+    container_name: grafana
     image: grafana/grafana:10.2.4
-    ports:
-      - "3000:3000"
+    depends_on:
+      - prometheus
     networks:
       - main
+    ports:
+      - "3000:3000"
     volumes:
       - grafana_data:/var/lib/grafana  # Persist dashboards & settings
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
       - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+
+  elasticsearch:
+    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    networks:
+      - elastic
+    ports:
+      - ${ES_PORT}:9200
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+
+  kibana:
+    container_name: kibana
+    image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
     depends_on:
-      - prometheus
+      - elasticsearch
+    networks:
+      - elastic
+    ports:
+      - ${KIBANA_PORT}:5601
+    volumes:
+      - kibana_data:/usr/share/kibana/data
+    environment:
+      - ELASTICSEARCH_HOSTS=${ELASTIC_HOSTS}
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=${KIBANA_SYSTEM_PASSWORD}
+    healthcheck:
+      test: curl -f http://localhost:5601/api/status || exit 1
+      interval: 10s
+      retries: 20
+
+  kibana-importer:
+    container_name: kibana-importer
+    image: curlimages/curl:8.6.0
+    depends_on:
+      kibana:
+        condition: service_healthy
+    environment:
+      ELASTIC_USER: ${ELASTIC_USER}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+    volumes:
+      - ./kibana/kibana_dashboards.ndjson:/import.ndjson
+    command: >
+      sh -c '
+      echo "Waiting 10s for Kibana to stabilize...";
+      sleep 10;
+      curl -u "$${ELASTIC_USER}:$${ELASTIC_PASSWORD}" -X POST \
+        "http://kibana:5601/api/saved_objects/_import?overwrite=true" \
+        -H "kbn-xsrf: true" \
+        --form file=@/import.ndjson;
+      echo "Import completed!"
+      '
+    networks:
+      - elastic
+
+  filebeat:
+    container_name: filebeat
+    image: docker.elastic.co/beats/filebeat:${STACK_VERSION}
+    depends_on:
+      - elasticsearch
+    networks:
+      - main
+      - elastic
+    user: root
+    volumes:
+      - filebeat_data:/usr/share/filebeat/data
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - ELASTIC_USER=${ELASTIC_USER}
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - ELASTIC_HOSTS=${ELASTIC_HOSTS}
+      - KIBANA_HOSTS=${KIBANA_HOSTS}
+    command: [ "--strict.perms=false" ]
+
+networks:
+  main:
+    name: itu-minitwit-network
+  elastic:
+    driver: bridge
 
 volumes:
   postgresql_data:
   grafana_data:
+  elasticsearch_data:
+  kibana_data:
+  filebeat_data:
