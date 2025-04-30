@@ -1,6 +1,5 @@
 services:
   app:
-    # image: minitwitimage
     container_name: minitwit
     build:
       context: .
