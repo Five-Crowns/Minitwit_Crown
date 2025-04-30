@@ -11,8 +11,6 @@ services:
       - main
     ports:
       - "5000:5000"
-    volumes:
-      - minitwit_logs:/app/log
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -142,7 +140,6 @@ services:
     volumes:
       - filebeat_data:/usr/share/filebeat/data
       - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      - minitwit_logs:/app/log:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
@@ -164,4 +161,3 @@ volumes:
   elasticsearch_data:
   kibana_data:
   filebeat_data:
-  minitwit_logs:
