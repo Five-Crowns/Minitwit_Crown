@@ -86,11 +86,13 @@ The underlying system interactions are nearly identical between a user request a
 ### User request
 
 ![](images/user_sequence_diagram.png)  
+
 Sequence diagram of a user request
 
 ### API request 
 
 ![](images/api_sequence_diagram.png) 
+
 Sequence diagram of an API request
 
 ## Current system status 
