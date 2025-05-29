@@ -85,18 +85,18 @@ The underlying system interactions are nearly identical between a user request a
 
 ### User request
 
-![][image2]  
+![](images/user_sequence_diagram.png)  
 Sequence diagram of a user request
 
 ### API request 
 
-![][image3]  
+![](images/api_sequence_diagram.png) 
 Sequence diagram of an API request
 
 ## Current system status 
 
 Analyzing the project using the static analysis tool SonarQube, we get the following:  
-![][image4]  
+![](images/sonarqube_summary.png) 
 The project's main branch is in good health, as it passes the Sonar way quality gate, and scores a rating of “A” in security, reliability, and maintainability.
 
 Rubycritic is also applied via the workflow with a current score of 78,58%. We have mainly focused on SonarQube instead of Rubycritic when taking actions for maintaining quality.
@@ -179,7 +179,9 @@ Runs a single job called \`build\` that can be split into 3 stages:
 ## Monitoring
 
 We instrument our code using the Prometheus client for Ruby, which allows us to expose instrumentation metric primitives through an HTTP interface. These metrics are then scraped and collected by a Prometheus server. The data is then funnelled into Grafana for visualization.  
-Fig: Our Grafana dashboard  
+
+![](images/grafana_dashboard.png) 
+Our Grafana dashboard  
 We monitor:
 
 * The rate of HTTP requests by endpoint, their duration, and packets received for usability metrics  
@@ -203,6 +205,8 @@ The stack aggregates logs in the following manner:
 * Third, ElasticSearch stores and indexes all incoming logs from FileBeat.  
 * Finally, Kibana accesses the logs in ElasticSearch and visualises them on a dashboard.
 
+![](images/kibana.png)
+
 ### Custom logs
 
 While all of our containers generate various logs by themselves, we’re also printing custom logs directly to STDOUT, which is then picked up by FileBeat.
@@ -222,12 +226,12 @@ We could instead have used a fix proposed in UFW-Docker: ([https://github.com/ch
 
 When running Skipfish, an XSS vulnerability was discovered in the input fields of the /login and /register pages of our application. We fixed it by using HTML sanitization (\`h()\`), which prevents special characters from being interpreted as HTML tags. We also ran FeroxBuster, a tool for displaying exposed resources. It found nothing of risk.
 
-![][image5]
+![](images/feroxbuster.png)
 
 **Security matrix**  
 The security matrix was based on reports from Skipfish and ZAP.
 
-![][image6]
+![](images/vulnerabilities.png)
 
 † Likelihood times Impact, see appendix (1)
 
@@ -243,6 +247,7 @@ Vertical scaling has been applied when considering upgrades, as KeepAlived was t
 We took into account whether we had slowed down compared to the other teams by examining if our “latest” was keeping up with others on the simulation website.
 
 The current master and worker droplets have therefore been through 3 iterations:
+![](images/scalability_iterations.png)
 
 ## AI usage
 
@@ -309,3 +314,4 @@ While setting up some of these tools was time-consuming and occasionally frustra
 ## Appendix
 
 1. Risk matrix for security vulnerabilities:
+![](images/risk_matrix.png)
