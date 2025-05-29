@@ -24,12 +24,18 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y pandoc texlive-xetex
+          
+          wget https://github.com/lierdakil/pandoc-crossref/releases/download/v0.3.15.0/pandoc-crossref-linux.tar.xz
+          tar -xf pandoc-crossref-linux.tar.xz
+          sudo mv pandoc-crossref /usr/local/bin/
 
       - name: Build report PDF
         run: |
            pandoc report/report.md \
             --pdf-engine=xelatex \
             --number-sections \
+            --resource-path=report:report/images \
+            -V geometry:margin=0.7in \
             --filter pandoc-crossref \
             --output report/build/BSc_group_b.pdf
 
