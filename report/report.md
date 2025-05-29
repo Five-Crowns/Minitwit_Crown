@@ -1,15 +1,41 @@
-# Group B DevOps Report
+---
+title: Group B DevOps Report
+subtitle: |
+  Course code: BSDSESM1KU
 
-Course code: BSDSESM1KU  
-Date: May 29, 2025
+  Date: May 29, 2025
 
-Bryce Raj Karnikar \- [brka@itu.dk](mailto:brka@itu.dk)  
-Gabriel Noah Fabricius \- [gafa@itu.dk](mailto:gafa@itu.dk)  
-Mathias Niklas Larsen \- [mnla@itu.dk](mailto:mnla@itu.dk)  
-Nikolaj Ho Alsøe \- [nals@itu.dk](mailto:nals@itu.dk)  
-Stine Helena Sørensen \- [sths@itu.dk](mailto:sths@itu.dk)
+  Bryce Raj Karnikar (brka@itu.dk)  
+  Gabriel Noah Fabricius (gafa@itu.dk)  
+  Mathias Niklas Larsen (mnla@itu.dk)  
+  Nikolaj Ho Alsøe (nals@itu.dk)  
+  Stine Helena Sørensen (sths@itu.dk)  
+---
+\newpage
 
-![](images/front_page.png)
+**Table of Contents**
+
+1. [Systems Perspective](#systems-perspective)  
+   1.1 [Design and Architecture](#design-and-architecture)  
+   1.2 [Dependencies and Technologies](#dependencies-and-technologies)  
+   1.3 [Important Interactions of Subsystems](#important-interactions-of-subsystems)  
+   1.4 [Current System Status](#current-system-status)
+
+2. [Process Perspective](#process-perspective)  
+   2.1 [CI/CD](#cicd)  
+   2.2 [Monitoring](#monitoring)  
+   2.3 [Logging](#logging)  
+   2.4 [Security](#security)  
+   2.5 [Scalability](#scalability)  
+   2.6 [AI Usage](#ai-usage)
+
+3. [Reflection Perspective](#reflection-perspective)  
+   3.1 [Evolution and Refactoring](#evolution-and-refactoring)  
+   3.2 [Operation](#operation)  
+   3.3 [Maintenance](#maintenance)  
+   3.4 [DevOps Style](#devops-style)  
+   3.5 [Appendix](#appendix)
+\newpage
 
 # **Systems perspective** 
 
@@ -74,7 +100,6 @@ The DB runs on a separate droplet, which ensures consistent data between the two
 * PostgreSQL \- Production database
 
 **Misc:**
-
 * Shell scripts  
 * SSH
 
