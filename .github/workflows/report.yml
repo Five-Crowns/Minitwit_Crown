@@ -6,6 +6,8 @@ permissions:
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
+    manual: true
 
 jobs:
   build-docs:
