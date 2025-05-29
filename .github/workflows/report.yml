@@ -27,16 +27,16 @@ jobs:
         run: |
           pandoc report/report.md \
             --from=gfm+yaml_metadata_block+pipe_tables \
-            --resource-path=report:report/diagrams/pdf \
+            --resource-path=report:report/images/ \
             -V geometry:margin=0.7in,landscape \
             --pdf-engine=xelatex \
-            --output report/ITU-MiniTwit-Report.pdf
+            --output report/build/BSc_group_b.pdf
 
       - name: Commit & push PDF
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add report/ITU-MiniTwit-Report.pdf
+          git add report/build/BSc_group_b.pdf
           # only commit if the PDF actually changed
-          git diff --cached --exit-code || git commit -m "chore: update ITU-MiniTwit-Report.pdf [skip ci]"
+          git diff --cached --exit-code || git commit -m "chore: update BSc_group_b.pdf [skip ci]"
           git push
