@@ -14,7 +14,7 @@ Stine Helena Sørensen \- [sths@itu.dk](mailto:sths@itu.dk)
 # **Systems perspective** 
 
 ## Design and architecture 
-
+![](images/design_and_architecture.png)
 Deployment architecture for our Minitwit application. Lines indicate dependencies. 
 
 The system consists of two droplets, a master and a worker, which are duplicates of each other. KeepAlived ensures high availability of the two droplets by using heartbeats. 
