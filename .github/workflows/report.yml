@@ -35,7 +35,9 @@ jobs:
             --pdf-engine=xelatex \
             --number-sections \
             --resource-path=report:report/images \
-            -V geometry:margin=1in \
+            -V geometry:margin=1.1in \
+            -V classoption=floatfix \
+            --include-in-header=<(echo '\usepackage{float}\floatplacement{figure}{H}') \
             --filter pandoc-crossref \
             --output report/build/BSc_group_b.pdf
 

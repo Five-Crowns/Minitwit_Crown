@@ -12,7 +12,6 @@ subtitle: |
   Stine Helena Sørensen (sths@itu.dk)  
 ---
 \newpage
-
 **Table of Contents**
 
 1. [Systems Perspective](#systems-perspective)  
@@ -52,36 +51,31 @@ The DB runs on a separate droplet, which ensures consistent data between the two
 
 ## Dependencies and technologies 
 
-**Development:**
-
+**Development:** \newline
 * RubyGems \- Package manager for Ruby  
 * standardrb \- Ensures Ruby code adheres to style and formatting standards.  
 * Rubycritic \- Analyzes code quality and provides maintainability metrics.  
 * SonarQube \- Code quality inspection  
 * Rake \- Tasking running in Ruby
 
-**Web Framework:**
-
+**Web Framework:** \newline
 * Sinatra \- Lightweight web framework   
 * Puma \- HTTP server for Ruby apps  
 * Nginx \- Proxy and TLS certification
 
-**Security:**
-
+**Security:** \newline
 * Skipfish \- Vulnerability scanner for web apps  
 * ZAP \- Vulnerability scanner   
 * dawnscanner \- Performs static application security testing (SAST) for Ruby applications.  
 * FeroxBuster \- Scanner for exposed resources  
 * Bcrypt \- Password hashing
 
-**Infrastructure:**
-
+**Infrastructure:** \newline
 * Digital Ocean \- Cloud provider  
 * KeepAlived \- High availability  
 * Docker \- Containerization
 
-**Monitoring & Logging:**
-
+**Monitoring & Logging:** \newline
 * Prometheus \- Monitoring/metrics collection  
 * Grafana \- Monitoring data visualization  
 * Filebeats \- Log collection and shipping  
@@ -89,17 +83,15 @@ The DB runs on a separate droplet, which ensures consistent data between the two
 * Kibana \- Log data visualization  
 * cAdvisor \- Container resource monitoring
 
-**CI/CD:**
-
+**CI/CD:** \newline
 * Github Actions   
 * Docker compose \- Service orchestration
 
-**Database:** 
-
+**Database:** \newline
 * SQLite \- Development database  
 * PostgreSQL \- Production database
 
-**Misc:**
+**Misc:** \newline
 * Shell scripts  
 * SSH
 
@@ -118,11 +110,14 @@ The underlying system interactions are nearly identical between a user request a
 ## Current system status 
 
 Analyzing the project using the static analysis tool SonarQube, we get the following:  
-![SonarQube overall summary](images/sonarqube_summary.png) 
+
+![SonarQube overall summary](images/sonarqube_summary.png)
+
 The project's main branch is in good health, as it passes the Sonar way quality gate, and scores a rating of “A” in security, reliability, and maintainability.
 
 Rubycritic is also applied via the workflow with a current score of 78,58%. We have mainly focused on SonarQube instead of Rubycritic when taking actions for maintaining quality.
 
+\newpage
 # **Process' perspective**
 
 ## CI/CD
@@ -203,6 +198,7 @@ Runs a single job called \`build\` that can be split into 3 stages:
 We instrument our code using the Prometheus client for Ruby, which allows us to expose instrumentation metric primitives through an HTTP interface. These metrics are then scraped and collected by a Prometheus server. The data is then funnelled into Grafana for visualization.  
 
 ![Grafana dashboard](images/grafana_dashboard.png) 
+
 We monitor:
 
 * The rate of HTTP requests by endpoint, their duration, and packets received for usability metrics  
@@ -268,6 +264,7 @@ Vertical scaling has been applied when considering upgrades, as KeepAlived was t
 We took into account whether we had slowed down compared to the other teams by examining if our “latest” was keeping up with others on the simulation website.
 
 The current master and worker droplets have therefore been through 3 iterations:
+
 ![Upsize diagram](images/scalability_iterations.png)
 
 ## AI usage
@@ -335,4 +332,5 @@ While setting up some of these tools was time-consuming and occasionally frustra
 ## Appendix
 
 1. Risk matrix for security vulnerabilities template followed:
+
 ![](images/risk_matrix.png)
