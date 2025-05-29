@@ -10,30 +10,10 @@ subtitle: |
   Mathias Niklas Larsen (mnla@itu.dk)  
   Nikolaj Ho Alsøe (nals@itu.dk)  
   Stine Helena Sørensen (sths@itu.dk)  
+
+toc: true
+toc-title: "Table of Contents"
 ---
-\newpage
-**Table of Contents**
-
-1. [Systems Perspective](#systems-perspective)  
-   1.1 [Design and Architecture](#design-and-architecture)  
-   1.2 [Dependencies and Technologies](#dependencies-and-technologies)  
-   1.3 [Important Interactions of Subsystems](#important-interactions-of-subsystems)  
-   1.4 [Current System Status](#current-system-status)
-
-2. [Process Perspective](#process-perspective)  
-   2.1 [CI/CD](#cicd)  
-   2.2 [Monitoring](#monitoring)  
-   2.3 [Logging](#logging)  
-   2.4 [Security](#security)  
-   2.5 [Scalability](#scalability)  
-   2.6 [AI Usage](#ai-usage)
-
-3. [Reflection Perspective](#reflection-perspective)  
-   3.1 [Evolution and Refactoring](#evolution-and-refactoring)  
-   3.2 [Operation](#operation)  
-   3.3 [Maintenance](#maintenance)  
-   3.4 [DevOps Style](#devops-style)  
-   3.5 [Appendix](#appendix)
 \newpage
 
 # **Systems perspective** 

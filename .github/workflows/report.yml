@@ -37,6 +37,8 @@ jobs:
             --resource-path=report:report/images \
             -V geometry:margin=1.1in \
             -V classoption=floatfix \
+            --toc \
+            --toc-depth=2 \
             --include-in-header=<(echo '\usepackage{float}\floatplacement{figure}{H}') \
             --filter pandoc-crossref \
             --output report/build/BSc_group_b.pdf
