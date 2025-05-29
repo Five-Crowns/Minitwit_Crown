@@ -25,10 +25,11 @@ jobs:
 
       - name: Build report PDF
         run: |
-          pandoc report/report.md \
+           pandoc report/report.md \
             --from=gfm+yaml_metadata_block+pipe_tables \
             --resource-path=report:report/images/ \
-            -V geometry:margin=0.7in,landscape \
+            -V geometry:margin=0.7in \
+            -V geometry:a4paper \
             --pdf-engine=xelatex \
             --output report/build/BSc_group_b.pdf
 
