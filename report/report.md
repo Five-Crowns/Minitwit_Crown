@@ -3,7 +3,7 @@ title: Group B DevOps Report
 subtitle: |
   Course code: BSDSESM1KU
 
-  Date: May 29, 2025
+  Date: May 30, 2025
 
   Bryce Raj Karnikar (brka@itu.dk)  
   Gabriel Noah Fabricius (gafa@itu.dk)  
@@ -75,6 +75,8 @@ The DB runs on a separate droplet, which ensures consistent data between the two
 * Shell scripts  
 * SSH
 
+
+\newpage
 ## Important interactions of subsystems 
 
 The underlying system interactions are nearly identical between a user request and an api request. The only major difference is whether the HTML handlers or the API handlers will be handling the request, and some correlated differences in logging. Only the data access layer is instrumented, and metrics are therefore updated identically whether handling a user or an api request. 
@@ -87,6 +89,7 @@ The underlying system interactions are nearly identical between a user request a
 
 ![Sequence diagram of an API request](images/api_sequence_diagram.png) 
 
+\newpage
 ## Current system status 
 
 Analyzing the project using the static analysis tool SonarQube, we get the following:  
@@ -108,7 +111,7 @@ Triggered by:
 
 * Pull Requests: Runs on pull requests targeting the main branch.  
 * Push Events: Runs on pushes to the main branch.  
-* Manual Trigger: Can be triggered manually via workflow\_dispatch.
+* Manual Trigger: Can be triggered manually via workflow\_dispatch.\newline
 
 The workflow runs two jobs concurrently:  
 1\. Linting, formatting, and static analysis tools
@@ -136,12 +139,13 @@ The workflow runs two jobs concurrently:
     * Pytest: For API tests.  
     * The script ensures all tests pass before proceeding.
 
+\newpage
 ### Continuous deployment 
 
 Triggered by:
 
 * Push Events: Runs on pushes/releases with tags matching the pattern ‘v\*’ (e.g., v1.0, v20.15.10).  
-* Manual Trigger: Can be triggered manually via workflow\_dispatch.
+* Manual Trigger: Can be triggered manually via workflow\_dispatch. \newline
 
 Runs a single job called \`build\` that can be split into 3 stages:  
 1\. Build and Push Docker Image
@@ -173,6 +177,7 @@ Runs a single job called \`build\` that can be split into 3 stages:
     * Start the updated application (docker compose up \-d).  
   * Repeats the same deployment process on the standby server.
 
+\newpage
 ## Monitoring
 
 We instrument our code using the Prometheus client for Ruby, which allows us to expose instrumentation metric primitives through an HTTP interface. These metrics are then scraped and collected by a Prometheus server. The data is then funnelled into Grafana for visualization.  
@@ -189,6 +194,8 @@ Monitoring response duration allows us to find any endpoint that is failing, whi
 
 Since “users” in the simulator did not have realistic login/out behavior, measuring active users could not be done by counting logged-in users. Instead, the total number of unique users who had sent a request in the last 15 seconds was measured.
 
+
+\newpage
 ## Logging 
 
 Our logging stack is the EFK stack: ElasticSearch, FileBeat, and Kibana. Each of our server droplets (master and worker) has their own instance of an EFK stack.
@@ -214,6 +221,8 @@ We have debug, info, and warn logs that we print.
 * Info is what we use when a request has finished processing, and we print out all its details.  
 * We use warn whenever the program internally tries to find a user that doesn’t exist, or when someone fails to log in, since it could be malicious.
 
+
+\newpage
 ## Security 
 
 We discovered a vulnerability after having run nmap, that our database port was exposed despite setting up a UFW to block all IPs trying to access the port except our app’s IP. This was due to Docker inserting its own rules directly into the ip-tables, thus bypassing the UFW rules.
@@ -262,6 +271,7 @@ It hindered us with:
 * Inaccuracy or misdirection, if the prompts were not good enough  
 * Context limitation, if we did not have enough information
 
+\newpage
 # **Reflection Perspective** 
 
 ## Evolution and Refactoring 
@@ -307,9 +317,10 @@ This streamlined implementation process significantly boosted productivity, enab
 
 While setting up some of these tools was time-consuming and occasionally frustrating, the long-term benefits were undeniable.
 
-## 
 
-## Appendix
+
+\newpage
+# **Appendix**
 
 1. Risk matrix for security vulnerabilities template followed:
 
