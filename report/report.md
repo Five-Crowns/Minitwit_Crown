@@ -1,21 +1,25 @@
-# Group B DevOps Report
+---
+title: Group B DevOps Report
+subtitle: |
+  Course code: BSDSESM1KU
 
-Course code: BSDSESM1KU  
-Date: May 29, 2025
+  Date: May 30, 2025
 
-Bryce Raj Karnikar \- [brka@itu.dk](mailto:brka@itu.dk)  
-Gabriel Noah Fabricius \- [gafa@itu.dk](mailto:gafa@itu.dk)  
-Mathias Niklas Larsen \- [mnla@itu.dk](mailto:mnla@itu.dk)  
-Nikolaj Ho Alsøe \- [nals@itu.dk](mailto:nals@itu.dk)  
-Stine Helena Sørensen \- [sths@itu.dk](mailto:sths@itu.dk)
+  Bryce Raj Karnikar (brka@itu.dk)  
+  Gabriel Noah Fabricius (gafa@itu.dk)  
+  Mathias Niklas Larsen (mnla@itu.dk)  
+  Nikolaj Ho Alsøe (nals@itu.dk)  
+  Stine Helena Sørensen (sths@itu.dk)  
 
-![](images/front_page.png)
+toc: true
+toc-title: "Table of Contents"
+---
+\newpage
 
 # **Systems perspective** 
 
 ## Design and architecture 
-![](images/design_and_architecture.png)
-Deployment architecture for our Minitwit application. Lines indicate dependencies. 
+![Deployment architecture for our Minitwit application. Lines indicate dependencies.](images/design_and_architecture.png)
 
 The system consists of two droplets, a master and a worker, which are duplicates of each other. KeepAlived ensures high availability of the two droplets by using heartbeats. 
 
@@ -27,36 +31,31 @@ The DB runs on a separate droplet, which ensures consistent data between the two
 
 ## Dependencies and technologies 
 
-**Development:**
-
+**Development:** \newline
 * RubyGems \- Package manager for Ruby  
 * standardrb \- Ensures Ruby code adheres to style and formatting standards.  
 * Rubycritic \- Analyzes code quality and provides maintainability metrics.  
 * SonarQube \- Code quality inspection  
 * Rake \- Tasking running in Ruby
 
-**Web Framework:**
-
+**Web Framework:** \newline
 * Sinatra \- Lightweight web framework   
 * Puma \- HTTP server for Ruby apps  
 * Nginx \- Proxy and TLS certification
 
-**Security:**
-
+**Security:** \newline
 * Skipfish \- Vulnerability scanner for web apps  
 * ZAP \- Vulnerability scanner   
 * dawnscanner \- Performs static application security testing (SAST) for Ruby applications.  
 * FeroxBuster \- Scanner for exposed resources  
 * Bcrypt \- Password hashing
 
-**Infrastructure:**
-
+**Infrastructure:** \newline
 * Digital Ocean \- Cloud provider  
 * KeepAlived \- High availability  
 * Docker \- Containerization
 
-**Monitoring & Logging:**
-
+**Monitoring & Logging:** \newline
 * Prometheus \- Monitoring/metrics collection  
 * Grafana \- Monitoring data visualization  
 * Filebeats \- Log collection and shipping  
@@ -64,45 +63,44 @@ The DB runs on a separate droplet, which ensures consistent data between the two
 * Kibana \- Log data visualization  
 * cAdvisor \- Container resource monitoring
 
-**CI/CD:**
-
+**CI/CD:** \newline
 * Github Actions   
 * Docker compose \- Service orchestration
 
-**Database:** 
-
+**Database:** \newline
 * SQLite \- Development database  
 * PostgreSQL \- Production database
 
-**Misc:**
-
+**Misc:** \newline
 * Shell scripts  
 * SSH
 
+
+\newpage
 ## Important interactions of subsystems 
 
 The underlying system interactions are nearly identical between a user request and an api request. The only major difference is whether the HTML handlers or the API handlers will be handling the request, and some correlated differences in logging. Only the data access layer is instrumented, and metrics are therefore updated identically whether handling a user or an api request. 
 
 ### User request
 
-![](images/user_sequence_diagram.png)  
-
-Sequence diagram of a user request
+![Sequence diagram of a user request](images/user_sequence_diagram.png)  
 
 ### API request 
 
-![](images/api_sequence_diagram.png) 
+![Sequence diagram of an API request](images/api_sequence_diagram.png) 
 
-Sequence diagram of an API request
-
+\newpage
 ## Current system status 
 
 Analyzing the project using the static analysis tool SonarQube, we get the following:  
-![](images/sonarqube_summary.png) 
+
+![SonarQube overall summary](images/sonarqube_summary.png)
+
 The project's main branch is in good health, as it passes the Sonar way quality gate, and scores a rating of “A” in security, reliability, and maintainability.
 
 Rubycritic is also applied via the workflow with a current score of 78,58%. We have mainly focused on SonarQube instead of Rubycritic when taking actions for maintaining quality.
 
+\newpage
 # **Process' perspective**
 
 ## CI/CD
@@ -113,7 +111,7 @@ Triggered by:
 
 * Pull Requests: Runs on pull requests targeting the main branch.  
 * Push Events: Runs on pushes to the main branch.  
-* Manual Trigger: Can be triggered manually via workflow\_dispatch.
+* Manual Trigger: Can be triggered manually via workflow\_dispatch.\newline
 
 The workflow runs two jobs concurrently:  
 1\. Linting, formatting, and static analysis tools
@@ -141,12 +139,13 @@ The workflow runs two jobs concurrently:
     * Pytest: For API tests.  
     * The script ensures all tests pass before proceeding.
 
+\newpage
 ### Continuous deployment 
 
 Triggered by:
 
 * Push Events: Runs on pushes/releases with tags matching the pattern ‘v\*’ (e.g., v1.0, v20.15.10).  
-* Manual Trigger: Can be triggered manually via workflow\_dispatch.
+* Manual Trigger: Can be triggered manually via workflow\_dispatch. \newline
 
 Runs a single job called \`build\` that can be split into 3 stages:  
 1\. Build and Push Docker Image
@@ -178,12 +177,13 @@ Runs a single job called \`build\` that can be split into 3 stages:
     * Start the updated application (docker compose up \-d).  
   * Repeats the same deployment process on the standby server.
 
+\newpage
 ## Monitoring
 
 We instrument our code using the Prometheus client for Ruby, which allows us to expose instrumentation metric primitives through an HTTP interface. These metrics are then scraped and collected by a Prometheus server. The data is then funnelled into Grafana for visualization.  
 
-![](images/grafana_dashboard.png) 
-Our Grafana dashboard  
+![Grafana dashboard](images/grafana_dashboard.png) 
+
 We monitor:
 
 * The rate of HTTP requests by endpoint, their duration, and packets received for usability metrics  
@@ -194,6 +194,8 @@ Monitoring response duration allows us to find any endpoint that is failing, whi
 
 Since “users” in the simulator did not have realistic login/out behavior, measuring active users could not be done by counting logged-in users. Instead, the total number of unique users who had sent a request in the last 15 seconds was measured.
 
+
+\newpage
 ## Logging 
 
 Our logging stack is the EFK stack: ElasticSearch, FileBeat, and Kibana. Each of our server droplets (master and worker) has their own instance of an EFK stack.
@@ -207,7 +209,7 @@ The stack aggregates logs in the following manner:
 * Third, ElasticSearch stores and indexes all incoming logs from FileBeat.  
 * Finally, Kibana accesses the logs in ElasticSearch and visualises them on a dashboard.
 
-![](images/kibana.png)
+![Kibana dashboard](images/kibana.png)
 
 ### Custom logs
 
@@ -219,6 +221,8 @@ We have debug, info, and warn logs that we print.
 * Info is what we use when a request has finished processing, and we print out all its details.  
 * We use warn whenever the program internally tries to find a user that doesn’t exist, or when someone fails to log in, since it could be malicious.
 
+
+\newpage
 ## Security 
 
 We discovered a vulnerability after having run nmap, that our database port was exposed despite setting up a UFW to block all IPs trying to access the port except our app’s IP. This was due to Docker inserting its own rules directly into the ip-tables, thus bypassing the UFW rules.
@@ -228,12 +232,12 @@ We could instead have used a fix proposed in UFW-Docker: ([https://github.com/ch
 
 When running Skipfish, an XSS vulnerability was discovered in the input fields of the /login and /register pages of our application. We fixed it by using HTML sanitization (\`h()\`), which prevents special characters from being interpreted as HTML tags. We also ran FeroxBuster, a tool for displaying exposed resources. It found nothing of risk.
 
-![](images/feroxbuster.png)
+![FeroxBuster overview](images/feroxbuster.png)
 
 **Security matrix**  
 The security matrix was based on reports from Skipfish and ZAP.
 
-![](images/vulnerabilities.png)
+![Security matrix](images/vulnerabilities.png)
 
 † Likelihood times Impact, see appendix (1)
 
@@ -249,7 +253,8 @@ Vertical scaling has been applied when considering upgrades, as KeepAlived was t
 We took into account whether we had slowed down compared to the other teams by examining if our “latest” was keeping up with others on the simulation website.
 
 The current master and worker droplets have therefore been through 3 iterations:
-![](images/scalability_iterations.png)
+
+![Upsize diagram](images/scalability_iterations.png)
 
 ## AI usage
 
@@ -266,6 +271,7 @@ It hindered us with:
 * Inaccuracy or misdirection, if the prompts were not good enough  
 * Context limitation, if we did not have enough information
 
+\newpage
 # **Reflection Perspective** 
 
 ## Evolution and Refactoring 
@@ -311,9 +317,11 @@ This streamlined implementation process significantly boosted productivity, enab
 
 While setting up some of these tools was time-consuming and occasionally frustrating, the long-term benefits were undeniable.
 
-## 
 
-## Appendix
 
-1. Risk matrix for security vulnerabilities:
+\newpage
+# **Appendix**
+
+1. Risk matrix for security vulnerabilities template followed:
+
 ![](images/risk_matrix.png)
