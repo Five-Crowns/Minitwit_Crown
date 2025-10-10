@@ -16,7 +16,7 @@ gem "rspec"
 gem "selenium-webdriver"
 gem "rubocop", group: "development", require: false
 gem "securerandom" # For generating random data (already used in the code)
-gem "sinatra", "~> 4.1" # For Sinatra framework
+gem "sinatra", "~> 4.2" # For Sinatra framework
 gem "sinatra-activerecord" # For ActiveRecord ORM
 gem "sinatra-content-for" # For managing content-for (layouts)
 gem "sinatra-contrib" # For Sinatra contributions (helpers, sessions, etc.)
